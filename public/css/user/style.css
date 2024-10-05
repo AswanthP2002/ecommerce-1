@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jost:ital,wght@0,100..900;1,100..900&family=Jura:wght@300..700&family=Krona+One&family=Lexend+Deca:wght@100..900&family=Libre+Caslon+Display&display=swap');
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+:root{
+    --main-color:white;
+    --secondary-color:#f4efef;
+}
+/* Home - Navbar */
+.navbar-brand{
+    font-family: 'Inter', Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 2.4rem;
+    font-weight: bold
+}
+/* Home - Landing Section */
+#landing-section{
+    background-color: var(--secondary-color);
+}
+.page-headings{
+    font-family: 'Lexend Deca', sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 3rem;
+    line-height: 1.2;
+}
+#landing-section .page-intro{
+    font-family: 'Lexend Deca', sans-serif;
+    font-size: .8rem;
+    font-weight: 300;
+}
+#btn-landing-section{
+    background-color: black;
+    color: var(--main-color);
+    display: inline-block;
+    height: 50px;
+    width: 197px;
+    border-radius: 39px;
+    font-weight: bold;
+    padding-top: 10px;
+}
+#img-landing-section{
+    width: 450px;
+}
+#progress-show .count{
+    font-family: 'Lexend Deca', sans-serif;
+    font-weight: 400;
+    font-size: 2rem;
+    
+}
+#progress-show .info{
+    font-family: 'Lexend Deca', sans-serif;
+    font-weight: 300;
+    font-size: .8rem;
+    margin-top: -15px;
+}
+#versase{
+    font-family: 'Lexend Deca', sans-serif;
+    font-weight: bold;
+    font-size: 2.4rem;
+    text-transform: uppercase;
+}
+#zara{
+    font-family: 'Libre Caslon Display', sans-serif;
+    font-weight: 300;
+    font-size: 2.4rem;
+    text-transform: uppercase;
+}
+#gucci{
+    font-family: 'Krona One', sans-serif;
+    font-weight: lighter;
+    font-size: 2.4rem;
+    text-transform: uppercase;
+}
+#prada{
+    font-family: 'Jost', sans-serif;
+    font-weight: 700;
+    font-size: 2.4rem;
+    text-transform: uppercase;
+}
+#calvin-clein{
+    font-family: 'Jura', sans-serif;
+    font-weight: lighter;
+    font-size: 2.4rem;
+    text-transform: lowercase;
+}
+
+/* Signup page */
+
+.content{
+    background-color: var(--secondary-color);
+    max-width: 400px;
+}
+.secondary-h{
+    font-size: 1.8rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+}
+.intro{
+    font-size: .9rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+}
+#signup-btn{
+    background-color: black;
+    color: var(--main-color);
+    display: inline-block;
+    font-weight: bold;
+}
+
+.card-img-container{
+    background-color: var(--secondary-color);
+    height: 300px;
+}
+.checked{
+    color: orange;
+}
+#bg-secondary{
+    background-color: var(--secondary-color);
+}
+.cat-style-col{
+    height: 250px;
+}
+.product-style-label{
+    top: 20px; 
+    left: 20px;
+}
+/* .product-style-cover{
+    top: -30px;
+    right: -70px;
+} */
+ /* styles.css */
+.custom-icon {
+    filter: invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%);
+}
+.review-description{
+    font-size: .850rem;
+}
+#footer-section .footer{
+    background-color: var(--secondary-color);
+    padding-top: 120px;
+}
+.footer{
+    background-color: var(--secondary-color);
+}
+.footer-texts, .shop-info{
+    color: #7a7878;
+}
+footer a{
+    font-size: .900rem;
+    color: #7a7878;
+}
+#product-details-image .pointer-img{
+    max-width: 450px;
+    height: 500px;
+    /* border: 1px solid black; */
+    overflow: hidden;
+    background-color: var(--secondary-color);
+}
+#product-details-image .pointer-img img{
+    width: 500px;
+    height: 500px;
+}
+#product-details-image .images{
+    width: 450px;
+    
+}
+#product-details-image .images .image{
+    width:120px;
+    height: 120px;
+    background-color: var(--secondary-color);
+}
+#product-details-image .images .image img{
+    width: 100px;
+    height: 100px;
+}
+.size-btn{
+    width: 40px;
+    height: 30px;
+    margin-right: 10px;
+}
+.quantity-btn button{
+    width: 35px;
+    height: 35px;
+}
+.quantity-btn input{
+    width: 65px;
+}
+.outline{
+    outline: 2px solid blue;
+}
