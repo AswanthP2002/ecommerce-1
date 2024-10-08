@@ -1,0 +1,20 @@
+<section>
+    <div class="container">
+        <div class="content m-auto p-4">
+            <h4 class="secondary-h">Welcome Back</h4>
+            <p class="intro">Login to your account</p>
+            <form action="/user_login" method="post">
+                <input type="email" class="form-control mb-3" placeholder="email" id="email-user" name="user_email">
+                <input type="password" class="form-control mb-3" placeholder="Password" id="password-user" name="user_password">
+                <p class="text-center">{{message}}</p>
+                <button class="btn form-control mb-3" id="signup-btn" type="submit">Login</button>
+                <p class="text-center">Or continue with</p>
+                <div class="sos-auth d-flex justify-content-between gap-3">
+                    <a href="#google" class="btn btn-danger form-control">Google</a>
+                    <a href="" class="btn btn-info form-control">Facebook</a>
+                </div>
+                <p class="info mt-4 text-center">Don't have an account? <a href="/user_signup" class="">Sign up</a></p>
+            </form>
+        </div>
+    </div>
+</section>

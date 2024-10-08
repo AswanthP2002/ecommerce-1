@@ -194,3 +194,10 @@ footer a{
 .outline{
     outline: 2px solid blue;
 }
+.error-message{
+    display: none;
+    color: red;
+    font-size: .850rem;
+    margin-top: -10px;
+    margin-bottom: 5px;
+}

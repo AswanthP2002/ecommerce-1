@@ -1,0 +1,125 @@
+<section>
+    <div class="container">
+        <div class="content m-auto p-4">
+            <label for="" class="text-danger text-center" style="font-size: 0.850rem;">{{message}}</label>
+            <h4 class="secondary-h">Signup</h4>
+            
+            <p class="intro">Create an account so you can order your favorite products easly and quickly</p>
+            <form onsubmit="return validateForm()" action="/user_signup" method="post" id="user_signup_form">
+                <input type="text" class="form-control mb-3" placeholder="Name" id="name-user" name="user_name" required>
+                <label for="" class="error-message" id="error-name"></label>
+                <input type="email" class="form-control mb-3" placeholder="email" id="email-user" name="user_email" required>
+                <label for="" class="error-message" id="error-email"></label>
+                <input type="number" class="form-control mb-3" placeholder="Phone" id="phone-user" name="user_phone" required>
+                <label for="" class="error-message" id="error-phone"></label>
+                <input type="password" class="form-control mb-3" placeholder="Password" id="password-user" name="user_password" required>
+                <label for="" class="error-message" id="error-password"></label>
+                <button class="btn form-control mb-3" id="signup-btn" type="submit">Register Now</button>
+                <p class="text-center">Or continue with</p>
+                <div class="sos-auth d-flex justify-content-between gap-3">
+                    <a href="/auth/google" class="btn btn-danger form-control">Google</a>
+                    <a href="" class="btn btn-info form-control">Facebook</a>
+
+                </div>
+                <p class="info mt-4 text-center">Already have an account? <a href="/user_login" class="">Login</a></p>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+   
+    //accessing the form
+    const signupForm = document.getElementById('user-signup-form')
+
+    //accessing the fields
+    const nameField = document.getElementById('name-user')
+    const emailField = document.getElementById('email-user')
+    const phoneField = document.getElementById('phone-user')
+    const passwordField = document.getElementById('password-user')
+
+    //accessing the error fields
+    const nameError = document.getElementById('error-name')
+    const emailError = document.getElementById('error-email')
+    const phoneError = document.getElementById('error-phone')
+    const passwordError = document.getElementById('error-password')
+
+    //name Error checking function
+    function nameValidation(){
+        const name = nameField.value
+        const pattern = /^[a-zA-Z][a-zA-Z\s]*$/
+        
+        if(name.trim() === ""){
+            nameError.style.display = 'block'
+            nameError.innerHTML = 'Name Can not be Empty'
+        }else if(!pattern.test(name)){
+            nameError.style.display = 'block'
+            nameError.innerHTML = 'Enter a valid name'
+        }else{
+            nameError.style.display = 'none'
+            nameError.innerHTML = ""
+        }
+    }
+
+    //email error checking function
+    function emailValidation(){
+        const email = emailField.value
+        const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if(email.trim() === ""){
+            emailError.style.display = 'block'
+            emailError.innerHTML = 'Email can not be empty'
+        }else if(!pattern.test(email)){
+            emailError.style.display = 'block'
+            emailError.innerHTML = 'Enter a valid Email'
+        }else{
+            emailError.style.display = 'none'
+            emailError.innerHTML = ""
+        }
+
+    }
+
+    //phone number validation function
+    function phoneNumberValidation(){
+        const phone = phoneField.value
+        if(phone.trim() === ""){
+            phoneError.style.display = 'block'
+            phoneError.innerHTML = 'Phone number can not be empty'
+        }else if(phone.length > 10 || phone.length < 10){
+            phoneError.style.display = 'block'
+            phoneError.innerHTML = 'Enter a valid phone number'
+        }else{
+            phoneError.style.display = 'none'
+            phoneError.innerHTML = ""
+        }
+    }
+
+    //password validation
+    function passwordValidation(){
+        const password = passwordField.value
+        const pattern = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+
+        if(password.trim() === ""){
+            passwordError.style.display = 'block'
+            passwordError.innerHTML = 'Password can not be empty'
+        }else if(!pattern.test(password)){
+            passwordError.style.display = 'block'
+            passwordError.innerHTML = 'Password must be atleast 8 characters along with numbers and special characters'
+        }else{
+            passwordError.style.display = 'none'
+            passwordError.innerHTML = ""
+        }
+    }
+
+    nameField.addEventListener('keyup', nameValidation)
+    emailField.addEventListener('keyup', emailValidation)
+    phoneField.addEventListener('keyup', phoneNumberValidation)
+    passwordField.addEventListener('keyup', passwordValidation)
+
+    function validateForm(){
+        if(nameError.innerHTML || emailError.innerHTML || phoneError.innerHTML || passwordError.innerHTML){
+            alert('Fill the form correctly')
+            return false
+        }
+        return true
+    }
+</script>
