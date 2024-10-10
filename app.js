@@ -7,8 +7,10 @@ const session = require('express-session')
 const nocache = require('nocache')
 const passport = require('./config/passport.js')
 const userRouter = require('./routes/userRouter.js')
-const userController = require('./controllers/user/userController.js')
+const adminRouter = require('./routes/adminRouter.js')
+const userController = require('./controllers/userController.js')
 const path = require('path')
+require('./helpers/handlebar-helpers.js')
 
 const app = express()
 
@@ -43,11 +45,13 @@ app.set('view engine', 'hbs')
 
 //routes
 app.use('/', userRouter)
+app.use('/', adminRouter)
 app.use('/test-path', (req, res) => {
-    res.render('user/otp-verification',{
-        layout:false
+    res.render('admin/category', {
+        layout:'admin/main'
     })
 })
+
 
 app.listen(process.env.PORT, (err) => {
     if(!err){

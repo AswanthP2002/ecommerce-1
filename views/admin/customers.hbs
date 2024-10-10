@@ -1,0 +1,59 @@
+<div class="col">
+    <div class="table-responsive">
+        <table class="table table-stripped">
+            <thead>
+                <th>No</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Registered</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                {{#each customers}}
+                <tr>
+                    <td>#</td>
+                    <td>{{this.name}}</td>
+                    <td>{{this.phone}}</td>
+                    <td>{{this.email}}</td>
+                    <td>{{this.createdAt}}</td>
+                    {{#if this.isBlocked}}
+                    <td style="color: red;">Blocked</td>
+                    {{else}}
+                    <td style="color: green;">Active</td>
+                    {{/if}}
+                    <td>
+                        {{#if this.isBlocked}}
+                        <a onclick="return confirm('Are you sure to unblock {{this.name}}')" class="btn btn-info" href="/admin/unblockCustomer?id={{this._id}}">Unblock</a>
+                        {{else}}
+                        <a onclick="return confirm('Are you sure to block {{this.name}}')" class="btn btn-danger" href="/admin/blockCustomer?id={{this._id}}">Block</a>
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {{#if (greaterThan page 1)}}
+            <li class="page-item"><a href="?page={{previousPage page}}" class="page-link">Previous</a></li>
+            {{/if}}
+
+            {{#each (createPagination totalPage)}}
+            <li class="page-item 
+                {{#if (sample this ../page)}}
+                    active
+                {{else}}
+                    inactive
+                {{/if}}">
+                <a href="?page={{this}}" class="page-link">{{this}}</a></li>
+            {{/each}}
+
+            {{#if (lessThan page totalPage)}}
+            <li class="page-item"><a href="?page={{nextPage page}}" class="page-link">Next</a></li>
+            {{/if}}
+        </ul>
+    </nav>
+</div>

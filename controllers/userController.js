@@ -2,7 +2,7 @@ const express = require('express')
 const nodeMailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const env = require('dotenv').config()
-const User = require('../../models/userModel.js')
+const User = require('../models/userModel.js')
 
 //non-route functions ===> generate OTP
 const generateOTP = () => {

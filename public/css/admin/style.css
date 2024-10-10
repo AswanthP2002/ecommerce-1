@@ -1,0 +1,32 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+:root{
+    --body-color:#efeded;
+}
+
+.main-container{
+    background-color: var(--body-color);
+}
+#product-add-container{
+    background-color: var(--body-color);
+}
+ul .nav-link{
+    font-family: 'Inter', sans-serif;
+    font-size: .8rem;
+}
+.user-details input{
+    width: 250px;
+    border: none;
+    background:transparent;
+}
+.index-image{
+    width: 50px;
+    height: 50px;
+}
+.view-modal-images{
+    width: 100px;
+    height: 120px;
+}

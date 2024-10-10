@@ -1,0 +1,143 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<div class="col">
+    {{!-- The heading content will be heere if any --}}
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <form action="/admin/category" method="post" onsubmit="return categoryFormSubmission(event)">
+                        <div>
+                            <label for="">Name</label>
+                            <input type="text" class="form-control" placeholder="Category Name" name="name" id="name" required>
+                            <label for="" class="error-message" id="category-name-error"></label>
+                        </div>
+                        <div>
+                            <label for="">Description</label>
+                            <textarea name="description" id="description" class="form-control" required></textarea>
+                            <label for="" class="error-message" id="category-description-error"></label>
+                        </div>
+                        <button type="submit" class="btn btn-info form-control">Add to Category</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Offer Price</th>
+                            <th>Status</th>
+                            <th>List/unlist</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each categoryData}}
+                        <tr>
+                            <td>{{this.name}}</td>
+                            <td>{{this.description}}</td>
+                            <td>{{this.categoryOffer}}</td>
+                            {{#if this.isListed}}
+                            <td><label for="" class="text-success">Listed</label></td>
+                            <td><a href="#" class="btn btn-warning">Unlist</a></td>
+                            {{else}}
+                            <td><labe class="text-warning">Unlinsted</labe></td>
+                            <td><a href="#" class="btn btn-Success">List</a></td>
+                            {{/if}}
+                            <td><button class="btn btn-info">Edit <i class="fa-solid fa-pencil fs-6"></i></button></td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script>
+
+    const nameError = document.getElementById('category-name-error')
+    const descriptionError = document.getElementById('category-description-error')
+    const categoryName = document.getElementById('name')
+    const categoryDescription = document.getElementById('description')
+
+    function categoryFormSubmission(event){
+        event.preventDefault()
+
+        if(nameError.innerHTML || descriptionError.innerHTML){
+            alert('Fill the fields properly')
+            return false
+        }
+        const name = categoryName.value
+        const description = categoryDescription.value
+
+        fetch('/admin/category', {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify({name:name, description:description})
+        }).then((response) => {
+            return response.json()
+        }).then((data) => {
+            if(data.success){
+                Swal.fire({
+                    title:'Added',
+                    icon:'success',
+                    text:data.message,
+                    showConfirmButton:false,
+                    timer:1500
+                }).then(() => location.reload())
+            }else{
+                Swal.fire({
+                    title:'Duplicate',
+                    icon:'info',
+                    text:data.message,
+                })
+            }
+        }).catch((err) => {
+            Swal.fire({
+                title:'Oops',
+                icon:'error',
+                text:err.error
+            })
+        })
+
+        return true
+
+    }
+
+    function validateName(){
+        const name = categoryName.value
+        const namePattern = /^[a-zA-Z][a-zA-Z\s]*[a-zA-Z]$/
+
+        if(name === ""){
+            nameError.style.color = 'Red'
+            nameError.innerHTML = 'Please provide a name for the category'
+        }else if(!namePattern.test(name)){
+            nameError.style.color = 'Red'
+            nameError.innerHTML = 'Please enter a valide name for the cateory'
+        }else{
+            nameError.innerHTML = ""
+        }
+    }
+
+    function validateDescription(){
+        const description = categoryDescription.value
+
+        if(description === ""){
+            descriptionError.style.color = 'Red'
+            descriptionError.innerHTML = 'Please give a description for the category'
+        }else{
+            descriptionError.innerHTML = ""
+        }
+    }
+
+    categoryName.addEventListener('keyup', validateName)
+    categoryDescription.addEventListener('keyup', validateDescription)
+
+</script>

@@ -31,6 +31,10 @@ const userSchema = new Schema({
         type:Boolean,
         default:false
     },
+    isAdmin:{
+        type:Boolean,
+        default:false
+    },
     cart:[{
         type:Schema.Types.ObjectId,
         ref:'Cart'
@@ -48,7 +52,8 @@ const userSchema = new Schema({
         ref:'Order'
     }],
     createdAt:{
-        type:Date
+        type:Date,
+        default:new Date()
     },
     referalCode:{
         type:String
