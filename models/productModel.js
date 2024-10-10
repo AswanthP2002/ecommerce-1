@@ -20,7 +20,7 @@ const productSchema = new Schema({
         required:true
     },
     variants:[{
-        type:Schema.Types.objectId,
+        type:Schema.Types.ObjectId,
         ref:'Variants'
     }],
     color:{

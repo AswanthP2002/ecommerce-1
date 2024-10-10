@@ -25,3 +25,7 @@ handlebars.registerHelper('createPagination', (totalPages) => {
 handlebars.registerHelper('sample', (number, page) => {
     return number == page
 })
+
+handlebars.registerHelper('offerNill', (offerPrice) => {
+    return offerPrice === 0
+})

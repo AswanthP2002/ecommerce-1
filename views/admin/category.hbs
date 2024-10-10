@@ -29,6 +29,7 @@
                             <th>Name</th>
                             <th>Description</th>
                             <th>Offer Price</th>
+                            <th>Offer</th>
                             <th>Status</th>
                             <th>List/unlist</th>
                             <th>Edit</th>
@@ -40,6 +41,11 @@
                             <td>{{this.name}}</td>
                             <td>{{this.description}}</td>
                             <td>{{this.categoryOffer}}</td>
+                            {{#if (offerNill this.categoryOffer)}}
+                            <td><button class="btn btn-info" onclick="addOffer('{{this._id}}')">Add offer</button></td>
+                            {{else}}
+                            <td><button class="btn btn-info" onclick="removeOffer('{{this._id}}')">Remove Offer</button></td>
+                            {{/if}}
                             {{#if this.isListed}}
                             <td><label for="" class="text-success">Listed</label></td>
                             <td><a href="#" class="btn btn-warning">Unlist</a></td>
@@ -47,7 +53,7 @@
                             <td><labe class="text-warning">Unlinsted</labe></td>
                             <td><a href="#" class="btn btn-Success">List</a></td>
                             {{/if}}
-                            <td><button class="btn btn-info">Edit <i class="fa-solid fa-pencil fs-6"></i></button></td>
+                            <td><button class="btn btn-dark">Edit</button></td>
                         </tr>
                         {{/each}}
                     </tbody>
@@ -140,4 +146,86 @@
     categoryName.addEventListener('keyup', validateName)
     categoryDescription.addEventListener('keyup', validateDescription)
 
+    async function addOffer(categoryId){
+        
+        const {value:amount} = await Swal.fire({
+            title:'Offer in percentage',
+            input:'number',
+            inputLabel:'Percentage',
+            inputPlaceholder:'%'
+        })
+
+        if(amount){
+            try{
+                const response = await fetch('/admin/categoryOffer/add', {
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({
+                    percentage:amount,
+                    id:categoryId
+                })
+            })
+
+            const data = await response.json()
+            if(response.ok && data.status === true){
+                Swal.fire({
+                    title:'Offer Added',
+                    icon:'success',
+                    text:'Offer to the particular category was added successfully'
+                }).then(() => location.reload())
+            }else{
+                Swal.fire({
+                    title:'Failed',
+                    icon:'error',
+                    text:data.message || 'Adding offer failed'
+                })
+            }
+            }catch(err){
+                Swal.fire({
+                    title:'Error',
+                    icon:'error',
+                    text:'An error occured while adding the offer'
+                })
+                console.log(error.message)
+            }
+        }
+    }
+    async function removeOffer(categoryId){
+        try{
+            const response = await fetch('/admin/categoryOffer/remove', {
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({
+                    id:categoryId
+                })
+            })
+
+            const data = await response.json()
+            if(response.ok && data.status === true){
+                Swal.fire({
+                    title:'Offer Removed',
+                    icon:'success',
+                    text:'The offer have been removed'
+                }).then(() => location.reload())
+            }else{
+                Swal.fire({
+                    title:'Failed',
+                    icon:'error',
+                    text:data.message || 'Offer removing failed'
+                })
+            }
+        }catch(err){
+                Swal.fire({
+                    title:'Error',
+                    icon:'error',
+                    text:'An error occured while removing the offer'
+                })
+
+                console.log('error removing offer', err.message)
+        }
+    }
 </script>

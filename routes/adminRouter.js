@@ -21,5 +21,8 @@ router.get('/admin/unblockCustomer', adminAuth, customerController.unblockCustom
 //Admin Category Management
 router.get('/admin/category', adminAuth, categoryController.categoryInfo)
 router.post('/admin/category', adminAuth, categoryController.addCategory)
+router.post('/admin/categoryOffer/add', adminAuth, categoryController.addCategoryOffer)
+router.post('/admin/categoryOffer/remove', adminAuth, categoryController.removeCategoryOffer)
+
 
 module.exports = router
