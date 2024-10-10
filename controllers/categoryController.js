@@ -107,9 +107,33 @@ const removeCategoryOffer = async (req, res) => {
     }
 }
 
+const unlistCategory = async (req, res) => {
+    const categoryId = req.query.id
+    try {
+        await Category.updateOne({_id:categoryId}, {$set:{isListed:false}})
+        return res.redirect('/admin/category')
+    } catch (error) {
+        console.log('Error while ulisting category', error.message)
+        res.redirect('/pageError')
+    }
+}
+
+const listCategory = async (req, res) => {
+    const categoryId = req.query.id
+    try {
+        await Category.updateOne({_id:categoryId}, {$set:{isListed:true}})
+        return res.redirect('/admin/category')
+    } catch (error) {
+        console.log('Error while listing the category ', error.message)
+        res.redirect('/pageError')
+    }
+}
+
 module.exports = {
     categoryInfo,
     addCategory,
     addCategoryOffer,
-    removeCategoryOffer
+    removeCategoryOffer,
+    unlistCategory,
+    listCategory
 }

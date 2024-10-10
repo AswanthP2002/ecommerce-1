@@ -23,6 +23,7 @@ router.get('/admin/category', adminAuth, categoryController.categoryInfo)
 router.post('/admin/category', adminAuth, categoryController.addCategory)
 router.post('/admin/categoryOffer/add', adminAuth, categoryController.addCategoryOffer)
 router.post('/admin/categoryOffer/remove', adminAuth, categoryController.removeCategoryOffer)
-
+router.get('/admin/category/unlist', adminAuth, categoryController.unlistCategory)
+router.get('/admin/category/list', adminAuth, categoryController.listCategory)
 
 module.exports = router

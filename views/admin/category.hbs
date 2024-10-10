@@ -48,10 +48,10 @@
                             {{/if}}
                             {{#if this.isListed}}
                             <td><label for="" class="text-success">Listed</label></td>
-                            <td><a href="#" class="btn btn-warning">Unlist</a></td>
+                            <td><a href="/admin/category/unlist?id={{this._id}}" class="btn btn-warning">Unlist</a></td>
                             {{else}}
                             <td><labe class="text-warning">Unlinsted</labe></td>
-                            <td><a href="#" class="btn btn-Success">List</a></td>
+                            <td><a href="/admin/category/list?id={{this._id}}" class="btn btn-secondary">List</a></td>
                             {{/if}}
                             <td><button class="btn btn-dark">Edit</button></td>
                         </tr>
