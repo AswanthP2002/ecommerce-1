@@ -1,0 +1,279 @@
+<section class="mb-5">
+    
+    {{#if cart}}
+    {{!-- Code if the cart contain items --}}
+    <div class="container">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="" class="text-decoration-none">Cart</a></li>
+        </ul>
+        <h5 class="fw-bold">Your Cart</h5>
+        <div class="container">
+            <div class="row gy-2">
+                <div class="col-md-7">
+                    <div class="card p-3" id="cart-products">
+                        {{#each cart}}
+                        <div class="border-bottom d-flex justify-content-between cart-product pb-3 cart" >
+                            <div class="d-flex gap-3">
+                                <div class="cart-img d-flex align-items-center justify-content-cente">
+                                    <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}"
+                                    alt="" style="max-width: 120px;max-height:120px">
+                                </div>
+                                <div class="price-details lh-1">
+                                    <p class="fw-bold fs-4">{{this.productDetails.productName}}</p>
+                                    <p>Size : {{this.items.size}}</p>
+                                    <p>Color : {{this.productDetails.color}}</p>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <p class="cart-offerPrice fw-bold fs-4 mb-0">₹ {{this.vriantDetails.offerPrice}}</p><span class="cart-regularPrice text-secondary text-decoration-line-through">₹{{this.vriantDetails.regularPrice}}</span>
+                                        {{#if (checkOffer this.productDetails.productOffer)}}
+                                        <label for=""
+                                            class="bg-olive discount-label d-flex justify-content-center align-items-center fw-bold cart-discount">{{this.productDetails.productOffer}}%
+                                        </label>
+                                        {{else}}
+                                        {{#if (checkOffer this.categoryDetails.categoryOffer)}}
+                                        <label for=""
+                                            class="bg-olive discount-label d-flex justify-content-center align-items-center fw-bold cart-discount">{{this.categoryDetails.categoryOffer}}%
+                                        </label>
+                                        {{/if}}
+                                        {{/if}}
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="cart-action d-flex flex-column justify-content-between align-items-end">
+                                <a onclick="removeFromCart('{{this.productDetails._id}}')" href="#"><i class="fa-solid fa-trash"></i></a>
+                                <div class="quantity-btn d-flex align-items-center justify-content-center" data-product="{{this.items.productId}}" data-user="{{this.userId}}">
+                                
+                                    <button type="button" class="quantity-decrease-button btn rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        style="left: 0;">-</button>
+                                    <input class="quantityField" type="number" value="{{this.items.quantity}}" style="text-align: center;" name="productQuantity" readonly>
+                                    <button type="button" class="quantity-increase-button btn rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        style="right: 0;">+</button>
+                                
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="card shadow rounded p-3">
+                        <div class="border-bottom border-secondary">
+                            <h5>Cart Summary</h5>
+                            <div class="d-flex justify-content-between">
+                                <p>Subtotal</p><span id="subTotal" class="fw-bold">{{subTotal}}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>Discount</p><span class="text-success" id="discount" class="fw-bold">{{discountedValue}}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p>Shipping fee</p><span id="shipingFee" class="fw-bold">60</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="mt-3 d-flex justify-content-between">
+                                <h5>Grant Total</h5><span id="grantTotal" class="fw-bold">{{grantTotal}}</span>
+                            </div>
+                            {{#if (checkPossitive savedValue)}}
+                            <p class="text-success">You saved Rs.<span id="savedValue">{{savedValue}}</span> here!</p>
+                            {{/if}}
+                            <form action="#" class="d-flex gap-2 mt-3" id="form-promoCode">
+                                <div class="border-0 d-flex gap-3 align-items-center ps-3">
+                                    <i class="fa-solid fa-tag text-secondary" style=""></i>
+                                    <input type="text" name="promoCode" id="promoCode" class="border-0" placeholder="Apply promo code">
+                                </div>
+                                <button type="submit" class="btn btn-dark">Apply</button>
+                            </form>
+                            <button onclick="proceedToCheckout('{{cart.userId}}')" class="btn btn-dark mt-3" id="checkout-button">Proceed to checkout</button>
+                            <a href="/" class="text-primary text-center text-decoration-none d-block mt-2">Continue Shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{else}}
+    <div class="empty-cart min-vh-100 d-flex justify-content-center align-items-center">
+        <img src="images/frontend/empty-cart.png" alt="">
+    </div>
+    {{/if}}
+</section>
+<script>
+
+    //remove item from cart
+    function removeFromCart(productId){
+        Swal.fire({
+            title:'Remove Item',
+            icon:'warning',
+            text:'Are you sure you want to delete the item?',
+            showConfirmButton:true,
+            confirmButtonText:'Remove',
+            showCancelButton:true,
+        }).then((confirmed) => {
+            if(confirmed.isConfirmed){
+                fetch('/cart/remove', {
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify({productId})
+                }).then((response) => {
+                    return response.json()
+                }).then((data) => {
+                    if(data.success){
+                        Swal.fire({
+                            title:'Removed!',
+                            icon:'success',
+                            text:data.message,
+                            showConfirmButton:false,
+                            timer:1500
+                        }).then(() => location.reload())
+                    }
+                }).catch((error) => {
+                    Swal.fire({
+                        title:'Sorry',
+                        icon:'error',
+                        text:error.message,
+                        showConfirmButton:true
+                    })
+                })
+            }
+        })
+    }
+
+    document.querySelectorAll('.quantity-increase-button').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const userId = event.target.parentElement.getAttribute('data-user')
+            const productId = event.target.parentElement.getAttribute('data-product')
+            const quantiField = event.target.parentElement.querySelector('.quantityField')
+            let currentQuantity = Number(quantiField.value)
+            const newQuantity = ++currentQuantity
+            quantiField.value = newQuantity
+            console.log(newQuantity)
+
+            updatePayment()
+            updateQuantityInDb(userId, productId, newQuantity)
+            
+        })
+    })
+
+    document.querySelectorAll('.quantity-decrease-button').forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const userId = event.target.parentElement.getAttribute('data-user')
+            const productId = event.target.parentElement.getAttribute('data-product')
+            //testing
+            console.log('userid', userId)
+            console.log('product', productId)
+            const quantiField = event.target.parentElement.querySelector('.quantityField')
+            let currentQuantity = Number(quantiField.value)
+            let newQuantity
+            if(quantiField.value !== '1'){
+                newQuantity = --currentQuantity
+                quantiField.value = newQuantity
+                console.log(newQuantity)
+            }
+            
+
+            updatePayment()
+            updateQuantityInDb(userId, productId, quantiField.value)
+        })
+    })
+
+    //Dynamically update Payment details in the frontend based on quantity
+    function updatePayment(){
+        
+            let subTotal = 0
+            let discountTotal = 0
+            let shippingFee = 60
+            
+        document.querySelectorAll('.cart').forEach((item) => {
+            
+            const price = Number(item.querySelector('.cart-regularPrice').textContent.replace(/[₹,]/g, '').trim())
+            const quantity = Number(item.querySelector('.quantityField').value)
+            
+            const discountElement = item.querySelector('.cart-discount')
+            let discount = 0
+            if(discountElement){
+                discount = Number(discountElement.textContent.replace(/[₹,%]/, '').trim())
+            }
+            
+            const itemPrice = price * quantity
+            let discountEach = 0
+            if(discount && !isNaN(discount)){
+                discountEach = Math.ceil((price * discount) / 100) * quantity
+            }
+
+            subTotal += itemPrice
+            discountTotal += discountEach || 0 
+
+        })
+
+        const grantTotal = (subTotal + shippingFee) - discountTotal
+
+        //updating the UI based on the calculations
+        document.getElementById('subTotal').textContent = subTotal
+        document.getElementById('discount').textContent = discountTotal
+        document.getElementById('grantTotal').textContent = grantTotal
+        
+
+        if(subTotal > grantTotal){
+            document.getElementById('savedValue').textContent = subTotal - grantTotal
+        }
+    }
+
+    function updateQuantityInDb(userId, productId, quantity){
+        fetch('/cart/quantity/update', {
+            method:'POST',
+            headers:{
+               'content-type':'application/json'
+            },
+            body:JSON.stringify({userId, productId, quantity})
+        }).then(respnose => respnose.json())
+          .then((data) => {
+            console.log('product quantity updated successfully')
+          })
+          .catch((error) => {
+            Swal.fire({
+                title:'Try Again',
+                icon:'Error',
+                text:error.message,
+                showConfirmButton:true
+            })
+          })
+    }
+    
+    function proceedToCheckout(userId){
+        //checking flow
+        console.log('function invoked')
+        console.log(userId)
+        //geting payment details
+        const subTotal = document.getElementById('subTotal').textContent
+        const grantTotal = document.getElementById('grantTotal').textContent
+        const discount = document.getElementById('discount').textContent
+
+        //sending data to bakend
+        fetch(`/checkout?user=${userId}`, {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify({subTotal, grantTotal, discount})
+        })
+        .then((response) => {
+            return response.json()
+        })
+        .then((data) => {
+            window.location.href = data.redirectUrl
+        })
+        .catch((error) => {
+            Swal.fire({
+                title:'Something went Wrong!',
+                icon:'error',
+                text:error.message,
+                showCancelButton:true
+            })
+        })
+    }
+    
+</script>

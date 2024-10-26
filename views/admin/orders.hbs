@@ -1,0 +1,101 @@
+<div class="col">
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <th>Order No</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Offer Used</th>
+                <th>Payment Method</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Action</th>
+            </thead>
+            <tbody>
+                {{#each orders}}
+                <tr>
+                    <td>{{this._id}}</td>
+                    <td>{{this.userDetails.name}}</td>
+                    <td>{{formatDate this.date}}</td>
+                    <td></td>
+                    <td></td>
+                    <td>Rs.{{this.finalAmount}}</td>
+                    <td>{{this.status}}</td>
+                    <td>
+                        <select class="d-block mb-2" onchange="updateOrderStatus('{{this._id}}', this.value)">
+                            {{#each ../statuses}}
+                            <option value="{{this}}" {{#ifEquals this ../status}}selected{{/ifEquals}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                        <a href="/admin/orders/view?orderId={{this._id}}" type="button" class="rounded btn btn-dark" style="width: 80px;">View</button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {{#if (greaterThan page 1)}}
+            <li class="page-item"><a href="?page={{previousPage page}}" class="page-link">Previous</a></li>
+            {{/if}}
+
+            {{#each (createPagination totalPage)}}
+            <li class="page-item 
+                {{#if (sample this ../page)}}
+                    active
+                {{else}}
+                    inactive
+                {{/if}}">
+                <a href="?page={{this}}" class="page-link">{{this}}</a></li>
+            {{/each}}
+
+            {{#if (lessThan page totalPage)}}
+            <li class="page-item"><a href="?page={{nextPage page}}" class="page-link">Next</a></li>
+            {{/if}}
+        </ul>
+    </nav>
+</div>
+
+<script>
+
+    function updateOrderStatus(orderId, status){
+        fetch('/admin/orders/update', {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify({orderId, status})
+        })
+        .then((response) => {
+            if(response.ok){
+                return response.json()
+            }
+        })
+        .then((data) => {
+            if(data.success){
+                Swal.fire({
+                    title:'Updated!',
+                    icon:'success',
+                    text:data.message,
+                    showConfirmButton:false,
+                    timer:1600
+                }).then(() => {location.reload()})
+            }else{
+                Swal.fire({
+                    title:'Faild!',
+                    icon:'error',
+                    text:data.message,
+                })
+            }
+        })
+        .catch((error) => {
+            Swal.fire({
+                    title:'Invalid!',
+                    icon:'error',
+                    text:error.message,
+                })
+        })
+    }
+    
+</script>

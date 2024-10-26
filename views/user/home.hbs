@@ -37,25 +37,27 @@
     <div class="container">
         <p class="page-headings mt-5 mb-3 text-center">new arrivals</p>
         <div class="top-list-container row">
+            {{#each products}}
             <div class="card border-0 col-6 col-md-3">
                 <div class="card-body">
-                    <a href="/products/product_details/" class="text-decoration-none">
+                    <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
                         <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
-                        <img src="/images/product-image/" alt="" style="width:300px;height:auto" >
+                        <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt="" style="width:300px;height:300px" >
                     </div>
                     </a>
-                    <p class="name mt-3 fw-bold fs-6">name</p>
-                    <p class="rating lh-1">ratings</p>
+                    <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
+                    <p class="rating lh-1">{{ratingStars this.rating}}</p>
                     <div class="d-flex gap-3">
-                        <p class="of-price fw-bold fs-6"> ₹amount here</p>
-                        <p class="price fw-bold fs-6"> ₹another amount herer</p>
-                        <p class="discount">sample</p>
+                        <p class="of-price fw-bold fs-6">₹{{getVariantPrice this.variantDetails "small" "offerPrice"}}</p>
+                        <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
+                        <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
                     </div>
                     </div>
             </div>
+            {{/each}}
         </div>
         <div class="text-center mt-5">
-            <a href="#" class="btn border border-dark rounded-pill fw-bold px-5">View all</a>
+            <a href="/products" class="btn border border-dark rounded-pill fw-bold px-5">View all</a>
         </div>
     </div>
 </section>
@@ -64,30 +66,34 @@
     <div class="container">
         <p class="page-headings mt-5 mb-3 text-center">Top Selling</p>
         <div class="top-list-container row">
+            {{#each products}}
             <div class="card border-0 col-6 col-md-3">
                 <div class="card-body">
-                    <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
-                        <img src="/images/product-image/" alt="" style="width:300px;height:auto" >
+                    <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
+                        <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
+                        <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt="" style="width:300px;height:300px" >
                     </div>
-                    <p class="name mt-3 fw-bold fs-6">name herer</p>
-                    <p class="rating lh-1">rating here</p>
+                    </a>
+                    <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
+                    <p class="rating lh-1">{{ratingStars this.rating}}</p>
                     <div class="d-flex gap-3">
-                        <p class="of-price fw-bold fs-6"> ₹ Amount here</p>
-                        <p class="price fw-bold fs-6"> ₹</p>
-                        <p class="discount">discount if any</p>
+                        <p class="of-price fw-bold fs-6">₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
+                        <p class="price fs-6 text-decoration-line-through text-secondary"> ₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
+                        <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
                     </div>
                     </div>
             </div>
+            {{/each}}
         </div>
         <div class="text-center mt-5">
-            <a href="#" class="btn border border-dark rounded-pill fw-bold px-5">View all</a>
+            <a href="/products" class="btn border border-dark rounded-pill fw-bold px-5">View all</a>
         </div>
     </div>
 </section>
 
 {{!-- Section style --}}
 <section id="style" class="mt-5 pt-5 pb-5">
-    <div class="container pt-5 text-center pb-5" id="bg-secondary">
+    <div class="container pt-5 text-center pb-5 rounded" id="bg-secondary">
         <p class="page-headings mb-4">browse dress by style</p>
         <div class="row gap-3 justify-content-center">
             <div class="col-12 col-md-4 bg-body rounded cat-style-col position-relative overflow-hidden">
@@ -112,22 +118,24 @@
 {{!-- Our happy customers --}}
 
 <section id="customer-carousel">
-    <div class="container">
+    <div class="container position-relative">
         <div class="carousel slide position-relative" data-bs-ride="carousel" id="review-carousel">
             <h4 class="page-headings mt-5 mb-5">Our Happy Customers</h4>
         <div class="carousel-inner">
-            
-            <div class="carousel-item active">
+            {{#each (chunks reviews 4)}}
+            <div class="carousel-item {{#if @first}} active {{/if}}">
                 <div class="row gap-3 justify-content-center">
-                    <div class="card col-2 border-dark" style="width: 250px;">
-                        <p class="rating">customer rating star</p>
-                        <p class="customer-name fw-bold">customer name</p>
-                        <p class="review-description">description</p>
-                        <p class="date fw-bold">date of the review</p>
+                    {{#each this}}
+                    <div class="card col-2" style="width: 250px;border-color:rgba(108, 108, 108, 0.5)">
+                        <p class="rating">{{ratingStars rating}}</p>
+                        <p class="customer-name fw-bold">{{customerName}} <span class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center p-1" style="width: 15px;height:15px"><i class="fa-solid fa-check" style="color: white;font-size:0.500rem"></i></span></p>
+                        <p class="review-description">{{description}}</p>
+                        <p class="date fw-bold">{{getCallender date}}</p>
                     </div>
-                   
+                    {{/each}}
                 </div>
             </div>
+            {{/each}}
             
         </div>
         <div class="control-container">
@@ -143,5 +151,19 @@
             </a>
         </div>
     </div>
+    <div id="newsLetter" class="bg-dark p-3 position-absolute rounded w-100">
+        <div class="row d-flex align-items-center">
+            <div class="col-md-6">
+                <p class="text-light fs-3 fw-bold">STAY UPTO DATE ABOUT OUR LATES OFFERS</p>
+            </div>
+            <div class="col-md-6">
+                <form action="" class="" id="newsLetter-form">
+                    <input type="email" name="" id="" class="form-control rounded mb-2">
+                    <button type="button" class="bg-light rounded form-control">Subscribe to newsletter</button>
+                </form>
+            </div>
+        </div>
     </div>
+    </div>
+    {{!-- Newsletter --}}
 </section>

@@ -10,13 +10,17 @@ const productSchema = new Schema({
         type:String,
         required:true
     },
-    brand:{
+    sku:{
         type:String,
         required:true   
     },
     category:{
         type:Schema.Types.ObjectId,
         ref:'Category',
+        required:true
+    },
+    style:{
+        type:String,
         required:true
     },
     variants:[{
@@ -42,6 +46,10 @@ const productSchema = new Schema({
     isBlocked:{
         type:Boolean,
         default:false
+    },
+    rating:{
+        type:Number,
+        default:5
     },
     status:{
         type:String,

@@ -1,0 +1,361 @@
+<section>
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a class="text-decoration-none" href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Products</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><a href="" class="text-decoration-none">Product Details</a></li>
+        </ol>
+        <div class="row" data-product="{{json product.variantDetails}}" id="product-details-row">
+            <div class="col-12 col-md-6" id="product-details-image">
+                <div class="pointer-img d-flex align-items-center justify-content-center">
+                    <img class="zoom-img" src="/images/backend/products/{{product.sku}}/{{getImage product.productImage 0}}" alt="">
+                </div>
+                <div class="images d-flex justify-content-between mt-3" id="sub-images">
+                    <div class="image d-flex align-items-center justify-content-center" >
+                        <img id="image1" src="/images/backend/products/{{product.sku}}/{{getImage product.productImage 0}}" alt="">
+                    </div>
+                    <div class="image d-flex align-items-center justify-content-center">
+                        <img id="image2" src="/images/backend/products/{{product.sku}}/{{getImage product.productImage 1}}" alt="">
+                    </div>
+                    <div class="image d-flex align-items-center justify-content-center">
+                        <img id="image3" src="/images/backend/products/{{product.sku}}/{{getImage product.productImage 2}}" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6" id="product-details-image">
+                <p class="productName fw-bold fs-1">{{product.productName}}</p>
+                <p class="fs-5">{{ratingStars product.rating}} <span>{{product.rating}}/5</span></p>
+                <div class="d-flex justify-content-start gap-3 align-items-center">
+                    <p class="product-current-price fs-3 fw-bold mb-0" id="product-details-offPrice">₹ {{getIndex2 product.variantDetails 0 "offerPrice"}}</p>
+                    <p class="text-decoration-line-through text-secondary product-base-price fs-5 fw-bold mb-0" id="product-details-regPrice">₹ {{getIndex2 product.variantDetails 0 "regularPrice"}}</p>
+                    {{#if (checkOffer product.productOffer)}}
+                    <label class="offer-label bg-olive discount-label d-flex align-items-center justify-content-center fw-bold" for="">{{product.productOffer}} %</label>
+                    {{/if}}
+                    {{#if (checkOffer (getIndex2 product.categoryDetails 0 "categoryOffer"))}}
+                    <label  class="offer-label bg-olive discount-label d-flex align-items-center justify-content-center fw-bold" for="">{{getIndex2 product.categoryDetails 0 "categoryOffer"}} %</label>
+                    {{/if}}
+                </div>
+                               
+                <p class="product description mt-4">{{product.productDescription}}</p>
+                <button onclick="changeColor(this)" class="size-btn active-size-btn" id="button-small-size">S</button>
+                <button onclick="changeColor(this)" class="size-btn" id="button-medium-size">M</button>
+                <button onclick="changeColor(this)" class="size-btn" id="button-large-size">L</button>
+                {{#if (getIndex2 product.variantDetails 0 "quantity")}}
+                <p id="stock-status" class="mt-3">Available Stocks : {{getIndex2 product.variantDetails 0 "quantity"}}</p>
+                {{else}}
+                <p class="" id="stock-status">Out of stock</p>
+                {{/if}}
+                <p class="offers mt-3">
+                    <i class="fa-solid fa-tag" style="color: rgb(8, 188, 8);"></i>
+                    <span>Offers If any</span>
+                </p>
+                <form action="/cart/add?product={{product._id}}" method="POST" id="addToCartForm">
+                <div class="d-flex justify-content-start gap-5 mt-4">
+                    {{!-- button for quantity increasing --}}
+                    <div class="quantity-btn d-flex align-items-center justify-content-center" style="">
+                    
+                            <button type="button" class="btn rounded-circle d-inline-flex align-items-center justify-content-center" style="left: 0;" id="quantity-decrease-button">-</button>
+                            <input type="number" value="1" style="text-align: center;" id="quantityField" name="productQuantity" readonly>
+                            <button type="button" class="btn rounded-circle d-inline-flex align-items-center justify-content-center" style="right: 0;" id="quantity-increase-button">+</button>
+                        
+                    </div>
+                    {{!-- button for add to cart --}}
+                    <button type="submit" class="btn form-control bg-dark text-light d-flex justify-content-center align-items-center" id="add-to-cart-button">Add to cart <i class="fa-solid fa-cart-shopping"></i></button>
+                </div>
+                </form>
+                <p class="category-info mt-5">{{getIndex product.categoryDetails}} > {{product.style}} > info</p>
+                <p class="deliver-info mt-4">Delivery & Return Information</p>
+                <form onsubmit="return deliveryInformation(event)" action="" class="d-flex gap-2" id="deliver-info-form">
+                    <input type="text" class="form-control" placeholder="Enter pincode" id="pincode-delivery-info" required>
+                    <button class="btn btn-dark text-light" id="check-delivery-button">
+                        Check
+                        <span id="delivery-info-spinner"> </span>
+                    </button>
+                </form>
+                <label for="" id="check-result-info"></label>
+                
+            </div>
+        </div>
+        <hr>
+        <div id="product-reivews">
+            <p class="fw-bold fs-3 text-center">Rating & Reviews</p>
+            <p class="fw-bold fs-5">All reviews ({{productReviewCount}})</p>
+            <div class="row gy-3">
+                {{#each productReviews}}
+                <div class="col-md-6">
+                    <div class="card border border-secondary p-1">
+                        <div class="card-body">
+                            <p class="rating">{{ratingStars this.rating}}</p>
+                            <p class="customer-name fw-bold">{{this.customerName}} <span
+                                    class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center p-1"
+                                    style="width: 15px;height:15px"><i class="fa-solid fa-check" style="color: white;font-size:0.500rem"></i></span>
+                            </p>
+                            <p class="review-description">{{this.feedback}}</p>
+                            <p class="date fw-bold">Posted on {{formatDate this.date}}</p>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        <hr>
+        <div id="simlar-products">
+            <p class="fw-bold fs-3 text-center">You may also like</p>
+            <div class="row">
+                
+                    {{#each similarProducts}}
+                    <div class="card border-0 col-6 col-md-3 rounded">
+                        <div class="card-body">
+                            <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
+                                <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
+                                    <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt=""
+                                        style="width:300px;height:300px">
+                                </div>
+                            </a>
+                            <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
+                            <p class="rating lh-1">{{ratingStars this.rating}}</p>
+                            <div class="d-flex gap-3">
+                                <p class="of-price fw-bold fs-6">₹{{getVariantPrice this.variantDetails "small" "offerPrice"}}</p>
+                                <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails
+                                    "small" "regularPrice"}}</p>
+                                <span
+                                    class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}}
+                                    %</span>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    const dataContainer = document.getElementById('product-details-row')
+    const data = dataContainer.getAttribute('data-product')
+    console.log('This is data') //testing
+    console.log(JSON.parse(data))
+    const parsedData = JSON.parse(data)
+    console.log('This is parsed data')
+    console.log(data)
+    const [variantSmall, variantMedium, variantLarge] = parsedData
+    console.log(variantLarge)
+    const stockStatusSmall = variantSmall.quantity
+    const stockStatusMedium = variantMedium.quantity
+    const stockStatusLarge = variantLarge.quantity
+
+    const offerPriceFiled = document.getElementById('product-details-offPrice')
+    const regularPriceField = document.getElementById('product-details-regPrice')
+
+    const smallButton = document.getElementById('button-small-size')
+    const mediumButton = document.getElementById('button-medium-size')
+    const largeButton = document.getElementById('button-large-size')
+    const addToCartButton = document.getElementById('add-to-cart-button')
+
+    let selectedSize = 'S'
+
+    const stockStatu = document.getElementById('stock-status')
+    const buttons = document.querySelectorAll('.size-btn')
+
+    let quantity = document.getElementById('quantityField').value
+    const qunatityIncreaseButton = document.getElementById('quantity-increase-button')
+    const quantityDecreaseButton = document.getElementById('quantity-decrease-button')
+    const deliveryInfoSpinner = document.getElementById('delivery-info-spinner')
+
+    if(stockStatusSmall === 0){
+        addToCartButton.disabled = true
+    }
+
+    //functions for buttons
+    smallButton.addEventListener('click', () => {
+        selectedSize = smallButton.textContent
+        if(stockStatusSmall === 0){
+            stockStatu.innerHTML = `Out of stock`
+            stockStatu.style.color = 'Red'
+            addToCartButton.disabled = true
+        }else{
+            stockStatu.innerHTML = `Available stock : ${stockStatusSmall}`
+            addToCartButton.disabled = false
+        }
+
+       offerPriceFiled.innerHTML = '₹ ' + variantSmall.offerPrice
+       regularPriceField.innerHTML = '₹ ' + variantSmall.regularPrice
+    })
+
+    mediumButton.addEventListener('click', () => {
+        selectedSize = mediumButton.textContent
+        if(stockStatusMedium === 0){
+            stockStatu.innerHTML = `Out of stock`
+            stockStatu.style.color = 'Red'
+            addToCartButton.disabled = true
+        }else{
+            stockStatu.innerHTML = `Available stock : ${stockStatusMedium}`
+            stockStatu.style.color = 'Black'
+            addToCartButton.disabled = false
+        }
+
+        offerPriceFiled.innerHTML = '₹ ' + variantMedium.offerPrice
+        regularPriceField.innerHTML = '₹ ' + variantMedium.regularPrice
+    })
+
+    largeButton.addEventListener('click', () => {
+        selectedSize = largeButton.textContent
+        if(stockStatusLarge === 0){
+            stockStatu.innerHTML = `Out of stock`
+            stockStatu.style.color = 'Red'
+            addToCartButton.disabled = true
+        }else{
+            stockStatu.innerHTML = `Available stock : ${stockStatusLarge}`
+            stockStatu.style.color = 'Black'
+            addToCartButton.disabled = false
+        }
+
+       offerPriceFiled.innerHTML = '₹ ' + variantLarge.offerPrice
+       regularPriceField.innerHTML = '₹ ' + variantLarge.regularPrice
+    })
+
+    buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+            
+            buttons.forEach(btn => btn.classList.remove('outline'));
+            button.classList.add('outline')
+        })
+    })
+
+    const zoomContainer = document.querySelector('.pointer-img')
+    const zoomImage = document.querySelector('.zoom-img')
+
+    zoomContainer.addEventListener('mousemove', (e) => {
+        const {left, right, top, bottom, width, height} = zoomContainer.getBoundingClientRect()
+        let x = (e.clientX - left) / width * 100
+        let y = (e.clientY - top) / height * 100
+        zoomImage.style.transformOrigin = `${x}% ${y}%`
+        zoomImage.style.transform = 'scale(1.8)'
+    })
+
+    zoomContainer.addEventListener('mouseleave', (e) => {
+        zoomImage.style.transform = 'scale(1)'
+    })
+
+    const subImage1 = document.getElementById('image1')
+    const subImage2 = document.getElementById('image2')
+    const subImage3 = document.getElementById('image3')
+
+    subImage1.addEventListener('click', (e) => {
+        zoomImage.src = subImage1.src
+    })
+    subImage2.addEventListener('click', (e) => {
+        zoomImage.src = subImage2.src
+    })
+    subImage3.addEventListener('click', (e) => {
+        zoomImage.src = subImage3.src
+    })
+
+    //change button color after clicking (active state)
+
+    function changeColor(clickedButton){
+        const sizeButtons = document.querySelectorAll('.size-btn')
+        sizeButtons.forEach((button) => {
+            button.classList.remove('active-size-btn')
+        })
+
+        clickedButton.classList.add('active-size-btn')
+    }
+
+    //manage the quantity
+    qunatityIncreaseButton.addEventListener('click', () => {
+        quantity++
+        document.getElementById('quantityField').value = quantity
+    })
+    quantityDecreaseButton.addEventListener('click', () => {
+        if(quantity !== 1){
+            quantity--
+            document.getElementById('quantityField').value = quantity
+        }
+        
+    })
+
+    document.getElementById('addToCartForm').addEventListener('submit', function(event){
+        event.preventDefault() //prevent the default submission
+        const currentAction = this.action //get the current action path of the form
+        this.action = `${currentAction}&size=${selectedSize}`
+        console.log(this.action)
+
+        this.submit() //now submit the form
+    })
+
+
+    //check for delivery information
+    function deliveryInformation(event){
+        event.preventDefault()
+        const checkButton = document.getElementById('check-delivery-button')
+        document.getElementById('delivery-info-spinner').classList.add('spinner-border')
+        checkButton.innerHTML = document.getElementById('delivery-info-spinner').outerHTML
+        const info = document.getElementById('check-result-info')
+        const availablePincodes = [
+            "695001", // Thiruvananthapuram
+            "691001", // Kollam
+            "689645", // Pathanamthitta
+            "688001", // Alappuzha
+            "686001", // Kottayam
+            "685601", // Idukki
+            "682011", // Ernakulam
+            "680001", // Thrissur
+            "678001", // Palakkad
+            "676505", // Malappuram
+            "673001", // Kozhikode
+            "673121", // Wayanad
+            "670001", // Kannur
+            "671121"  // Kasargod
+        ]
+        const pincode = document.getElementById('pincode-delivery-info').value
+        setTimeout(() => {
+            deliveryInfoSpinner.classList.remove('spinner-border')
+            checkButton.innerHTML = `check ${deliveryInfoSpinner.outerHTML}`
+            if(availablePincodes.includes(pincode)){
+                info.style.color = 'green'
+                info.style.display = 'block'
+                info.innerHTML = 'Delivery within 4-5 working days'
+            }else{
+                info.style.color = 'red'
+                info.style.display = 'block'
+                info.innerHTML = 'Sorry currently we are not providing delivery here'
+            }
+
+        }, 2500)
+    }
+
+
+    //add to cart
+    /*function addToCart(productId, userId){
+        console.log('The function called successfully')
+        console.log(`Product Id ${productId}`)
+        console.log(`User Id ${userId}`)
+        fetch('/cart/add', {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify({
+                userId:'54654454',
+                id:'56456564565',
+                size:selectedSize,
+                quantity:quantity
+            })
+        }).then((response) => {
+            return response.json()
+        }).then((data) => {
+            if(data.success){
+                window.location.href = data.redirectUrl
+            }
+        }).catch((err) => {
+            Swal.fire({
+                icon:'error',
+                title:'Error',
+                text:err.message,
+                showConfirmButton:true
+            })
+        })
+    }*/
+</script>

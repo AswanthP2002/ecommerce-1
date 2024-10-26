@@ -11,6 +11,8 @@
 :root{
     --main-color:white;
     --secondary-color:#f4efef;
+    --label-color:rgba(255,51,51,0.1);
+    --label-content:rgb(255,51,51);
 }
 /* Home - Navbar */
 .navbar-brand{
@@ -141,10 +143,7 @@
 .review-description{
     font-size: .850rem;
 }
-#footer-section .footer{
-    background-color: var(--secondary-color);
-    padding-top: 120px;
-}
+
 .footer{
     background-color: var(--secondary-color);
 }
@@ -155,17 +154,30 @@ footer a{
     font-size: .900rem;
     color: #7a7878;
 }
+footer .container{
+    padding-top: 120px;
+}
+
 #product-details-image .pointer-img{
     max-width: 450px;
     height: 500px;
     /* border: 1px solid black; */
     overflow: hidden;
+    position: relative;
     background-color: var(--secondary-color);
+    box-shadow: 0 0 6px 1px rgba(149, 149, 149, 0.5);
 }
 #product-details-image .pointer-img img{
-    width: 500px;
-    height: 500px;
+    /* width: 500px;
+    height: 500px; */
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform .2s;
 }
+
 #product-details-image .images{
     width: 450px;
     
@@ -174,22 +186,34 @@ footer a{
     width:120px;
     height: 120px;
     background-color: var(--secondary-color);
+    border: 1px solid rgba(133, 133, 133, 0.5);
 }
 #product-details-image .images .image img{
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 .size-btn{
-    width: 40px;
-    height: 30px;
+    min-width: 40px;
+    height: 40px;
     margin-right: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--secondary-color);
+}
+.quantity-btn{
+    background-color: var(--secondary-color);
+    border-radius: 15px;
+    border: none;
 }
 .quantity-btn button{
     width: 35px;
     height: 35px;
 }
 .quantity-btn input{
-    width: 65px;
+    width: 50px;
+    border: none;
+    background-color: var(--secondary-color);
 }
 .outline{
     outline: 2px solid blue;
@@ -200,4 +224,102 @@ footer a{
     font-size: .850rem;
     margin-top: -10px;
     margin-bottom: 5px;
+}
+.bg-olive{
+    background-color: var(--label-color);
+    color:var(--label-content)
+}
+.active-size-btn{
+    background-color: black;
+    color: white;
+}
+#filter-form{
+    max-width: 300px;
+}
+.discount-label{
+    font-size: .8rem;
+    min-width: 45px;
+    height: 30px;
+    border-radius: 12px;
+}
+#edit-profile-btn{
+    border-radius: 20px;
+    width: 120px;
+}
+#user-profile-icon{
+    width: 80px;
+    height: 80px;
+}
+#user-profile-icon i{
+    font-size: 2rem
+}
+.cart-action-buttons{
+    background-color: var(--secondary-color);
+    border-radius: 15px;
+}
+.cart-action-buttons input{
+    width: fit-content;
+    text-align: center;
+}
+.cart-action-buttons button{
+    height: 35px; 
+    width: 35px;
+}
+#customer-carousel{
+    padding-bottom: 120px;
+}
+#newsLetter{
+    bottom: -180px;
+}
+#add-to-cart-button{
+    border-radius: 15px;
+}
+#delivery-info-form button, input{
+    border-radius: 15px;
+}
+#deliver-info-form input{
+    background-color: var(--secondary-color);
+}
+.spinner-border{
+    height: 25px;
+    width: 25px;
+    color: white;
+}
+#cart-products{
+    border: 1px solid rgb(213, 211, 211);
+    border-radius: 15px;
+}
+#cart-products .cart-product{
+    border-bottom: 1px solid rgb(145, 144, 144);
+}
+.cart-img{
+    background-color: var(--secondary-color);
+    width: 120px;
+    height: auto;
+    max-height: 150px;
+    border-radius: 15px;
+}
+#form-promoCode div{
+    flex-grow: 1;
+}
+#form-promoCode div, input{
+    background-color: var(--secondary-color);
+    border-radius: 20px;
+}
+#form-promoCode button{
+    border-radius: 20px;
+    width: 100px;
+    max-width: 100px;
+}
+#checkout-button{
+    width: 100%;
+    border-radius: 20px;
+}
+.cart-action .fa-trash{
+    color: var(--label-content);
+}
+#order-placed-icon{
+    background-color: var(--secondary-color);
+    width: 3rem;
+    height: 3rem;
 }

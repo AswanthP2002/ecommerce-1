@@ -27,6 +27,43 @@ ul .nav-link{
     height: 50px;
 }
 .view-modal-images{
-    width: 100px;
+    width: 110px;
     height: 120px;
+    cursor: pointer;
+}
+.view-modal-images:hover{
+    transition: .2s all;
+}
+
+#admin-product-list-table th{
+    font-size: .750rem;
+}
+#admin-product-list-table td{
+    font-size: .750rem;
+}
+
+#sample-container{
+    width: 500px;
+    margin: auto;
+}
+.holder{
+    max-width: 500px;
+    border: 1px solid black;
+    padding: 5px 5px;
+
+}
+.previews{
+    border: 1px solid black;
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8f8f8; /* Light grey background */
+}
+.previews img{
+    max-width: 100%;
+    max-height: 100%;
 }

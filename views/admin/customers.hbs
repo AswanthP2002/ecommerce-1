@@ -17,7 +17,7 @@
                     <td>{{this.name}}</td>
                     <td>{{this.phone}}</td>
                     <td>{{this.email}}</td>
-                    <td>{{this.createdAt}}</td>
+                    <td>{{formatDate this.createdAt}}</td>
                     {{#if this.isBlocked}}
                     <td style="color: red;">Blocked</td>
                     {{else}}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" rel="stylesheet">
+</head>
+<style>
+    .container{
+        border: 1px solid black;
+        width: 400px;
+        margin: auto;
+        padding: 0 15px;
+    }
+    .title{
+        text-align: center;
+    }
+    #file-input{
+        display: block;
+        border: 1px solid gray;
+        width: 100%;
+        padding: 5px;
+        border-radius: 6px;
+    }
+    #preview{
+        width: 100%;
+        border: 1px solid gray;
+        height: auto;
+        max-height: 300px;
+        overflow: hidden;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #preview img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    #crop-size{
+        width: 100%;
+    }
+    #buttons{
+        display: flex;
+        justify-content: space-between;
+    }
+    #buttons button{
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+</style>
+<body>
+    
+    <div class="container">
+        <h4 class="title">Image Cropping</h4>
+        <div class="file-input-container">
+            <label for="file-input">Select Image</label>
+            <input type="file" id="file-input">
+        </div>
+        <div>
+            <label for="preview">Image Preview</label>
+            <div id="preview"></div>
+        </div>
+        <div>
+            <label for="crop-size">Crop Size</label>
+            <input type="range" id="crop-size" min="50" max="300" value="200">
+        </div>
+        <div id="buttons">
+            <button id="save-button">Save</button>
+            <button id="clear-button">Clear image</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" integrity="sha512-JyCZjCOZoyeQZSd5+YEAcFgz2fowJ1F1hyJOXgtKu4llIa0KneLcidn5bwfutiehUTiOuK87A986BZJMko0eWQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+        const cropSize = document.getElementById('crop-size');
+        const saveButton = document.getElementById('save-button');
+        const clearButton = document.getElementById('clear-button');
+
+        let cropper = null;
+
+        fileInput.addEventListener('change', (e) => {
+            const uploadedImage = e.target.files[0]; // Save the user-uploaded image
+            const reader = new FileReader(); // For converting the image into a URL for previewing
+
+            reader.onload = (e) => {
+                if (cropper) {
+                    cropper.destroy(); // Destroy any previous cropper instance if it exists
+                }
+
+                preview.innerHTML = ''; // Clear the previous preview
+
+                const image = document.createElement('img'); // Create an image element to store the preview image
+                image.src = e.target.result; // Set the image URL from the uploaded file
+                image.id = 'preview-img'; // Assign an id for the image
+                image.style.maxWidth = '100%'; // Ensure the image fits the parent container
+                preview.appendChild(image); // Append the image to the preview container
+
+                // Initialize the cropper with manual cropping options
+                cropper = new Cropper(image, {
+                    aspectRatio: 1, // 1:1 aspect ratio (square crop)
+                    viewMode: 1, // Ensures crop area stays within the image
+                    autoCropArea: 1, // Automatically maximize crop area
+                    movable: true, // Allows moving the image
+                    zoomable: true, // Allows zooming in and out of the image
+                    scalable: true, // Allows scaling (resizing) the image
+                    rotatable: true, // Allows rotating the image
+                    cropBoxResizable: true, // Allows resizing the crop area
+                });
+            };
+
+            reader.readAsDataURL(uploadedImage); // Convert the uploaded image to a data URL for previewing
+        });
+
+        saveButton.addEventListener('click', (e) => {
+            if (cropper) {
+                const size = cropSize.value;
+                const canvas = cropper.getCroppedCanvas({
+                    width: size,
+                    height: size
+                });
+
+                const croppedImage = document.createElement('img');
+                croppedImage.src = canvas.toDataURL(); // Get the cropped image as a Data URL
+                preview.innerHTML = ''; // Clear the previous preview
+                preview.appendChild(croppedImage); // Show the cropped image in the preview
+            }
+        });
+
+        clearButton.addEventListener('click', (e) => {
+            if (cropper) {
+                cropper.destroy(); // Destroy the cropper instance
+            }
+
+            preview.innerHTML = ''; // Clear the preview
+            fileInput.value = ''; // Reset the file input
+        });
+    </script>
+</body>
+</html>

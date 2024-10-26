@@ -1,0 +1,51 @@
+<section>
+    <div class="container">
+    <div class="row">
+    <div class="col-md-4">
+        <div id="filter-form" class="border border-dark">
+            <p class="fs-4 fw-bold">Filter</p>
+            <div class="border border-top">
+                <p>Category</p>
+                {{#each cateogries}}
+                <input type="radio" name="filter-{{this.name}}"><label for="">{{this.name}}</label>
+                {{/each}}
+            </div>
+            <div class="border border-top">
+                <p>Price</p>
+                <input type="number" placeholder="Min" min="0" name="min-price">
+                <input type="number" placeholder="Max" min="0" name="max-price">
+            </div>
+            <div class="border border-top">
+                <p>Color</p>
+                <div class="d-flext">
+                    <div class="rounded-circle" style="width: 30px;height: 30px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="row">
+            {{#each product}}
+            <div class="card border-0 col-6 col-md-4">
+                <div class="card-body">
+                    <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
+                        <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
+                            <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt=""
+                                style="width:300px;height:300px">
+                        </div>
+                    </a>
+                    <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
+                    <p class="rating lh-1">{{ratingStars this.rating}}</p>
+                    <div class="d-flex gap-3">
+                        <p class="of-price fw-bold fs-6">₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
+                        <p class="price fw-bold fs-6"> ₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
+                        <span class="discount-label fw-bold text-light bg-olive d-flex justify-content-center align-items-center">{{this.productOffer}} %</span>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    </div>
+    </div>
+</section>

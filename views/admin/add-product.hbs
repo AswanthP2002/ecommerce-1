@@ -1,0 +1,264 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" integrity="sha512-UtLOu9C7NuThQhuXXrGwx9Jb/z9zPQJctuAgNUBK3Z6kkSYT9wJ+2+dh6klS+TDBCV9kNPBbAxbVD+vCcfGPaA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<div class="col">
+    <div class="container p-md-5">
+        <h3 class="text-dark fw-bold">Add new Product</h3>
+        <div class="shadow-p bg-body rounded p-5">
+            <form action="/admin/product/add" method="post" enctype="multipart/form-data">
+            <h5 class="fw-bold mb-3">Basic Product Details</h5>
+            <div class="row gy-3">
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">Product Name</label>
+                    <input type="text" class="form-control" id="product_name" name="productName">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">Product Category</label>
+                    <select name="productCategory" id="product_category" class="form-control">
+                        <option value="">Select</option>
+                        {{#each categories}}
+                        <option value="{{this.name}}">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label for="" class="fw-bold field-label">Product Description</label>
+                    <textarea name="productDescription" id="product_description" class="form-control"></textarea>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">SKU</label>
+                    <input type="text" id="product_id" name="stockKeepingUnit" class="form-control">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">Product Style</label>
+                    <select name="productStyle" id="product_style" class="form-control">
+                        <option value="">Select</option>
+                        <option value="casual">Casual</option>
+                        <option value="formal">Formal</option>
+                        <option value="party">Party</option>
+                        <option value="sports">Sports</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Image 1</label>
+                    <input type="file" id="product_image_1" name="product_images" class="form-control" disabled>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Image 2</label>
+                    <input type="file" id="product_image_2" name="product_images" class="form-control" disabled>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Image 3</label>
+                    <input type="file" id="product_image_3" name="product_images" class="form-control" disabled>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Color</label>
+                    <input type="text" id="product_color" class="form-control" name="productColor">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Color group</label>
+                    <select name="colorGroup" id="color_group" class="form-control">
+                        <option value="">Select</option>
+                        <option value="green">Green</option>
+                        <option value="red">Red</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="orange">Orange</option>
+                        <option value="blue">Blue</option>
+                        <option value="dark-blue">Dark Blue</option>
+                        <option value="purple">Purple</option>
+                        <option value="indigo">Indigo</option>
+                        <option value="white">White</option>
+                        <option value="black">Black</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">product status</label>
+                    <select name="productStatus" id="product_status" class="form-control">
+                        <option value="">Select</option>
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <hr>
+                <h5 class="fw-bold mb-3">Product Variant Details</h5>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product size</label>
+                    <input type="text" id="product_size" class="bg-light form-control" name="productSizeSmall" value="Small" readonly>
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product Price</label>
+                    <input type="number" class="form-control" name="productPriceSmall" id="product_price">
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Quantity</label>
+                    <input type="number" id="stock_quantity" name="stockQuantitySmall" class="form-control">
+                </div>
+
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product size</label>
+                    <input type="text" id="product_size" class="bg-light form-control" name="productSizeMedium" value="Medium" readonly>
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product Price</label>
+                    <input type="number" class="form-control" name="productPriceMedium" id="product_price">
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Quantity</label>
+                    <input type="number" id="stock_quantity" name="stockQuantityMedium" class="form-control">
+                </div>
+
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product size</label>
+                    <input type="text" id="product_size" class="bg-light form-control" name="productSizeLarge" value="Large" readonly>
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product Price</label>
+                    <input type="number" class="form-control" name="productPriceLarge" id="product_price">
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Quantity</label>
+                    <input type="number" id="stock_quantity" name="stockQuantityLarge" class="form-control">
+                </div>
+            </div>
+            {{!-- Testing for imag ecroping --}}
+            <div class="holder mt-2">
+                <div>
+                    <label for="file-input1">Select Image</label>
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input1" name="product_images">
+                </div>
+                <div>
+                    <label for="preview1">Preview</label>
+                    <div id="preview1" class="previews"></div>
+                </div>
+                <div>
+                    <label for="cropSize1">Size</label>
+                    <input class="w-100" type="range" min="50" max="300" value="200" id="cropSize1">
+                </div>
+                <div id="buttons">
+                    <button id="saveButton1" class="btn btn-primary" type="button">Save</button>
+                    <button id="clearButton1" class="btn btn-secondary" type="button">Clear</button>
+                </div>
+            </div>
+            {{!-- Testing for image cropping --}}
+            <div class="holder mt-2">
+                <div>
+                    <label for="file-input2">Select Image</label>
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input2" name="product_images">
+                </div>
+                <div>
+                    <label for="preview2">Preview</label>
+                    <div id="preview2" class="previews"></div>
+                </div>
+                <div>
+                    <label for="cropSize2">Size</label>
+                    <input class="w-100" type="range" min="50" max="300" value="200" id="cropSize2">
+                </div>
+                <div id="buttons">
+                    <button id="saveButton2" class="btn btn-primary" type="button">Save</button>
+                    <button id="clearButton2" class="btn btn-secondary" type="button">Clear</button>
+                </div>
+            </div>
+            {{!-- Testing for image croping --}}
+            <div class="holder mt-2">
+                <div>
+                    <label for="file-input3">Select Image</label>
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input3" name="product_images">
+                </div>
+                <div>
+                    <label for="preview3">Preview</label>
+                    <div id="preview3" class="previews"></div>
+                </div>
+                <div>
+                    <label for="cropSize3">Size</label>
+                    <input class="w-100" type="range" min="50" max="300" value="200" id="cropSize3">
+                </div>
+                <div id="buttons">
+                    <button id="saveButton3" class="btn btn-primary" type="button">Save</button>
+                    <button id="clearButton3" class="btn btn-secondary" type="button">Clear</button>
+                </div>
+            </div>
+            <div class="pt-4">
+                <button class="btn btn-success" type="submit">Add to inventory</button>
+                <a href="/admin/product" class="btn btn-info">Cancel</a>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" integrity="sha512-JyCZjCOZoyeQZSd5+YEAcFgz2fowJ1F1hyJOXgtKu4llIa0KneLcidn5bwfutiehUTiOuK87A986BZJMko0eWQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+
+function setCropper(fileInputId, previewId, cropSizeId, saveButtonId, clearButtonId){
+    const fileInput = document.getElementById(fileInputId)
+    const preview = document.getElementById(previewId)
+    const cropSize = document.getElementById(cropSizeId)
+    const saveButton = document.getElementById(saveButtonId)
+    const clearButton = document.getElementById(clearButtonId)
+
+    let cropper = null
+
+    fileInput.addEventListener('change', (event) => {
+        const uploadedImage = event.target.files[0]
+        const reader = new FileReader()
+
+        reader.onload = (event) => {
+            if(cropper){
+                cropper.destroy()
+            }
+
+            preview.innerHTML = ''
+            const image = document.createElement('img')
+            image.src = event.target.result
+            image.id = 'prd-img1'
+            image.style.maxWidth = '100%'
+            preview.appendChild(image)
+            cropper = new Cropper(image, {
+                aspectRatio:NaN,
+                viewMode:1,
+                autoCropArea:1,
+                movable:true,
+                zoomable:true,
+                scalable:true,
+                rotatable:true,
+                cropBoxResizable:true,
+                background:true
+            })
+
+            console.log('cropper initialized')
+        }
+        reader.readAsDataURL(uploadedImage)
+    })
+
+    saveButton.addEventListener('click', () => {
+        if(cropper){
+            const size = parseInt(cropSize.value)
+            console.log('croping size ', size)
+            const canvas = cropper.getCroppedCanvas({
+                height:size,
+                width:size
+            })
+
+            const croppedImage = document.createElement('img')
+            croppedImage.src = canvas.toDataURL()
+            preview.innerHTML = ''
+            preview.appendChild(croppedImage)
+            console.log('cropped image created')
+            
+        }else{
+            console.log('cropper not initialized')
+        }
+    })
+
+    clearButton.addEventListener('click', () => {
+        if(cropper){
+            cropper.destroy()
+        }
+
+        preview.innerHTML = ''
+        fileInput.value = ''
+    })
+}       
+
+setCropper('file-input1', 'preview1', 'cropSize1', 'saveButton1', 'clearButton1')
+setCropper('file-input2', 'preview2', 'cropSize2', 'saveButton2', 'clearButton2')
+setCropper('file-input3', 'preview3', 'cropSize3', 'saveButton3', 'clearButton3')
+
+</script>

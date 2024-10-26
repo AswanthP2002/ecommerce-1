@@ -1,6 +1,6 @@
-const Category = require('../models/categoryModel')
-const Product = require('../models/productModel')
-const Variant = require('../models/variantModel')
+const Category = require('../../models/categoryModel')
+const Product = require('../../models/productModel')
+const Variant = require('../../models/variantModel')
 
 
 const categoryInfo = async (req, res) => {
@@ -20,11 +20,11 @@ const addCategory = async (req, res) => {
     
     try {
         const {name, description} = req.body
-        console.log('request reached here', name)
+        
         const isExistingCategory = await Category.findOne({name:name})
         if(isExistingCategory){
             console.log('already exists')
-            console.log(isExistingCategory)
+            // console.log(isExistingCategory)
             return res.status(400).json({success:false, message:'Category already exists'})
         }
 
@@ -62,7 +62,7 @@ const addCategoryOffer = async (req, res) => {
             await product.save()
             const variants = await Variant.find({productId:product._id})
             for(let variant of variants){
-                variant.offerPrice = variant.regularPrice
+                variant.offerPrice = Math.floor(variant.regularPrice - ((variant.regularPrice * offerPercentage)/100))
                 variant.save()
             }
         }

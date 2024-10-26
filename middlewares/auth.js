@@ -10,6 +10,9 @@ const userAuth = (req, res, next) => {
                 if(data && !data.isBlocked){
                     next()
                 }else{
+                    req.session.destroy().catch((err) => {
+                        if(err){res.redirect('/pageNotFound')}
+                    })
                     res.redirect('/user_login')
                 }
             })

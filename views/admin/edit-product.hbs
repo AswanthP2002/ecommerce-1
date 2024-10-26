@@ -1,0 +1,131 @@
+<div class="col">
+    <div class="container p-md-5">
+        <h3 class="text-dark fw-bold">Edit Product</h3>
+        <div class="shadow-p bg-body rounded p-5">
+            <form action="/admin/product/edit?id={{product._id}}" method="post" enctype="multipart/form-data">
+            <h5 class="fw-bold mb-3">Basic Product Details</h5>
+            <div class="row gy-3">
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">Product Name</label>
+                    <input type="text" class="form-control" id="product_name" name="productName" value="{{product.productName}}">
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">Product Category</label>
+                    <select name="productCategory" id="product_category" class="form-control">
+                        <option value="{{getIndex product.categoryDetails}}">{{getIndex product.categoryDetails}}</option>
+                        {{#each category}}
+                        <option value="{{this.name}}">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <label for="" class="fw-bold field-label">Product Description</label>
+                    <textarea name="productDescription" id="product_description" class="form-control">{{product.productDescription}}</textarea>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">SKU</label>
+                    <input type="text" id="product_id" name="stockKeepingUnit" class="form-control" value="{{product.sku}}" disabled>
+                </div>
+                <div class="col-12 col-md-6">
+                    <label for="" class="fw-bold field-label">Product Style</label>
+                    <select name="productStyle" id="product_style" class="form-control">
+                        <option value="{{product.style}}">{{product.style}}</option>
+                        <option value="casual">Casual</option>
+                        <option value="formal">Formal</option>
+                        <option value="party">Party</option>
+                        <option value="sports">Sports</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Image 1</label>
+                    <input type="file" id="product_image_1" name="product_images" class="form-control" value="{{product.image1}}" disabled>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Image 2</label>
+                    <input type="file" id="product_image_2" name="product_images" class="form-control" value="{{product.image2}}" disabled>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Image 3</label>
+                    <input type="file" id="product_image_3" name="product_images" class="form-control" value="{{product.image3}}" disabled>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Product Color</label>
+                    <input type="text" id="product_color" class="form-control" name="productColor" value="{{product.color}}">
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">Color group</label>
+                    <select name="colorGroup" id="color_group" class="form-control">
+                        <option value="{{product.colorGroup}}">{{product.colorGroup}}</option>
+                        <option value="green">Green</option>
+                        <option value="red">Red</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="orange">Orange</option>
+                        <option value="blue">Blue</option>
+                        <option value="dark-blue">Dark Blue</option>
+                        <option value="purple">Purple</option>
+                        <option value="indigo">Indigo</option>
+                        <option value="white">White</option>
+                        <option value="black">Black</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label for="" class="fw-bold field-label">product status</label>
+                    <select name="productStatus" id="product_status" class="form-control">
+                        
+                        <option value="{{product.status}}">{{product.status}}</option>
+                        
+                        <option value="false">Available</option>
+                        <option value="false">Out of stock</option>
+                        <option value="true">Discontiued</option>
+                        
+                    </select>
+                </div>
+                <hr>
+                <h5 class="fw-bold mb-3">Product Variant Details</h5>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product size</label>
+                    <input type="text" id="product_size" class="bg-light form-control" name="productSizeSmall" value="Small" readonly>
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product Price</label>
+                    <input type="number" class="form-control" name="productPriceSmall" id="product_price" value="{{getIndex2 product.variantDetails 0 "regularPrice"}}">
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Quantity</label>
+                    <input type="number" id="stock_quantity" name="stockQuantitySmall" class="form-control" value="{{getIndex2 product.variantDetails 0 "quantity"}}">
+                </div>
+
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product size</label>
+                    <input type="text" id="product_size" class="bg-light form-control" name="productSizeMedium" value="Medium" readonly>
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product Price</label>
+                    <input type="number" class="form-control" name="productPriceMedium" id="product_price" value="{{getIndex2 product.variantDetails 1 "regularPrice"}}">
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Quantity</label>
+                    <input type="number" id="stock_quantity" name="stockQuantityMedium" class="form-control" value="{{getIndex2 product.variantDetails 1 "quantity"}}">
+                </div>
+
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product size</label>
+                    <input type="text" id="product_size" class="bg-light form-control" name="productSizeLarge" value="Large" readonly>
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Product Price</label>
+                    <input type="number" class="form-control" name="productPriceLarge" id="product_price" value="{{getIndex2 product.variantDetails 2 "regularPrice"}}">
+                </div>
+                <div class="col-4">
+                    <label for="" class="fw-bold field-label">Quantity</label>
+                    <input type="number" id="stock_quantity" name="stockQuantityLarge" class="form-control" value="{{getIndex2 product.variantDetails 2 "quantity"}}">
+                </div>
+            </div>
+            <div class="pt-4">
+                <button class="btn btn-info" type="submit">Save Changes</button>
+                <a href="/admin/product" class="btn btn-danger">Cancel</a>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>

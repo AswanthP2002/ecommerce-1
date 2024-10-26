@@ -11,6 +11,10 @@ const addressSchema = new Schema({
             type:String,
             require:true
         },
+        building:{
+            type:String,
+            required:true
+        },
         area:{
             type:String,
             require:true

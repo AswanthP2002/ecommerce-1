@@ -1,0 +1,193 @@
+<section id="checkout">
+    <div class="container">
+        <div class="border border-secondary rounded p-4">
+            <div>
+                <p class="fw-bold fs-4">Deliver to</p>
+                
+                <div class="row">
+                    {{#each addressList}}
+                    <div class="col-md-4">
+                        <div class="border border-secondary rounded p-2">
+                            <p>{{this.building}}, {{this.area}}, {{this.city}}, {{this.state}} - {{this.pinCode}}</p>
+                            <input type="radio" name="selectedAddress" id="" value="{{this._id}}">
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+            <div class="mt-3">
+                <p class="fw-bold fs-4">In Pack</p>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Name</th>
+                                <th>Size & Color</th>
+                                <th>Qty (Nos)</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each cart}}
+                            <tr>
+                                <td>
+                                    <div class="d-flex justify-content-center align-items-center bg-secondary" style="width: 80px;">
+                                        <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}" alt="product image" style="width: 80%;">
+                                    </div>
+                                </td>
+                                <td>{{this.productDetails.productName}}</td>
+                                <td>{{this.productDetails.color}} & {{this.vriantDetails.size}}</td>
+                                <td>{{this.items.quantity}}</td>
+                                <td>{{this.vriantDetails.regularPrice}}</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-3">
+                <p class="fs-4 fw-bold">Payment Method</p>
+                <div>
+                    <form action="#" id="paymentForm">
+                        <label>
+                            <input type="radio" name="paymentMethod" value="cod" checked required> Cash on Delivery
+                        </label><br>
+                        <label>
+                            <input type="radio" name="paymentMethod" value="wallet"> Wallet (Balance: ₹1500)
+                        </label><br>
+                        <label>
+                            <input type="radio" name="paymentMethod" value="debitCard"> Debit/Credit Card
+                        </label><br>
+                        <label>
+                            <input type="radio" name="paymentMethod" value="netBanking"> Net Banking
+                        </label><br>
+                        <div class="d-flex justify-content-between">
+                            <p class="fs-3 fw-bold">total payable <span id="payableAmount">{{cartPayment.grantTotal}}</span> <span class="ms-2 fs-5 text-decoration-line-through text-secondary" id="totalAmount">{{cartPayment.subTotal}}</span></p>
+                            <button type="submit" class="btn btn-dark rounded ps-3 pe-3">Continue</button>
+                        </div>
+                        <a href="/cart" class="text-decoration-none text-primary">Return to Cart ></a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="orderConfirmationModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <form action="">
+                        <p>The other contents will come herer</p>
+                        <button type="submit" class="btn btn-dark" id="placeOrder-button">Place Order</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="orderPlacedModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body p-3">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" id="orderPlacedIcon"><i class="fa-solid fa-check" style="color: white;font-size:0.500rem"></i></span>
+                    <p class="text-center fs-4 fw-bold" id="order-confirm-message">t</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button class="btn btn-dark rounded">Orders</button>
+                        <button class="btn btn-secondary rounded">Shop</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+            const orderConfirmModal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'))
+            const orderPlacedModal = new bootstrap.Modal(document.getElementById('orderPlacedModal'))
+            
+            document.getElementById('paymentForm').addEventListener('submit', (event) => {
+                event.preventDefault()
+                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value
+
+                fetch('/payment', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({ paymentMethod })
+                })
+                    .then((response) => {
+                        return response.json()
+                    })
+                    .then((data) => {
+                        Swal.fire({
+                            title: data.title,
+                            icon: 'info',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                            .then(() => {
+                                orderConfirmModal.show()
+                            })
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            title: 'Something Went Wrong!',
+                            icon: 'error',
+                            text: error.message,
+                            showConfirmButton: true
+                        })
+                    })
+            })
+
+            document.getElementById('placeOrder-button').addEventListener('click', async () => {
+                const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value
+                const payableAmount = document.querySelector('#paymentForm #payableAmount').textContent
+                const totalAmount = document.querySelector('#paymentForm #totalAmount').textContent
+
+
+                const orderData = {
+                    paymentMethod:document.querySelector('input[name="paymentMethod"]:checked').value,
+                    selectedAddress:selectedAddress,
+                    totalAmount:Number(totalAmount),
+                    payableAmount:Number(payableAmount),
+                    testing:'order request reached herer4'
+                }
+
+                fetch('/order/proceed', {
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify(orderData)
+                })
+                .then((response) => {
+                    if(response.ok){
+                        return response.json()
+                    }
+                })
+                .then((data) => {
+                    if(data.success){
+                        alert(data.message)
+                        window.location.href = '/'
+                        /*Swal.fire({
+                            icon:'success',
+                            title:'setup success',
+                            showConfirmButton:true,
+                        }).then(() => location.href = '/')*/
+                    }else{
+                        alert('sorry')
+                    }
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon:'error',
+                        title:'error occured'
+                    })
+                })
+                
+            })
+        })
+</script>

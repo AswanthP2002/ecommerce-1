@@ -1,4 +1,4 @@
-const User = require('../models/userModel.js')
+const User = require('../../models/userModel.js')
 const bcrypt = require('bcrypt')
 
 
@@ -26,9 +26,6 @@ const login = async (req, res) => {
             const passwordMatch = await bcrypt.compare(password, admin.password)
             if(passwordMatch){
                 req.session.admin = true
-                // return res.render('admin/dashboard',{
-                //     layout:'admin/main'
-                // })
                 return res.redirect('/admin')
             }else{
                 return res.redirect('/admin/login', {message:'Invalid Password'})

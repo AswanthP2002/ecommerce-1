@@ -8,7 +8,7 @@ const nocache = require('nocache')
 const passport = require('./config/passport.js')
 const userRouter = require('./routes/userRouter.js')
 const adminRouter = require('./routes/adminRouter.js')
-const userController = require('./controllers/userController.js')
+const userController = require('./controllers/user/userController.js')
 const path = require('path')
 require('./helpers/handlebar-helpers.js')
 
