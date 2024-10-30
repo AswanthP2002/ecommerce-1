@@ -323,3 +323,17 @@ footer .container{
     width: 3rem;
     height: 3rem;
 }
+#product-search{
+    background-color: var(--secondary-color);
+    border-radius: 15px;
+    width: 400px;
+    height: 40px;
+    border: none;
+    outline: none;
+}
+#search-results{
+    width: 100%;
+}
+#search-product-container{
+    background: transparent;
+}

@@ -10,17 +10,18 @@
                 <li class="nav-item"><a href="#Man" class="nav-link">Men</a></li>
                 <li class="nav-item"><a href="#women" class="nav-link">Women</a></li>
                 <li class="nav-item"><a href="#wishlist" class="nav-link">Wishlist</a></li>
-                <li class="nav-item ms-0 ms-md-3 postition-relative">
-                    <input type="search" placeholder="Search for products" class="form-control" id="product-search">
+                <li class="nav-item ms-0 ms-md-3 position-relative">
+                    <input type="search" placeholder="Search for products" class="ps-3" id="product-search">
+                    <div id="search-results" style="left: 0;" class="bg-light position-absolute"></div>
                 </li>
             </ul>
             <ul class="nav navbar-nav ms-auto align-items-center gap-3">
-                {{#if user}}
+                {{#if logedUser}}
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">{{user.name}}</a>
+                    <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">{{logedUser.name}}</a>
                     <span class="caret"></span>
                     <ul class="dropdown-menu">
-                        <li><a href="/profile?id={{user._id}}" class="text-decoration-none">Profile</a></li>
+                        <li><a href="/profile?id={{logedUser.id}}" class="text-decoration-none">Profile</a></li>
                         <li><a onclick="logoutUser()" href="#" class="text-decoration-none">Logout</a></li>
                     </ul>
                 </li>
@@ -37,8 +38,68 @@
     </div>
 </nav>
 <script>
+    const search = document.getElementById('product-search')
+    function searchProduct(){
+        const query = search.value.trim()
 
-    
+        if(query === ''){
+            const searchResult = document.getElementById('search-results')
+            searchResult.innerHTML = ''
+            return
+        }
+
+        fetch(`/search?query=${query}`)
+        .then((respnose) => {
+            if(respnose.ok){
+                return respnose.json()
+            }else{
+                alert('something went wrong!')
+            }
+        })
+        .then((data) => {
+            const products = data.products || []
+            const searchResult = document.getElementById('search-results')
+            searchResult.innerHTML = ''
+            if(products.length > 0){
+                products.forEach((product) => {
+                    const productContainer = document.createElement('div')
+                productContainer.classList.add('d-flex', 'gap-3', 'align-items-center')
+                productContainer.id = 'search-product-container'
+                const productImage = document.createElement('img')
+                productImage.src = `/images/backend/products/${product.sku}/${product.productImage[0]}`
+                productImage.style.width = '50px'
+                productImage.style.height = '50px'
+                const item = document.createElement('p')
+                item.style.fontSize = '12px'
+                item.classList.add('mb-0', 'text-secondary')
+                item.textContent = product.productName
+
+                productContainer.appendChild(productImage)
+                productContainer.appendChild(item)
+                
+                const productRedirect = document.createElement('a')
+                productRedirect.href = `/products/product_details/?id=${product._id}`
+                productRedirect.classList.add('text-decoration-none')
+
+                productRedirect.appendChild(productContainer)
+                searchResult.appendChild(productRedirect)
+                })
+            }else{
+                searchResult.innerHTML = `<p>Product Not found</p>`
+            }
+        })
+        console.log(query)
+    }
+    function optimizedSearch(funct, delay){
+        let timer
+        return function(){
+            clearTimeout(timer)
+           timer = setTimeout(() => {
+                funct()
+            }, delay)
+        }
+    }
+    search.onkeyup = optimizedSearch(searchProduct, 300)
 
     function logoutUser(){
         fetch('/user_logout', {

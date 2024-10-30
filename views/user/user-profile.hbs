@@ -79,16 +79,25 @@
                         <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="/profile/address/add?id={{user._id}}" method="post">
-                            <input type="text" class="form-control mt-2" name="name" placeholder="full name" required>
-                            <input type="tel" class="form-control mt-2" name="phone" placeholder="phone" required>
-                            <input type="text" class="form-control mt-2" name="area" placeholder="Road name / Area" required>
-                            <input type="text" class="form-control mt-2" name="building" placeholder="House No./Building name" required>
-                            <input type="text" class="form-control mt-2" name="city" placeholder="City" required>
-                            <input type="text" class="form-control mt-2" name="state" placeholder="State" required>
-                            <input type="number" class="form-control mt-2" name="pinCode" placeholder="Pin code" required>
-                            <button class="btn btn-primary" type="submit">Save</button>
-                            <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                        <form onsubmit="validateAddressAddForm(event, this)" action="/profile/address/add?id={{user._id}}" method="post" id="address-add-form">
+                            <input type="text" class="form-control mt-2" name="name" id="address-add-name" placeholder="full name" required>
+                            <label for="" class="error-message" id="address-add-nameError"></label>
+                            <input type="tel" class="form-control mt-2 mb-2" name="phone" id="address-add-phone" placeholder="phone" required>
+                            <label for="" class="error-message" id="address-add-phoneError"></label>
+                            <input type="text" class="form-control mt-2 mb-2" name="area" id="address-add-area" placeholder="Road name / Area" required>
+                            <label for="" class="error-message" id="address-add-areaError"></label>
+                            <input type="text" class="form-control mt-2 mb-2" name="building" id="address-add-building" placeholder="House No./Building name" required>
+                            <label for="" class="error-message" id="address-add-buildingError"></label>
+                            <input type="text" class="form-control mt-2 mb-2" name="city" id="address-add-city" placeholder="City" required>
+                            <label for="" class="error-message" id="address-add-cityError"></label>
+                            <input type="text" class="form-control mt-2 mb-2" name="state" id="address-add-state" placeholder="State" required>
+                            <label for="" class="error-message" id="address-add-stateError"></label>
+                            <input type="number" class="form-control mt-2 mb-2" name="pinCode" id="address-add-pinCode" placeholder="Pin code" required>
+                            <label for="" class="error-message" id="address-add-pinCodeError"></label>
+                            <div class="d-flex gap-2 mt-3">
+                                <button class="btn btn-primary" type="submit">Save</button>
+                                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -257,5 +266,149 @@
 
         console.log(orders)
     }
+
+
+    const addAddressName = document.getElementById('address-add-name')
+    const addAddressPhone = document.getElementById('address-add-phone')
+    const addAddressArea = document.getElementById('address-add-area')
+    const addAddressBuilding = document.getElementById('address-add-building')
+    const addAddressCity = document.getElementById('address-add-city')
+    const addAddressState = document.getElementById('address-add-state')
+    const addAddressPinCode = document.getElementById('address-add-pinCode')
+    const namePattern = /^[A-za-z\s]+$/
+    const phoneNumberPattern = /^\d{10}$/
+    const pinCodePattern = /^[1-9][0-9]{5}$/
+
+    function setError(element, error, display){
+        const errorLabel = element.nextElementSibling
+        if(errorLabel){
+            errorLabel.innerHTML = error
+            errorLabel.style.color = 'red'
+            errorLabel.style.display = display
+        }
+    }
+    //Advanced method
+    function validateAddressAddForm(event, form){
+        event.preventDefault()
+        let errorExist = 0
+        document.querySelectorAll('.error-message').forEach((errorLabel) => {
+            if(errorLabel.innerHTML){
+                errorExist++
+            }
+        })
+        if(errorExist){
+            alert('Please fill the form correctly')
+            return
+        }
+
+        const formData = new FormData(event.target)
+        const formAction = form.action
+        const formObject = {}
+        formData.forEach((value, key) => {
+            formObject[key] = value
+        })
+        console.log('This is form action while submiting', formAction)
+        console.log('form data', formObject)
+        fetch(formAction, {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify(formObject)
+        })
+        .then((response) => {
+            if(!response.ok){
+                console.log('Something wrong with response')
+                return alert('Something went wrong')
+            }
+
+            return response.json()
+        })
+        .then((data) => {
+            if(data.success){
+                Swal.fire({
+                    title:'Saved',
+                    icon:'Success',
+                    text:data.message,
+                    showConfirmButton:false,
+                    timer:1600
+                }).then(() => location.reload())
+            }else{
+                Swal.fire({
+                    title:'Failed',
+                    icon:'error',
+                    text:data.message,
+                    showCancelButton:true
+                })
+            }
+        })
+        .catch((error) =>{
+            Swal.fire({
+                title:'Error',
+                icon:'error',
+                text:error.message,
+                showCancelButton:true
+            })
+        })
+        //return true
+        
+    }
+    
+    addAddressName.addEventListener('keyup', (e) => {
+         if(addAddressName.value.trim() === ''){
+            setError(addAddressName, 'Name can not be empty', 'block')    
+        }else if(!namePattern.test(addAddressName.value)){
+            setError(addAddressName, 'Numbers and special Characters are not allowed in name', 'block')
+        }else{
+            setError(addAddressName, '', 'none')
+        }
+    })
+    addAddressPhone.addEventListener('keyup', (e) => {
+        if(addAddressPhone.value === ''){
+            setError(addAddressPhone, 'Phone number can not be empty', 'block')
+        }else if(!phoneNumberPattern.test(addAddressPhone.value)){
+            setError(addAddressPhone, 'Enter a valid phone number', 'block')
+        }else{
+            setError(addAddressPhone, '', 'none')
+        }
+    })
+    addAddressArea.addEventListener('keyup', (e) => {
+        if(addAddressArea.value === ''){
+            setError(addAddressArea, 'Provide area/road name', 'block')
+        }else{
+            setError(addAddressArea, '', 'none')
+        }
+    })
+    addAddressBuilding.addEventListener('keyup', (e) => {
+        if(addAddressBuilding.value === ''){
+            setError(addAddressBuilding, 'Provide house/building name', 'block')
+        }else{
+            setError(addAddressBuilding, '', 'none')
+        }
+    })
+    addAddressCity.addEventListener('keyup', (e) => {
+        if(addAddressCity.value === ''){
+            setError(addAddressCity, 'Provide city', 'block')
+        }else{
+            setError(addAddressCity, '', 'none')
+        }
+    })
+    addAddressState.addEventListener('keyup', (e) => {
+        if(addAddressState.value === ''){
+            setError(addAddressState, 'Provide State', 'block')
+        }else{
+            setError(addAddressState, '', 'none')
+        }
+    })
+    addAddressPinCode.addEventListener('keyup', (e) => {
+        if(addAddressPinCode.value === ''){
+            setError(addAddressPinCode, 'Provide Pincode', 'block')
+        }else if(!pinCodePattern.test(addAddressPinCode.value)){
+            setError(addAddressPinCode, 'Enter a valid pincode', 'block')
+        }else{
+            setError(addAddressPinCode, '', 'none')
+        }
+    })
+
 
 </script>

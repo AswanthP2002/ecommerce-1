@@ -10,8 +10,9 @@ const userAuth = (req, res, next) => {
                 if(data && !data.isBlocked){
                     next()
                 }else{
-                    req.session.destroy().catch((err) => {
-                        if(err){res.redirect('/pageNotFound')}
+                    req.session.destroy(error => {
+                        console.log('error occured while session destroying', error)
+                        res.redirect('/pageNotFound')
                     })
                     res.redirect('/user_login')
                 }
@@ -20,8 +21,29 @@ const userAuth = (req, res, next) => {
                 console.log(`User Authentication Error ${error.message}`)
                 res.status(500).send('Internal Server Error')
             })
+    }else if(req.isAuthenticated()){
+        console.log(req.user._id)
+        User.findById(req.user._id)
+            .then(data => {
+                if(data && !data.isBlocked){
+                    next()
+                }else{
+                    req.logout((err) => {
+                        if(err){
+                            console.log('logout Error (passport)', err)
+                            res.redirect('/pageNotFound')
+                        }
+                    })
+                    res.redirect('/user_login')
+                }
+            })
+            .catch((error) => {
+                console.log(`User Authentication Error ${error.message}`)
+                res.status(500).send('Internal Server Error please try again after sometime')
+            })
+
     }else{
-        res.redirect('/user_login')
+        res.redirect('/user_login') //testing
     }    
 }
 

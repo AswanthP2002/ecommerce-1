@@ -5,6 +5,7 @@ const handlebars = require('handlebars')
 const {engine} = require('express-handlebars')
 const session = require('express-session')
 const nocache = require('nocache')
+const flash = require('express-flash')
 const passport = require('./config/passport.js')
 const userRouter = require('./routes/userRouter.js')
 const adminRouter = require('./routes/adminRouter.js')
@@ -30,6 +31,7 @@ app.use(session({
 app.use(nocache())
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(flash())
 
 //seting the view engines
 app.engine('hbs', engine({
@@ -42,7 +44,23 @@ app.engine('hbs', engine({
 }))
 
 app.set('view engine', 'hbs')
-
+//seting a middleware for making user name available for all pages
+app.use((req, res, next) => {
+    if(req.user){
+        console.log('req.user object', req.user)
+        res.locals.logedUser = {id:req.user._id, name:req.user.name}
+    }else if(req.session.user){
+        console.log('traditional user object', req.session.user)
+        res.locals.logedUser = {id:req.session.user, name:req.session.userName}
+    }else{
+        res.locals.logedUser = null
+    }
+    next()
+})
+app.use((req, res, next) => {
+    res.locals.flashMessage = req.flash('error')
+    next()
+})
 //routes
 app.use('/', userRouter)
 app.use('/', adminRouter)

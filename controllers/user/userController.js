@@ -37,9 +37,28 @@ const sendVerificationCode = async (otp, email) => {
         const info = await transport.sendMail({
             from:process.env.NODMAILER_EMAIL,
             to:email,
-            subject:'Shopsy - email verification code',
-            text:`This is your otp ${otp} for signup verification`
-            // html:`<b>This is your email verification code for your signup in shopsy <i>${otp}</i></b>`
+            subject:`Shopy Fashions [${email}] TEC for App Testing`,
+            //text:`This is your otp ${otp} for signup verification`
+            html:`<p>
+            Hello,
+
+You’re receiving this email as part of a test environment for our app, which is currently under development. We're working hard to ensure a seamless and secure experience, and this email is part of the testing process.
+
+Your TEC code is: <b>${otp}</b><br>
+
+<b>Note: If you did not request this code, please disregard this message. This is a test email sent for development purposes only, and no action is required on your part.
+
+Thank you for your understanding and patience as we finalize our app!</b>
+            </p>
+            <footer>
+                <b>This message is part of an application test.<br>
+If you have any questions, please feel free to contact our development team at [developmentshopy1@gmail.com].<br>
+
+Best regards,<br>
+The Development Team</b>
+            </footer>
+`
+            
         })
         // console.log(`OTP Sent to ${email} || ${info.messageId}`)
         return info.messageId
@@ -72,6 +91,7 @@ const pageNotFound = async (req, res) => {
 const productListPage = async (req, res) => {
     try {
         const productDetails = await Product.aggregate([
+
             {$lookup:{
                 from:'variants',
                 localField:'variants',
@@ -83,7 +103,9 @@ const productListPage = async (req, res) => {
                 localField:'category',
                 foreignField:'_id',
                 as:'categoryDetails'
-            }}
+            }},
+            {$unwind:"$categoryDetails"},
+            {$match:{"categoryDetails.isListed":true, isBlocked:false}}
         ])
         res.render('user/product-list', {
             layout:'user/main',
@@ -148,35 +170,66 @@ const productDetails = async (req, res) => {
 //load the user home page
 const loadUserHome = async (req, res) => {
     try {
-        const user = req.session.user
-        if(user){
-            const userData = await User.findOne({_id:user}).lean()
-            // console.log(userData)
-            const productDetails = await Product.aggregate([
-                {$lookup: {
-                    from: 'variants',
-                    localField: 'variants',
-                    foreignField: '_id',
-                    as: 'variantDetails'
-                  }},
-                  {$lookup: {
-                    from: 'categories',
-                    localField: 'category',
-                    foreignField: '_id',
-                    as: 'categoryDetails'
-                  }},
-                  {$limit:4}
-            ])
-            // console.log(productDetails)
-            const reviews = await ServiceReview.find().lean()
-            // console.log(reviews)
-            res.render('user/home',{
-                layout:'user/main',
-                user:userData,
-                products:productDetails,
-                reviews:reviews
-            })
-        }else{
+        // const user = req.session.user
+        // //console.log('passport logined user', req.user)
+        // if(user){
+        //     console.log('session when user exists //', req.session) //testing
+        //     const userData = await User.findOne({_id:user}).lean()
+        //     // console.log(userData)
+        //     const productDetails = await Product.aggregate([
+        //         {$lookup: {
+        //             from: 'variants',
+        //             localField: 'variants',
+        //             foreignField: '_id',
+        //             as: 'variantDetails'
+        //           }},
+        //           {$lookup: {
+        //             from: 'categories',
+        //             localField: 'category',
+        //             foreignField: '_id',
+        //             as: 'categoryDetails'
+        //           }},
+        //           {$limit:4}
+        //     ])
+        //     // console.log(productDetails)
+        //     const reviews = await ServiceReview.find().lean()
+        //     // console.log(reviews)
+        //     res.render('user/home',{
+        //         layout:'user/main',
+        //         user:userData,
+        //         products:productDetails,
+        //         reviews:reviews
+        //     })
+        // }else if(req.user){
+        //     const userData = await User.findOne({_id:req.user._id}).lean()
+        //     const productDetails = await Product.aggregate([
+        //         {$lookup: {
+        //             from: 'variants',
+        //             localField: 'variants',
+        //             foreignField: '_id',
+        //             as: 'variantDetails'
+        //           }},
+        //           {$lookup: {
+        //             from: 'categories',
+        //             localField: 'category',
+        //             foreignField: '_id',
+        //             as: 'categoryDetails'
+        //           }},
+        //           {$limit:4}
+        //     ])
+        //     // console.log(productDetails)
+        //     const reviews = await ServiceReview.find().lean()
+        //     // console.log(reviews)
+        //     res.render('user/home',{
+        //         layout:'user/main',
+        //         user:userData,
+        //         products:productDetails,
+        //         reviews:reviews
+        //     })
+        // }else{
+            
+        // }
+        console.log('session when user dont exists', req.session) //testing
             const productDetails = await Product.aggregate([
                 {$lookup: {
                     from: 'variants',
@@ -200,7 +253,6 @@ const loadUserHome = async (req, res) => {
                 products:productDetails,
                 reviews:reviews
             })
-        }
        
     } catch (error) {
         console.log(`Error occured ${error.message}`)
@@ -263,6 +315,7 @@ const verifyOtp = async (req, res) => {
             await saveUserData.save()
             console.log('user data saved')// testing
             req.session.user = saveUserData._id
+            req.session.userName = saveUserData.name
             console.log('otp matched successfully')
             res.json({success:true, redirectUrl:"/"})
         }else{
@@ -335,6 +388,7 @@ const login = async (req, res) => {
         }
         
         req.session.user = findUser._id
+        req.session.userName = findUser.name
         res.redirect('/')
     } catch (error) {
         console.log(`Error while user login ${error.message}`)
@@ -364,9 +418,11 @@ const logout = async (req, res) => {
 
 const loadUserProfile = async (req, res) => {
     const userId = req.query.id
-    try {
-        if(userId){ //check if the user is loged in or not
-            if(req.session.user){
+    console.log('user id is ', userId) //testing
+    
+    try {  //cleared repeated checking of user // since alredy applied user authentication middleware
+        //if(userId){ //check if the user is loged in or not
+            //if(req.session.user){
                 const userData = await User.findOne({_id:userId}).lean()
                 const address = await Adress.findOne({userId:userId}).lean()
                 const orders = await Order.aggregate([
@@ -392,10 +448,10 @@ const loadUserProfile = async (req, res) => {
                     address:address.address,
                     orders
                 })
-            }else{
-            res.redirect('/user_login') //else redirect user to login
-            }   
-        }
+            //}else{
+            //res.redirect('/user_login') //else redirect user to login
+            //}   
+        //}
     } catch (error) {
         console.log(`Error occured while loading user profile ${error}`)
         return res.redirect('/pageNotFound')
@@ -404,7 +460,9 @@ const loadUserProfile = async (req, res) => {
 
 const userAddressAdd = async (req, res) => {
     const userId = req.query.id
+       
     try {
+        
         const addressDetails = {
             name:req.body.name,
             building:req.body.building,
@@ -420,8 +478,7 @@ const userAddressAdd = async (req, res) => {
         if(addressFind){
             await Adress.updateOne({userId:userId}, {$push:{address:addressDetails}})
             console.log('user address saved successfully if case true')
-            return res.redirect(`/profile?id=${userId}`)
-            //return res.json({success:true, message:'Address saved successfully'})
+            return res.json({success:true, message:'Address saved successfully'})
         }
         
         const userAddress = new Adress({
@@ -431,13 +488,11 @@ const userAddressAdd = async (req, res) => {
 
         await userAddress.save()
         console.log('user address saved successfully if case fails')
-        res.redirect('/profile')
-        //return res.json({success:true, message:'Address saved successfully'})
+        return res.json({success:true, message:'Address saved successfully'})
 
     } catch (error) {
         console.log('An error occured while saving the address', error)
-        res.redirect('/pageNotFound')
-        //return res.status(500).json({success:false, message:'Failed to save Address try again after some time'})
+        return res.status(500).json({success:false, message:'Failed to save Address try again after some time'})
     }
 }
 
@@ -446,9 +501,12 @@ const fetchEditDetails = async (req, res) => {
     try {
         const addressDoc = await Adress.findOne({address:{$elemMatch:{_id:addressId}}})
         const addressArray = addressDoc.address
+        console.log('full address list', addressArray)
         const editableAddress = addressArray.find((address) => {
-            return address._id = new mongoose.Types.ObjectId(addressId)
+            return address._id == addressId
         })
+        console.log('request address id', addressId)
+        console.log('Editable address', editableAddress)
 
         return res.json({success:true, editableAddress})
     } catch (error) {
@@ -459,13 +517,24 @@ const fetchEditDetails = async (req, res) => {
 
 const userAddressEdit = async (req, res) => {
     const addressId = req.query.addressId
-    const user = req.session.user
+    //const user = req.session.user  //changed : Applicable to both traditional login & passport login
+    let user
+    if(req.user){
+        user = req.user._id
+    }else if(req.session.user){
+        user = req.session.user
+    }else{
+        return res.redirect('/pageNotFound')
 
+    }
+    
     console.log('request for edit address reached here')
-    console.log(addressId)
+    console.log('requested address id', addressId)
     console.log(user)
+    console.log('request terminated for current fixing')
+    //return res.redirect('/pageNotFoud') //checking
     try {
-        await Adress.updateOne({address:{$elemMatch:{_id:addressId}}}, {
+        await Adress.updateOne({address:{$elemMatch:{_id:new mongoose.Types.ObjectId(addressId)}}}, {
             $set:{
                 "address.$.name":req.body.name,
                 "address.$.building":req.body.building,
@@ -505,7 +574,16 @@ const userAddressDelete = async (req, res) => {
 }
 
 const loadCartPage = async (req, res) => {
-    const userId = req.session.user //testing
+    let userId 
+    if(req.user){
+        userId = req.user._id
+    }else if(req.session.user){
+        userId = req.session.user
+    }else{
+        return res.redirect('/pageNotFound')
+    }
+
+    
     try {
         //const cart = await Cart.findOne({userId:userId}).lean()
         //const product = await Product.findOne({_id:cart.items.})
@@ -590,12 +668,21 @@ const loadCartPage = async (req, res) => {
 
 const addToCart = async (req, res) => {
     const id = req.query.product
-    const userId = req.session.user
+    //const userId = req.query.user // Error occured, bug when user id is accessed directly from the session, since passport users are in userObject **** need to be fixed!!!
+    let userId
+    if(req.user){
+        userId = req.user._id
+    }else if(req.session.user){
+        userId = req.session.user
+    }else{
+        return res.redirect('/pageNotFound')
+    }
+
     const size = req.query.size
     const quantity = Number(req.body.productQuantity)
-    console.log('quantity of the product ', quantity)
-    console.log('this is the productid', id)
-    console.log('this is the userId', userId)
+    console.log('quantity of the product ', quantity) //Testing 
+    console.log('this is the productid', id) //Testing 
+    console.log('this is the userId', userId) //Testing 
     let variantSize
     switch (size){
         case 'S':
@@ -684,7 +771,16 @@ const cartQuantityUpdate = async (req, res) => {
 
 const removeFromCart = async (req, res) => {
     const {productId} = req.body
-    const user = req.session.user
+    //const user = req.session.user //changed : Applicable to both traditional logined user and passport login user
+    let user
+    if(req.user){
+        user = req.user._id
+    }else if(req.session.user){
+        user = req.session.user
+    }else{
+        return res.redirect('/pageNotFound')
+    }
+
     console.log('product id', productId)
     try {
         await Cart.updateOne({userId:user}, {
@@ -699,7 +795,15 @@ const removeFromCart = async (req, res) => {
 }
 
 const proceedToCheckout = async (req, res) => {
-    const userId = req.session.user
+    //const userId = req.session.user //changed:Applicable to both traditional passport
+    let userId
+    if(req.user){
+        userId = req.user._id
+    }else if(req.session.user){
+        userId = req.session.user
+    }else{
+        return res.redirect('/pageNotFound')
+    }
     const {subTotal, grantTotal, discount} = req.body
     try {
         //store details in the session
@@ -783,7 +887,16 @@ const paymentConfirm = async (req, res) => {
 
 const placeOrder = async (req, res) => {
     console.log('request reached herer')
-    const user = req.session.user
+    //const user = req.session.user //changed : Applicable to both passport and traditional logins
+    
+    let user
+    if(req.user){
+        user = req.user._id
+    }else if(req.session.user){
+        user = req.session.user
+    }else{
+        return  res.redirect('/pageNotFound')
+    }
     const orderData = req.body
     console.log(orderData)
     try {
@@ -850,8 +963,32 @@ const placeOrder = async (req, res) => {
     }
 }
 
+const searchProducts = async (req, res) => {
+    const query = req.query.query
+    try {
+        //find product using reges
+        console.log
+        if(query && query.length > 0){
+            const products = await Product.find(
+                {productName:{$regex:new RegExp(query, 'i')}},
+                {
+                    productName:1,
+                    sku:1,
+                    productImage:1
+                }
+            )
+            return res.json({success:true, products})
+        }
+        
+    } catch (error) {
+        console.log('An error occured while searching the product details', error)
+        return res.status(500).json({success:false})
+    }
+}
+
 module.exports = {
     loadUserHome,
+    searchProducts,
     loadUserProfile,
     userAddressAdd, 
     fetchEditDetails,
