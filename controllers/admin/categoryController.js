@@ -129,11 +129,45 @@ const listCategory = async (req, res) => {
     }
 }
 
+const fetcheditCategoryDetails = async (req, res) => {
+    const categoryId = req.query.id
+    try {
+        const categoryDetails = await Category.findOne({_id:categoryId})
+        console.log('category fetched successfully')
+        return res.json({success:true, categoryDetails})
+    } catch (error) {
+        console.log('error occured while fetching category Details', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
+    }
+}
+
+const editCategory = async (req, res) => {
+    const {editCategoryId, editCategoryName, editCategoryDescription} = req.body
+    try {
+        const updateCategory = await Category.updateOne(
+            {_id:editCategoryId},
+            {$set:{
+                name:editCategoryName,
+                description:editCategoryDescription
+            }}
+        )
+        if(updateCategory.modifiedCount === 0){
+            throw new Error('Error while updating category :: No items modified')
+        }
+        return res.json({success:true, message:'Category Edited Successfully'})
+    } catch (error) {
+        console.log('error occured while updaing the category!', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
+    }
+}
+
 module.exports = {
     categoryInfo,
     addCategory,
     addCategoryOffer,
     removeCategoryOffer,
     unlistCategory,
-    listCategory
+    listCategory,
+    fetcheditCategoryDetails,
+    editCategory
 }

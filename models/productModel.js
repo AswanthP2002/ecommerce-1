@@ -56,7 +56,12 @@ const productSchema = new Schema({
         enum:['Available', 'out of stock', 'Discontinued'],
         require:true,
         default:'Available'
-    }
+    },
+    createdAt:{
+        type:Date,
+        require:true,
+        default:() => new Date()
+    },
 }, {timestamp:true})
 
 

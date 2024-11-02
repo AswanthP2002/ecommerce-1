@@ -88,7 +88,6 @@ const addProducts = async (req, res) => {
         const product = new Product({
             productName:productName,
             productDescription:req.body.productDescription,
-            // sku:req.body.stockKeepingUnit,
             sku:`${uuidv4()}-${productName.slice(0,3)}-${category.name}`,
             category:category._id,
             color:req.body.productColor,
@@ -196,7 +195,38 @@ const editProduct = async (req, res) => {
             category:categoryFind._id
         }
 
-        await Product.findByIdAndUpdate(productId, updateFields)
+        const product = await Product.findById(productId)
+        const existingImages = product.productImage.slice()
+
+        const files = req.files
+
+        Object.keys(files).forEach((key, index) => {
+            const file = files[key][0]; // Access the file object for each field
+            const imagePosition = parseInt(key.replace('product_images', ''), 10);
+
+            if (existingImages[imagePosition]) {
+                const oldImagePath = `public/images/backend/products/${product.sku}/${existingImages[imagePosition]}`;
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+
+            existingImages[imagePosition] = file.filename; // Store the new file name
+
+            const newPath = `public/images/backend/products/${product.sku}/${file.filename}`;
+            fs.renameSync(`public/images/backend/products/tempImage/${file.filename}`, newPath);
+            console.log(`Moved file to ${newPath}`);
+        });
+
+        console.log('Updated product images:', existingImages);
+        updateFields.productImage = existingImages;
+
+        // Update product
+        const productUpdate = await Product.findByIdAndUpdate(productId, updateFields);
+        console.log('Product after update:', productUpdate);
+        if (!productUpdate) {
+            return res.redirect('/pageError');
+        }
         // const variantSmall = await Variant.findOne({productId:productId, size:'small'})
         // const variantMedium = await Variant.findOne({productId:productId, size:'medium'})
         // const variantLarge = await Variant.findOne({productId:productId, size:'large'})

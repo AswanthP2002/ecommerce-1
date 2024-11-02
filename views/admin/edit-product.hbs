@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" integrity="sha512-UtLOu9C7NuThQhuXXrGwx9Jb/z9zPQJctuAgNUBK3Z6kkSYT9wJ+2+dh6klS+TDBCV9kNPBbAxbVD+vCcfGPaA==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <div class="col">
     <div class="container p-md-5">
         <h3 class="text-dark fw-bold">Edit Product</h3>
@@ -36,7 +37,7 @@
                         <option value="sports">Sports</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-4">
+                {{!-- <div class="col-12 col-md-4">
                     <label for="" class="fw-bold field-label">Product Image 1</label>
                     <input type="file" id="product_image_1" name="product_images" class="form-control" value="{{product.image1}}" disabled>
                 </div>
@@ -47,7 +48,7 @@
                 <div class="col-12 col-md-4">
                     <label for="" class="fw-bold field-label">Product Image 3</label>
                     <input type="file" id="product_image_3" name="product_images" class="form-control" value="{{product.image3}}" disabled>
-                </div>
+                </div> --}}
                 <div class="col-12 col-md-4">
                     <label for="" class="fw-bold field-label">Product Color</label>
                     <input type="text" id="product_color" class="form-control" name="productColor" value="{{product.color}}">
@@ -121,6 +122,64 @@
                     <input type="number" id="stock_quantity" name="stockQuantityLarge" class="form-control" value="{{getIndex2 product.variantDetails 2 "quantity"}}">
                 </div>
             </div>
+
+            <div class="holder mt-2">
+                <div>
+                    <label for="file-input1">Select Image</label>
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input1" name="product_images0" accept="image/png, image/jpeg">
+                </div>
+                <div>
+                    <label for="preview1">Preview</label>
+                    <div id="preview1" class="previews"><img src="/images/backend/products/{{product.sku}}/{{getImage product.productImage 0}}" alt=""></div>
+                </div>
+                <div>
+                    <label for="cropSize1">Size</label>
+                    <input class="w-100" type="range" min="50" max="300" value="200" id="cropSize1">
+                </div>
+                <div id="buttons">
+                    <button id="saveButton1" class="btn btn-primary" type="button">Save</button>
+                    <button id="clearButton1" class="btn btn-secondary" type="button">Clear</button>
+                </div>
+            </div>
+            {{!-- Testing for image cropping --}}
+            <div class="holder mt-2">
+                <div>
+                    <label for="file-input2">Select Image</label>
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input2" name="product_images1" accept="image/png, image/jpeg">
+                </div>
+                <div>
+                    <label for="preview2">Preview</label>
+                    <div id="preview2" class="previews"><img src="/images/backend/products/{{product.sku}}/{{getImage product.productImage 1}}" alt=""></div>
+                </div>
+                <div>
+                    <label for="cropSize2">Size</label>
+                    <input class="w-100" type="range" min="50" max="300" value="200" id="cropSize2">
+                </div>
+                <div id="buttons">
+                    <button id="saveButton2" class="btn btn-primary" type="button">Save</button>
+                    <button id="clearButton2" class="btn btn-secondary" type="button">Clear</button>
+                </div>
+            </div>
+            {{!-- Testing for image croping --}}
+            <div class="holder mt-2">
+                <div>
+                    <label for="file-input3">Select Image</label>
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input3" name="product_images2" accept="image/png, image/jpeg">
+                </div>
+                <div>
+                    <label for="preview3">Preview</label>
+                    <div id="preview3" class="previews"><img src="/images/backend/products/{{product.sku}}/{{getImage product.productImage 2}}" alt=""></div>
+                </div>
+                <div>
+                    <label for="cropSize3">Size</label>
+                    <input class="w-100" type="range" min="50" max="300" value="200" id="cropSize3">
+                </div>
+                <div id="buttons">
+                    <button id="saveButton3" class="btn btn-primary" type="button">Save</button>
+                    <button id="clearButton3" class="btn btn-secondary" type="button">Clear</button>
+                </div>
+            </div>
+
             <div class="pt-4">
                 <button class="btn btn-info" type="submit">Save Changes</button>
                 <a href="/admin/product" class="btn btn-danger">Cancel</a>
@@ -129,3 +188,80 @@
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js" integrity="sha512-JyCZjCOZoyeQZSd5+YEAcFgz2fowJ1F1hyJOXgtKu4llIa0KneLcidn5bwfutiehUTiOuK87A986BZJMko0eWQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    function setCropper(fileInputId, previewId, cropSizeId, saveButtonId, clearButtonId){
+    const fileInput = document.getElementById(fileInputId)
+    const preview = document.getElementById(previewId)
+    const cropSize = document.getElementById(cropSizeId)
+    const saveButton = document.getElementById(saveButtonId)
+    const clearButton = document.getElementById(clearButtonId)
+
+    let cropper = null
+
+    fileInput.addEventListener('change', (event) => {
+        const uploadedImage = event.target.files[0]
+        const reader = new FileReader()
+
+        reader.onload = (event) => {
+            if(cropper){
+                cropper.destroy()
+            }
+
+            preview.innerHTML = ''
+            const image = document.createElement('img')
+            image.src = event.target.result
+            image.id = 'prd-img1'
+            image.style.maxWidth = '100%'
+            preview.appendChild(image)
+            cropper = new Cropper(image, {
+                aspectRatio:NaN,
+                viewMode:1,
+                autoCropArea:1,
+                movable:true,
+                zoomable:true,
+                scalable:true,
+                rotatable:true,
+                cropBoxResizable:true,
+                background:true
+            })
+
+            console.log('cropper initialized')
+        }
+        reader.readAsDataURL(uploadedImage)
+    })
+
+    saveButton.addEventListener('click', () => {
+        if(cropper){
+            const size = parseInt(cropSize.value)
+            console.log('croping size ', size)
+            const canvas = cropper.getCroppedCanvas({
+                height:size,
+                width:size
+            })
+
+            const croppedImage = document.createElement('img')
+            croppedImage.src = canvas.toDataURL()
+            preview.innerHTML = ''
+            preview.appendChild(croppedImage)
+            console.log('cropped image created')
+            
+        }else{
+            console.log('cropper not initialized')
+        }
+    })
+
+    clearButton.addEventListener('click', () => {
+        if(cropper){
+            cropper.destroy()
+        }
+
+        preview.innerHTML = ''
+        fileInput.value = ''
+    })
+}       
+
+setCropper('file-input1', 'preview1', 'cropSize1', 'saveButton1', 'clearButton1')
+setCropper('file-input2', 'preview2', 'cropSize2', 'saveButton2', 'clearButton2')
+setCropper('file-input3', 'preview3', 'cropSize3', 'saveButton3', 'clearButton3')
+</script>

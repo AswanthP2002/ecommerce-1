@@ -30,6 +30,8 @@ router.post('/admin/categoryOffer/add', adminAuth, categoryController.addCategor
 router.post('/admin/categoryOffer/remove', adminAuth, categoryController.removeCategoryOffer)
 router.get('/admin/category/unlist', adminAuth, categoryController.unlistCategory)
 router.get('/admin/category/list', adminAuth, categoryController.listCategory)
+router.get('/admin/category/edit', adminAuth, categoryController.fetcheditCategoryDetails)
+router.post('/admin/category/edit', adminAuth, categoryController.editCategory)
 
 //Admin Product Management
 router.get('/admin/product', adminAuth, productController.loadProductPage)
@@ -37,7 +39,13 @@ router.get('/admin/product/details', adminAuth, productController.getProductDeta
 router.get('/admin/product/add', adminAuth, productController.addProductsPage)
 router.post('/admin/product/add', adminAuth, upload.array('product_images', 3), productController.addProducts)
 router.get('/admin/product/edit', adminAuth, productController.editProductPage)
-router.post('/admin/product/edit', adminAuth, upload.none(), productController.editProduct)
+router.post('/admin/product/edit', adminAuth, upload.fields([
+    { name: 'product_images0', maxCount: 1 },
+    { name: 'product_images1', maxCount: 1 },
+    { name: 'product_images2', maxCount: 1 },
+]), productController.editProduct)
+
+
 router.post('/admin/product/addOffer', adminAuth, productController.addProductOffer)
 router.post('/admin/product/removeOffer', adminAuth, productController.removeProductOffer)
 router.get('/admin/product/unblock', adminAuth, productController.unblockProduct)

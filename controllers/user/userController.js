@@ -10,6 +10,7 @@ const Adress = require('../../models/addressModel.js')
 const Cart = require('../../models/cartModel.js')
 const { default: mongoose, STATES } = require('mongoose')
 const Order = require('../../models/ordersModel.js')
+const Category = require('../../models/categoryModel.js')
 
 //non-route functions ===> generate OTP
 const generateOTP = () => {
@@ -89,30 +90,181 @@ const pageNotFound = async (req, res) => {
 }
 
 const productListPage = async (req, res) => {
-    try {
-        const productDetails = await Product.aggregate([
+    let sortOption
+    const {category, minPrice, maxPrice, style, color, size} = req.query
+    let matchCriteria = {}
+    let sortCriteria = {}
+    let currentSort;
+    console.log('thisi is color', color)
 
+    const isFilter = category || minPrice || maxPrice || style || color || size
+    const colorArray = color ? color : []
+    const sizeArray = size ? size : []
+    const styleArray = style ? style : []
+
+    if(isFilter){
+        if (category) matchCriteria["categoryDetails.name"] = category
+        if (sizeArray.length > 0) matchCriteria["variantDetails.size"] = { $in: sizeArray }
+        if (minPrice) matchCriteria["variantDetails.offerPrice"] = { $gte: parseInt(minPrice) }
+        if (maxPrice) matchCriteria["variantDetails.offerPrice"] = { ...matchCriteria["variantDetails.offerPrice"], $lte: parseInt(maxPrice) }
+        if (styleArray.length > 0) matchCriteria["style"] = { $in: styleArray }
+        if (colorArray.length > 0) matchCriteria["colorGroup"] = { $in: colorArray }
+    }
+    
+    console.log('This is match criteria', matchCriteria)
+    try {
+        const category = await Category.find({isListed:true}, {_id:0, name:1}).lean()
+        console.log(category)
+
+        if(req.query.sort){
+            console.log(req.query.sort)
+            sortOption = req.query.sort
+            switch(sortOption){
+                case 'price-high-to-low':
+                    sortCriteria = {"variantDetails.offerPrice":-1}
+                    currentSort = 'Price : High to Low'
+                    break;
+                case 'price-low-to-high':
+                    sortCriteria = {"variantDetails.offerPrice":1}
+                    currentSort = 'Price : Low to High'
+                    break;
+                case 'new-arrivals':
+                    sortCriteria = {createdAt:-1}
+                    currentSort = 'New Arrivals'
+                    break;
+                case 'a-z':
+                    sortCriteria = {productName:1}
+                    currentSort = 'A-Z'
+                    break;
+                case 'z-a':
+                    sortCriteria = {productName:-1}
+                    currentSort = 'Z-A'
+                    break
+                default:
+                    sortCriteria = {createdAt:-1}
+                    currentSort = 'New Arrivals'
+            }
+        }else{
+            sortCriteria = {createdAt:-1}
+            currentSort = 'New Arrivals'
+        }
+
+        const aggregationPipeline = [
             {$lookup:{
                 from:'variants',
                 localField:'variants',
                 foreignField:'_id',
                 as:'variantDetails'
             }},
+            {$unwind:"$variantDetails"},
             {$lookup:{
                 from:'categories',
                 localField:'category',
                 foreignField:'_id',
                 as:'categoryDetails'
             }},
-            {$unwind:"$categoryDetails"},
-            {$match:{"categoryDetails.isListed":true, isBlocked:false}}
-        ])
-        res.render('user/product-list', {
+            {$unwind:'$categoryDetails'},
+            {$match:{"categoryDetails.isListed":true, isBlocked:false, ...matchCriteria}}
+        ]
+
+        if(!isFilter){
+            aggregationPipeline.push({$match:{'variantDetails.size':'small'}})
+        }
+
+        aggregationPipeline.push({$sort:sortCriteria})
+
+        const productDetails = await Product.aggregate(aggregationPipeline)
+        console.log('all set with product details rendered')
+        return res.render('user/product-list', {
             layout:'user/main',
-            product:productDetails
+            product:productDetails,
+            currentSort,
+            category
         })
+
+            console.log('sort criteria', sortCriteria)
+            /*const productDetails = await Product.aggregate([
+                {$lookup:{
+                    from:'variants',
+                    localField:'variants',
+                    foreignField:'_id',
+                    as:'variantDetails'
+                }},
+                {$unwind:"$variantDetails"},
+                {$match:{"variantDetails.size":"small"}},
+                {$lookup:{
+                    from:'categories',
+                    localField:'category',
+                    foreignField:'_id',
+                    as:'categoryDetails'
+                }},
+                {$unwind:"$categoryDetails"},
+                {$match:{"categoryDetails.isListed":true, isBlocked:false}},
+                {$sort:sortCriteria}
+            ])
+            console.log('sort criteria worked')
+            return res.render('user/product-list',{
+                layout:'user/main',
+                product:productDetails,
+                currentSort,
+                category
+            })
+        /*}else if(Object.keys(matchCriteria).length > 0){
+            const productDetails = await Product.aggregate([
+                {$lookup:{
+                    from:'variants',
+                    localField:'variants',
+                    foreignField:'_id',
+                    as:'variantDetails'
+                }},
+                {$unwind:"$variantDetails"},
+                {$lookup:{
+                    from:'categories',
+                    localField:'category',
+                    foreignField:'_id',
+                    as:'categoryDetails'
+                }},
+                {$unwind:"$categoryDetails"},
+                {$match:{"categoryDetails.isListed":true, isBlocked:false}},
+                {$match:matchCriteria}
+            ])
+
+            console.log('all set filter')
+            console.log('filtered products', productDetails)
+            return res.render('user/product-list', {
+                layout:'user/main',
+                product:productDetails,
+                category
+            })
+        } else{
+            const productDetails = await Product.aggregate([
+                {$lookup:{
+                    from:'variants',
+                    localField:'variants',
+                    foreignField:'_id',
+                    as:'variantDetails'
+                }},
+                {$unwind:"$variantDetails"},
+                {$match:{"variantDetails.size":"small"}},
+                {$lookup:{
+                    from:'categories',
+                    localField:'category',
+                    foreignField:'_id',
+                    as:'categoryDetails'
+                }},
+                {$unwind:"$categoryDetails"},
+                {$match:{"categoryDetails.isListed":true, isBlocked:false}},
+            ])
+            console.log('normal products worked')
+            return res.render('user/product-list', {
+                layout:'user/main',
+                product:productDetails,
+                category
+            })
+        }*/
+        
     } catch (error) {
-        console.log('Error occured while loading the product list page', error.message)
+        console.log('Error occured while loading the product list page', error)
         return res.redirect('/pageNotFound')
     }
 }
@@ -935,6 +1087,7 @@ const placeOrder = async (req, res) => {
             return {
                 product:item.items.productId,
                 quantity:item.items.quantity,
+                size:item.items.size,
                 price:item.variantDetails.regularPrice
             }
         })
@@ -950,6 +1103,11 @@ const placeOrder = async (req, res) => {
         })
 
         await order.save()
+        for(let singleItem of formatOrderedItems){
+            await Variant.updateOne({productId:singleItem.product, size:singleItem.size}, {
+                $inc:{quantity:-singleItem.quantity}
+            })
+        }
         await User.updateOne({_id:new mongoose.Types.ObjectId(user)}, {
             $push:{orders:order._id}
         })

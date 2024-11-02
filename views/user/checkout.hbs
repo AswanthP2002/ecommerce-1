@@ -5,6 +5,7 @@
                 <p class="fw-bold fs-4">Deliver to</p>
                 
                 <div class="row">
+                    {{#if addressList}}
                     {{#each addressList}}
                     <div class="col-md-4">
                         <div class="border border-secondary rounded p-2">
@@ -13,6 +14,10 @@
                         </div>
                     </div>
                     {{/each}}
+                    {{else}}
+                    <button onclick="window.location.href='/profile?id={{logedUser.id}}'" type="button" class="btn btn-primary">Add Address</button>
+                    {{/if}}
+                    
                 </div>
             </div>
             <div class="mt-3">
@@ -54,13 +59,13 @@
                             <input type="radio" name="paymentMethod" value="cod" checked required> Cash on Delivery
                         </label><br>
                         <label>
-                            <input type="radio" name="paymentMethod" value="wallet"> Wallet (Balance: ₹1500)
+                            <input type="radio" name="paymentMethod" value="wallet" disabled> Wallet (Balance: ₹0.00)
                         </label><br>
                         <label>
-                            <input type="radio" name="paymentMethod" value="debitCard"> Debit/Credit Card
+                            <input type="radio" name="paymentMethod" value="debitCard" disabled> Debit/Credit Card
                         </label><br>
                         <label>
-                            <input type="radio" name="paymentMethod" value="netBanking"> Net Banking
+                            <input type="radio" name="paymentMethod" value="netBanking" disabled> Net Banking
                         </label><br>
                         <div class="d-flex justify-content-between">
                             <p class="fs-3 fw-bold">total payable <span id="payableAmount">{{cartPayment.grantTotal}}</span> <span class="ms-2 fs-5 text-decoration-line-through text-secondary" id="totalAmount">{{cartPayment.subTotal}}</span></p>
@@ -78,7 +83,7 @@
                 <div class="modal-header">
                     <form action="">
                         <p>The other contents will come herer</p>
-                        <button type="submit" class="btn btn-dark" id="placeOrder-button">Place Order</button>
+                        <button type="button" class="btn btn-dark" id="placeOrder-button">Place Order</button>
                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
                     </form>
                 </div>
@@ -89,11 +94,16 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body p-3">
-                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center p-1" id="orderPlacedIcon"><i class="fa-solid fa-check" style="color: white;font-size:0.500rem"></i></span>
-                    <p class="text-center fs-4 fw-bold" id="order-confirm-message">t</p>
+                    <div class="success-animation">
+                        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                            <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                        </svg>
+                    </div>
+                    <p class="text-center fs-4 fw-bold" id="order-confirm-message"></p>
                     <div class="d-flex justify-content-center gap-3">
-                        <button class="btn btn-dark rounded">Orders</button>
-                        <button class="btn btn-secondary rounded">Shop</button>
+                        <button onclick="window.location.href='/profile?id={{logedUser.id}}'" class="btn btn-dark rounded">Orders</button>
+                        <button onclick="window.location.href='/shop'" class="btn btn-secondary rounded">Shop</button>
                     </div>
                 </div>
             </div>
@@ -109,6 +119,18 @@
             document.getElementById('paymentForm').addEventListener('submit', (event) => {
                 event.preventDefault()
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value
+                const isAddressSelected = document.querySelector('input[name="selectedAddress"]:checked')
+                console.log(isAddressSelected)
+                if(!isAddressSelected){
+                    Swal.fire({
+                        title:'Delivery Address!',
+                        icon:'warning',
+                        text:'Please select Delivery Address before continuing!',
+                        showConfirmButton:false,
+                        timer:1800
+                    })
+                    return
+                }
 
                 fetch('/payment', {
                     method: 'POST',
@@ -170,15 +192,16 @@
                 })
                 .then((data) => {
                     if(data.success){
-                        alert(data.message)
-                        window.location.href = '/'
+                        document.getElementById('order-confirm-message').innerHTML = data.message
+                        orderPlacedModal.show()
                         /*Swal.fire({
+                            title:'God saved you this time!',
                             icon:'success',
-                            title:'setup success',
-                            showConfirmButton:true,
-                        }).then(() => location.href = '/')*/
+                            text:'Yay! your order has been placed!',
+                            timer:2000
+                        }).then(() => window.location.href = '/')*/
                     }else{
-                        alert('sorry')
+                        alert('ok sory')
                     }
                 })
                 .catch((error) => {

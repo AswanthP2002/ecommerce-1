@@ -2,28 +2,76 @@
     <div class="container">
     <div class="row">
     <div class="col-md-4">
-        <div id="filter-form" class="border border-dark">
+        <div id="filter-form" class="border border-dark p-3">
             <p class="fs-4 fw-bold">Filter</p>
-            <div class="border border-top">
-                <p>Category</p>
-                {{#each cateogries}}
-                <input type="radio" name="filter-{{this.name}}"><label for="">{{this.name}}</label>
+            <form onsubmit="applyFilter(event, this)" action="">
+            <div class="border-top border-dark">
+                <p class="fw-bold">Category</p>
+                {{#each category}}
+                <div>
+                    <input type="radio" name="category" value="{{this.name}}"><label for="">{{this.name}}</label>
+                </div>
                 {{/each}}
             </div>
-            <div class="border border-top">
-                <p>Price</p>
-                <input type="number" placeholder="Min" min="0" name="min-price">
-                <input type="number" placeholder="Max" min="0" name="max-price">
-            </div>
-            <div class="border border-top">
-                <p>Color</p>
-                <div class="d-flext">
-                    <div class="rounded-circle" style="width: 30px;height: 30px;"></div>
+            <div class="border-top border-dark mt-2">
+                <p class="fw-bold">Price</p>
+                <div class="d-flex justify-content-between">
+                    <input type="number" class="ps-2" name="minPrice" placeholder="Min" min="0" name="min-price" style="width: 120px;">
+                    <input type="number" class="ps-2" name="maxPrice" placeholder="Max" min="0" name="max-price" style="width: 120px;">
                 </div>
             </div>
+            <div class="border-top border-dark mt-2">
+                <p class="fw-bold">Color</p>
+                <ul class="list-unstyled">
+                    <li><input type="checkbox" name="color[]" value="indigo" id="filter-Indigo"><label for="filter-Indigo">indigo</label></li>
+                    <li><input type="checkbox" name="color[]" value="blue" id="filter-blue"><label for="filter-blue">blue</label></li>
+                    <li><input type="checkbox" name="color[]" value="green" id="filter-green"><label for="filter-green">green</label></li>
+                    <li><input type="checkbox" name="color[]" value="yellow" id="filter-yellow"><label for="filter-yellow">yellow</label></li>
+                    <div class="collapse" id="filter-color-collapse">
+                        <li><input type="checkbox" name="color[]" value="orange" id="filter-orange"><label for="filter-orange">orange</label></li>
+                        <li><input type="checkbox" name="color[]" value="red" id="filter-red"><label for="filter-red">red</label></li>
+                        <li><input type="checkbox" name="color[]" value="white" id="filter-white"><label for="filter-white">white</label></li>
+                        <li><input type="checkbox" name="color[]" value="black" id="filter-black"><label for="filter-black">black</label></li>
+                    </div>
+                    
+                </ul>
+                <button type="button" id="filter-color-toggle" class="btn border-0" data-bs-toggle="collapse" data-bs-target="#filter-color-collapse" aria-expanded="false" aria-controls="filter-color-collapse">Show More</button>
+            </div>
+            <div class="border-top border-dark mt-2">
+                <p class="fw-bold">Size</p>
+                <ul class="list-unstyled">
+                    <li><input type="checkbox" name="size[]" value="small" id=""><label for="">Small</label></li>
+                    <li><input type="checkbox" name="size[]" value="medium" id=""><label for="">Medium</label></li>
+                    <li><input type="checkbox" name="size[]" value="large" id=""><label for="">Large</label></li>
+                </ul>
+            </div>
+            <div class="border-top border-dark mt-2">
+                <p class="fw-bold">Style</p>
+                <ul class="list-unstyled">
+                    <li><input type="checkbox" name="style[]" id="" value="formal"><label for="">Formal</label></li>
+                    <li><input type="checkbox" name="style[]" id="" value="casual"><label for="">Casual</label></li>
+                    <li><input type="checkbox" name="style[]" id="" value="party"><label for="">Party</label></li>
+                    <li><input type="checkbox" name="style[]" id="" value="sports"><label for="">Sports</label></li>
+                </ul>
+            </div>
+            <button type="submit" class="p-1 btn btn-dark d-block m-auto" style="font-size: .850rem;border-radius: 15px;">Apply Sort</button>
+            </form>
         </div>
     </div>
     <div class="col-md-8">
+        <div class="d-flex justify-content-end">
+            <span>Sort by : </span> 
+            <select name="sortOption" id="sortFeature" onchange="applySort()">
+                {{#if currentSort}}
+                <option value="price-high-to-low">{{currentSort}}</option>
+                {{/if}}
+                <option value="price-high-to-low">Price : High to Low</option>
+                <option value="price-low-to-high">Price : Low to High</option>
+                <option value="new-arrivals">New Arrivals</option>
+                <option value="a-z">Name : A-Z</option>
+                <option value="z-a">Name : Z-A</option>
+            </select>
+        </div>
         <div class="row">
             {{#each product}}
             <div class="card border-0 col-6 col-md-4">
@@ -37,9 +85,9 @@
                     <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
                     <p class="rating lh-1">{{ratingStars this.rating}}</p>
                     <div class="d-flex gap-3">
-                        <p class="of-price fw-bold fs-6">₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
-                        <p class="price fw-bold fs-6"> ₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
-                        <span class="discount-label fw-bold text-light bg-olive d-flex justify-content-center align-items-center">{{this.productOffer}} %</span>
+                        <p class="of-price fw-bold fs-6">₹{{this.variantDetails.offerPrice}}</p>
+                        <p class="price fw-bold fs-6 text-decoration-line-through text-secondary"> ₹{{this.variantDetails.regularPrice}}</p>
+                        <span class="discount-label fw-bold bg-olive d-flex justify-content-center align-items-center">{{this.productOffer}} %</span>
                     </div>
                 </div>
             </div>
@@ -49,3 +97,70 @@
     </div>
     </div>
 </section>
+<script>
+    
+    const colorToggleButton = document.getElementById('filter-color-toggle')
+    const collapseColorElement = document.getElementById('filter-color-collapse')
+
+    collapseColorElement.addEventListener('shown.bs.collapse', () => {
+        colorToggleButton.textContent = 'Show Less'
+    })
+    collapseColorElement.addEventListener('hidden.bs.collapse', () => {
+        colorToggleButton.textContent = 'Show More'
+    })
+
+    function applySort(){
+        const sortOption = document.getElementById('sortFeature').value
+        window.location.href = `/products?sort=${sortOption}`
+    }
+
+    function applyFilter(event, form){
+        event.preventDefault()
+        const filterData = new FormData(event.target)
+        
+        
+        const filterObjet = {
+            color:[],
+            style:[],
+            size:[]
+        }
+        filterData.forEach((value, key) => {
+            if(key === "color[]"){
+                filterObjet["color"].push(value)
+            }else if(key === "style[]"){
+                filterObjet["style"].push(value)
+            }else if(key === "size[]"){
+                filterObjet["size"].push(value)
+            }else{
+                filterObjet[key] = value
+            }
+
+        })
+        filterObjet["color"] = JSON.stringify(filterData.getAll("color[]"))
+        filterObjet["size"] = JSON.stringify(filterData.getAll("size[]"))
+        filterObjet["style"] = JSON.stringify(filterData.getAll("style[]"))
+
+        
+
+        const queryString = new URLSearchParams(filterObjet).toString()
+        console.log(queryString)
+
+        form.action = `/products?${queryString}`
+        form.submit()
+
+        /*fetch(`/products?${queryString}`)
+            .then((response) => {
+                return response.text()
+            })
+            .then((data) => {
+                console.log('response after converting to text')
+                console.log(data)
+            })
+            .catch((error) => {
+                console.log(error)
+                alert('An unexpected error occured!')
+            })*/
+
+    }
+
+</script>
