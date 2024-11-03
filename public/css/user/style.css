@@ -7,6 +7,9 @@
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
 }
+body{
+    overflow-x: hidden;
+}
 
 :root{
     --main-color:white;
@@ -18,11 +21,33 @@
 .navbar-brand{
     font-family: 'Inter', Verdana, Geneva, Tahoma, sans-serif;
     font-size: 2.4rem;
-    font-weight: bold
+    font-weight: bold;
+}
+#yellow-circle-bottom{
+    bottom: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    z-index: 1;
+}
+#yellow-circle-top{
+    top: -300px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    z-index: 1;
 }
 /* Home - Landing Section */
 #landing-section{
-    background-color: var(--secondary-color);
+    background-color: var(--main-color); /*changed for ui enhancement :: testing*/
+    height: 75vh;
+}
+#brand-banners{
+    z-index: 2;
+}
+#new-arrivals{
+    position:relative;
+    z-index: 10;
 }
 .page-headings{
     font-family: 'Lexend Deca', sans-serif;
@@ -47,7 +72,10 @@
     padding-top: 10px;
 }
 #img-landing-section{
-    width: 450px;
+    width: 780px;
+    height: 500px;
+    z-index: 2;
+    position: relative;
 }
 #progress-show .count{
     font-family: 'Lexend Deca', sans-serif;
@@ -120,7 +148,7 @@
     height: 300px;
 }
 .checked{
-    color: orange;
+    color: #ffcc00;
 }
 #bg-secondary{
     background-color: var(--secondary-color);
@@ -278,7 +306,8 @@ footer .container{
     border-radius: 15px;
 }
 #deliver-info-form input{
-    background-color: var(--secondary-color);
+    background-color: #f4f4f4;
+    border: 1px solid rgb(167, 166, 166);
 }
 .spinner-border{
     height: 25px;
@@ -324,11 +353,11 @@ footer .container{
     height: 3rem;
 }
 #product-search{
-    background-color: var(--secondary-color);
+    background-color: white;
+    border: 1px solid rgb(184, 182, 182);
     border-radius: 15px;
     width: 400px;
     height: 40px;
-    border: none;
     outline: none;
 }
 #search-results{
@@ -392,4 +421,42 @@ footer .container{
     100% {
         box-shadow: inset 0px 0px 0px 30px #4bb71b;
     }
+}
+
+#product-card-action button{
+    width: 130px;
+    font-size: .8rem;
+}
+#product-card-action button:nth-child(2){
+    background-color: #28a745;
+}
+#product-card-action button:nth-child(1){
+    background-color: #ffcccc;
+}
+#product-card-action button:nth-child(2):hover{
+    background-color: #18782e
+}
+#product-card-action button:nth-child(1):hover{
+    background-color: #d87676;
+}
+
+#user-navbar{
+    position: sticky;
+    width: 100%;
+    left: 0;
+    top: 0;
+    z-index: 99999;
+    background: var(--main-color);
+    box-shadow: 2px 0 10px 2px rgba(222, 221, 221, 0.5);
+}
+#product-card-productName p{
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+}
+.modal-backdrop{
+    z-index: 100000 !important;
+}
+.modal{
+    z-index: 100001;
 }

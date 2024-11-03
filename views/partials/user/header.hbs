@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md">
+<nav class="navbar navbar-expand-md" id="user-navbar">
     <div class="container">
         <a href="/" class="navbar-brand">Shopsy</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
@@ -31,7 +31,12 @@
                 </li>
                 {{/if}}
                 <li class="nav-item">
-                    <a href="/cart" class="nav-link"><i class="fa-solid fa-cart-shopping"></i><span class="badge bg-danger text-light rounded-circle">2</span></a>
+                    {{#if cartCount}}
+                    <a href="/cart" class="nav-link"><i class="fa-solid fa-cart-shopping"></i><span class="badge bg-danger text-light rounded-circle">{{cartCount}}</span></a>
+                    {{else}}
+                    <a href="/cart" class="nav-link"><i class="fa-solid fa-cart-shopping"></i></a>
+                    {{/if}}
+                    
                 </li>
             </ul>
         </div>

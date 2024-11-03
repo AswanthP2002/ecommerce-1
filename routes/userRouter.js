@@ -6,6 +6,13 @@ const router = express.Router()
 
 //route to the home page for users
 
+//check uesr cart
+router.use(async (req, res, next) => {
+    const cartCount = await userController.countCartItems(req, res)
+    console.log('request reached here || cart Count', cartCount)
+    res.locals.cartCount = cartCount
+    next()
+})
 //Home/product page managment
 router.get('/', userController.loadUserHome)
 router.get('/search', userController.searchProducts)

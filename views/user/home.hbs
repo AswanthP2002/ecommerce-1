@@ -1,27 +1,35 @@
-<section id="landing-section">
+<section id="landing-section" class="d-flex flex-column justify-content-end">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-md-6">
-                <p class="page-headings">
+            <div class="col-md-6 position-relative">
+                <div class="rounded-circle bg-olive position-absolute p-5" id="yellow-circle-top"></div>
+                <div class="position-relative" style="z-index: 2;">
+                    <p class="page-headings" id="landingPageHead" data-aos="fade-right" data-aos-duration="1500" data-aos-delay="0">
                     find clothes that matches your style
                 </p>
-                <p class="page-intro">
+                <p class="page-intro" id="pageIntro" data-aos="fade-right" data-aos-duration="1500" data-aos-delay="400">
                     browse through our diverse range of meticulously crafted
                     garments designed to bring out your individually and catter to your sense of style
                 </p>
-                <a href="#shop" class="btn mt-3 mb-3" id="btn-landing-section">Shop now</a>
+                <a href="/products" class="btn mt-3 mb-3" id="btn-landing-section" data-aos="fade-right" data-aos-duration="1500" data-aos-delay="800">Shop now</a>
                 <div id="progress-show" class="d-flex gap-4 mt-2">
-                    <div class="box"><p class="count">200+</p><p class="info">International Brands</p></div>
-                    <div class="box"><p class="count">2000+</p><p class="info">High quality products</p></div>
-                    <div class="box"><p class="count">30000+</p><p class="info">Happy Customers</p></div>
+                    <div class="box" data-aos="flip-up" data-aos-duration="1500" data-aos-delay="0"><p class="count" data-count-target="20">0</p><p class="info">International Brands</p></div>
+                    <div class="box" data-aos="flip-up" data-aos-duration="1500" data-aos-delay="200"><p class="count" data-count-target="200">170</p><p class="info">High quality products</p></div>
+                    <div class="box" data-aos="flip-up" data-aos-duration="1500" data-aos-delay="400"><p class="count" data-count-target="3000">2970</p><p class="info">Happy Customers</p></div>
+                </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <img src="/images/frontend/landing-section-image.png" alt="couple-image" class="image-fluid d-block m-auto" id="img-landing-section">
+            <div class="col-md-6 position-relative">
+                <img src="/images/frontend/beautiful-young-women-summer-fashion-concept_564719-215-removebg-preview.png" alt="couple-image" class="image-fluid d-block m-auto" id="img-landing-section" data-aos="fade-up" data-aos-duration="1000">
+                <div class="rounded-circle bg-olive position-absolute p-5" id="yellow-circle-bottom">
+
+                </div>
             </div>
         </div>
     </div>
-    <div id="brand-banners" class="bg-black">
+    
+</section>
+<div id="brand-banners" class="bg-black position-relative">
         <div class="container">
             <div class="d-flex justify-content-between pt-3 pb-3">
                 <p class="brand-name text-white" id="versase">versase</p>
@@ -31,14 +39,13 @@
                 <p class="brand-name text-white" id="calvin-clein">calvin clein</p>
             </div>
         </div>
-    </div>
-</section>
+</div>
 <section id="new-arrivals">
     <div class="container">
-        <p class="page-headings mt-5 mb-3 text-center">new arrivals</p>
+        <p class="page-headings mt-5 mb-3 text-center" data-aos="fade-right">new arrivals</p>
         <div class="top-list-container row">
-            {{#each products}}
-            <div class="card border-0 col-6 col-md-3">
+            {{#each newArrivals}}
+            <div class="card border-0 col-6 col-md-3" data-aos="fade-up" data-aos-duration="2500">
                 <div class="card-body">
                     <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
                         <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
@@ -64,10 +71,10 @@
 {{!-- Top selling section --}}
 <section id="top-selling" class="pt-5">
     <div class="container">
-        <p class="page-headings mt-5 mb-3 text-center">Top Selling</p>
+        <p class="page-headings mt-5 mb-3 text-center" data-aos="fade-left">Top Selling</p>
         <div class="top-list-container row">
             {{#each products}}
-            <div class="card border-0 col-6 col-md-3">
+            <div class="card border-0 col-6 col-md-3" data-aos="fade-up" data-aos-duration="2500">
                 <div class="card-body">
                     <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
                         <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
@@ -94,7 +101,7 @@
 {{!-- Section style --}}
 <section id="style" class="mt-5 pt-5 pb-5">
     <div class="container pt-5 text-center pb-5 rounded" id="bg-secondary">
-        <p class="page-headings mb-4">browse dress by style</p>
+        <p class="page-headings mb-4" data-aos="fade-right">browse dress by style</p>
         <div class="row gap-3 justify-content-center">
             <div class="col-12 col-md-4 bg-body rounded cat-style-col position-relative overflow-hidden">
                 <p class="product-style-label fs-6 fw-bold position-absolute">Product Category Label</p>
@@ -120,7 +127,7 @@
 <section id="customer-carousel">
     <div class="container position-relative">
         <div class="carousel slide position-relative" data-bs-ride="carousel" id="review-carousel">
-            <h4 class="page-headings mt-5 mb-5">Our Happy Customers</h4>
+            <h4 class="page-headings mt-5 mb-5" data-aos="fade-right">Our Happy Customers</h4>
         <div class="carousel-inner">
             {{#each (chunks reviews 4)}}
             <div class="carousel-item {{#if @first}} active {{/if}}">
@@ -167,3 +174,26 @@
     </div>
     {{!-- Newsletter --}}
 </section>
+<script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        const counters = document.querySelectorAll('.count')
+        counters.forEach((element) => {
+            const target = Number(element.getAttribute('data-count-target'))
+            setInterval(() => {
+                if(Number(element.innerHTML) < target){
+                    element.innerHTML = Number(element.innerHTML) + 1
+                }
+            
+            },50)
+            
+        })
+
+        AOS.init()
+
+        /*const landingPageHead = document.getElementById('landingPageHead')
+        setTimeout(() => {
+            landingPageHead.style.marginLeft = '0px'
+            landingPageHead.style.opacity = '1'
+        }, 200)*/
+    })
+</script>

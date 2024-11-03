@@ -12,6 +12,16 @@ const { default: mongoose } = require('mongoose')
 
 const loadProductPage = async (req, res) => {
     try {
+        let searchvalue = ""
+        if(req.query.search){
+            searchvalue = req.query.search
+        }
+        let page = 1
+        if(req.query.page){
+            page = parseInt(req.query.page)
+        }
+        let limit = 5
+        let skip = (page - 1) * limit
         const productDetails = await Product.aggregate([
             {$lookup: {
                 from: 'variants',
@@ -24,11 +34,24 @@ const loadProductPage = async (req, res) => {
                 localField: 'category',
                 foreignField: '_id',
                 as: 'categoryDetails'
-              }}
+              }},
+              {$facet: {
+                    countData: [{ $count: "totalDocs" }],
+                    paginatedResults: [
+                        { $skip: skip },
+                        { $limit: limit }
+                    ]
+                }
+            }
         ])
+        const totalDocuments = productDetails[0]?.countData[0]?.totalDocs || 0
+        const totalPage = Math.ceil(totalDocuments / limit)
+        const pagination = productDetails[0]?.paginatedResults || []
         res.render('admin/products', {
             layout:'admin/main',
-            products:productDetails
+            products:pagination,
+            page,
+            totalPage
         })
     } catch (error) {
         console.log('error while fetching product lookup', error.message)

@@ -1,4 +1,4 @@
-<section id="user-profile">
+<section id="user-profile" class="pt-5 pb-5">
     <div class="container">
         <div class="row gy-3">
             <div class="col-md-7 order-2 order-md-1">
@@ -43,7 +43,7 @@
                         <label for="user-phone" class="fw-bold">Phone</label>
                         <p id="user-phone">{{user.phone}}</p>
                     </div>
-                    <button onclick="showUserDetailsPreview('{{user.name}}', '{{user.email}}','{{user.phone}}')" class="btn btn-dark" id="edit-profile-btn" data-bs-toggle="modal" data-bs-target="#profileEditModal">Edit Profile</button>
+                    <button onclick="showUserDetailsPreview('{{user._id}}, {{user.name}}', '{{user.email}}','{{user.phone}}')" class="btn btn-dark" id="edit-profile-btn" data-bs-toggle="modal" data-bs-target="#profileEditModal">Edit Profile</button>
                 </div>
                 <div class="card shadow p-3 mt-2" id="address">
                     <div class="d-flex justify-content-between align-items-center">
@@ -142,19 +142,26 @@
                         <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="profile/address/edit?id={{user._id}}" method="post">
+                        <form onsubmit="validateAndSubmit(event, this)">
+                            <input type="text" id="user_id" name="ProfileId" class="form-control" style="visibility: hidden;">
                             <label for="">Name</label>
-                            <input type="text" class="form-control" name="name" id="user_name">
+                            <input type="text" class="form-control" name="editProfileName" id="user_name" required>
+                            <label for="" class="error-message" id="editProfileNameError"></label>
                             <label for="">Email</label>
-                            <input type="email" name="email" class="form-control" id="user_email">
+                            <input type="email" name="editProfileEmail" class="form-control" id="user_email" required>
+                            <label for="" class="error-message" id="editProfileEmailError"></label>
                             <label for="">Phone</label>
-                            <input type="tel" name="phone" class="form-control" id="user_phone">
+                            <input type="tel" name="editProfilePhone" class="form-control" id="user_phone" required>
+                            <label for="" class="error-message" id="editProfilePhoneError"></label>
                             <label for="">Current Password</label>
-                            <input type="password" name="currentPassword" class="form-control">
+                            <input type="password" name="editProfileCurrentPassword" class="form-control" required>
+                            <label for="" class="error-message" id="editProfileCurPassError"></label>
                             <label for="">New Passowrd</label>
-                            <input type="password" name="newPassword" class="form-control">
+                            <input type="password" name="editProfileNewPassword" id="editProfileNewPassword" class="form-control" required>
+                            <label for="" class="error-message" id="editProfileNewPassError"></label>
                             <label for="">Confirm Password</label>
-                            <input type="password" name="confirmpassword" class="form-control">
+                            <input type="password" name="confirmPassword" id="editProfileConfirmPassword" class="form-control" required>
+                            <label for="" class="error-message" id="editProfileConfPassError"></label>
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </form>
@@ -230,11 +237,53 @@
         })
     }
 
-    function showUserDetailsPreview(name, email, phone){
+    function showUserDetailsPreview(userId, name, email, phone){
+        document.getElementById('user_id').value = userId
         document.getElementById('user_name').value = name
         document.getElementById('user_email').value = email
         document.getElementById('user_phone').value = phone
     }
+
+    function validateAndSubmit(event, form){
+        if(confirmPasswordError.innerHTML){
+            event.preventDefault()
+            alert('Fill form correctly')
+        }
+        const editData = new FormData(form)
+        const editObject = editData.forEach((value, key) => {
+            editObject[key] = value
+        })
+
+        //requesting
+        fetch('/profile/edit', {
+            method:'POST', 
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify(editObject)
+        })
+    }
+
+    const newPassword = document.getElementById('editProfileNewPassword')
+    const confirmPassword = document.getElementById('editProfileConfirmPassword')
+
+    const confirmPasswordError = document.getElementById('editProfileConfPassError')
+
+    function validatePasswords(){
+        const prevPassword = newPassword.value
+        const confPassword = confirmPassword.value
+
+        if(!confPassword === prevPassword){
+            confirmPasswordError.innerHTML = 'passwords must be same'
+            confirmPasswordError.style.color = 'red'
+            confirmPasswordError.style.display = 'block'
+        }else{
+            confirmPasswordError.innerHTML = ''
+            confirmPasswordError.style.display = 'none'
+        }
+    }
+
+    confirmPassword.addEventListener('keyup', validatePasswords)
 
     function fetchEditDetails(addressId){
         console.log(`Address id `, addressId)

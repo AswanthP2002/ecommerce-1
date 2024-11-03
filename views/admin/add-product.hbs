@@ -3,7 +3,7 @@
     <div class="container p-md-5">
         <h3 class="text-dark fw-bold">Add new Product</h3>
         <div class="shadow-p bg-body rounded p-5">
-            <form onsubmit="validateForm(event)" action="/admin/product/add" method="post" enctype="multipart/form-data">
+            <form onsubmit="return validateForm(event)" action="/admin/product/add" method="post" enctype="multipart/form-data">
             <h5 class="fw-bold mb-3">Basic Product Details</h5>
             <div class="row gy-3">
                 <div class="col-12 col-md-6">
@@ -13,8 +13,8 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="" class="fw-bold field-label">Product Category</label>
-                    <select name="productCategory" id="product_category" class="form-control">
-                        <option value="">Select</option>
+                    <select name="productCategory" id="product_category" class="form-control" required>
+                        {{!-- <option value="">Select</option> --}}
                         {{#each categories}}
                         <option value="{{this.name}}">{{this.name}}</option>
                         {{/each}}
@@ -31,8 +31,8 @@
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="" class="fw-bold field-label">Product Style</label>
-                    <select name="productStyle" id="product_style" class="form-control">
-                        <option value="">Select</option>
+                    <select name="productStyle" id="product_style" class="form-control" required>
+                        {{!-- <option value="">Select</option> --}}
                         <option value="casual">Casual</option>
                         <option value="formal">Formal</option>
                         <option value="party">Party</option>
@@ -76,11 +76,12 @@
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Product Price</label>
-                    <input type="number" class="form-control" name="productPriceSmall" id="product_price">
+                    <input type="number" class="form-control" name="productPriceSmall" id="product_price" required>
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
-                    <input type="number" id="stock_quantity" name="stockQuantitySmall" class="form-control">
+                    <input type="text" id="stock_quantity_small" name="stockQuantitySmall" class="form-control" required>
+                    <label for="" class="error-message" id="stockQuantity-small-error"></label>
                 </div>
 
                 <div class="col-4">
@@ -93,7 +94,8 @@
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
-                    <input type="number" id="stock_quantity" name="stockQuantityMedium" class="form-control">
+                    <input type="text" id="stock_quantity_medium" name="stockQuantityMedium" class="form-control">
+                    <label for="" class="error-message" id="stockQuantity-medium-error"></label>
                 </div>
 
                 <div class="col-4">
@@ -106,14 +108,15 @@
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
-                    <input type="number" id="stock_quantity" name="stockQuantityLarge" class="form-control">
+                    <input type="text" id="stock_quantity_large" name="stockQuantityLarge" class="form-control">
+                    <label for="" class="error-message" id="stockQuantity-large-error"></label>
                 </div>
             </div>
             {{!-- Testing for imag ecroping --}}
             <div class="holder mt-2">
                 <div>
                     <label for="file-input1">Select Image</label>
-                    <input class="w-100 border border-dark p-2" type="file" id="file-input1" name="product_images" accept="image/png, image/jpeg">
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input1" name="product_images" accept="image/png, image/jpeg" required>
                 </div>
                 <div>
                     <label for="preview1">Preview</label>
@@ -132,7 +135,7 @@
             <div class="holder mt-2">
                 <div>
                     <label for="file-input2">Select Image</label>
-                    <input class="w-100 border border-dark p-2" type="file" id="file-input2" name="product_images" accept="image/png, image/jpeg">
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input2" name="product_images" accept="image/png, image/jpeg" required>
                 </div>
                 <div>
                     <label for="preview2">Preview</label>
@@ -151,7 +154,7 @@
             <div class="holder mt-2">
                 <div>
                     <label for="file-input3">Select Image</label>
-                    <input class="w-100 border border-dark p-2" type="file" id="file-input3" name="product_images" accept="image/png, image/jpeg">
+                    <input class="w-100 border border-dark p-2" type="file" id="file-input3" name="product_images" accept="image/png, image/jpeg" required>
                 </div>
                 <div>
                     <label for="preview3">Preview</label>
@@ -254,15 +257,21 @@ setCropper('file-input3', 'preview3', 'cropSize3', 'saveButton3', 'clearButton3'
 
 const productNameError = document.getElementById('productName-error')
 const descriptionError = document.getElementById('productDescription-error')
-const colorErorr = document.getElementById('productColor_error')
+const colorErorr = document.getElementById('productColor-error')
+const stockQuantitySmall = document.getElementById('stock_quantity_small')
+const stockQuantityMedium = document.getElementById('stock_quantity_medium')
+const stockQuantityLarge = document.getElementById('stock_quantity_large')
 
 const productName = document.getElementById('product_name')
 const productDescription = document.getElementById('product_description')
 const productColor = document.getElementById('product_color')
+const stockQuantitySmallError = document.getElementById('stockQuantity-small-error')
+const stokcQuantityMediumError = document.getElementById('stockQuantity-medium-error')
+const stockQuantityLargeError = document.getElementById('stockQuantity-large-error')
 
 function validateForm(event){
-    event.preventDefault()
-    if(productNameError.innerHTML){
+    if(productNameError.innerHTML || descriptionError.innerHTML || colorErorr.innerHTML || stockQuantitySmallError.innerHTML || stokcQuantityMediumError.innerHTML || stockQuantityLargeError.innerHTML){
+        event.preventDefault()
         alert('Please fill the form correctly!')
         return false
     }
@@ -304,8 +313,54 @@ function validateProductColor(){
         colorErorr.style.display = 'none'
     }
 }
-
-
+function validateStockQtySmall(){
+    const quantity = stockQuantitySmall.value
+    const pattern = /^[0-9]+$/
+    if(quantity.trim() === ''){
+        stockQuantitySmallError.innerHTML = 'Product Quantity Can not be empty'
+        stockQuantitySmallError.style.color = 'red'
+        stockQuantitySmallError.style.display = 'block'
+    }else if(!pattern.test(quantity)){
+        stockQuantitySmallError.innerHTML = 'Enter a valid quantity'
+        stockQuantitySmallError.style.color = 'red'
+        stockQuantitySmallError.style.display = 'block'
+    }else{
+        stockQuantitySmallError.innerHTML = ''
+        stockQuantitySmallError.style.display = 'none'
+    }
+}
+function validateStockQtyMedium(){
+    const quantity = stockQuantityMedium.value
+    const pattern = /^[0-9]+$/
+    if(quantity.trim() === ''){
+        stokcQuantityMediumError.innerHTML = 'Product Quantity Can not be empty'
+        stokcQuantityMediumError.style.color = 'red'
+        stokcQuantityMediumError.style.display = 'block'
+    }else if(!pattern.test(quantity) || quantity.includes('.')){
+        stokcQuantityMediumError.innerHTML = 'Enter a valid quantity'
+        stokcQuantityMediumError.style.color = 'red'
+        stokcQuantityMediumError.style.display = 'block'
+    }else{
+        stokcQuantityMediumError.innerHTML = ''
+        stokcQuantityMediumError.style.display = 'none'
+    }
+}
+function validateStockQtyLarge(){
+    const quantity = stockQuantityLarge.value
+    const pattern = /^[0-9]+$/
+    if(quantity.trim() === ''){
+        stockQuantityLargeError.innerHTML = 'Product Quantity Can not be empty'
+        stockQuantityLargeError.style.color = 'red'
+        stockQuantityLargeError.style.display = 'block'
+    }else if(!pattern.test(quantity) || quantity.includes('.')){
+        stockQuantityLargeError.innerHTML = 'Enter a valid quantity'
+        stockQuantityLargeError.style.color = 'red'
+        stockQuantityLargeError.style.display = 'block'
+    }else{
+        stockQuantityLargeError.innerHTML = ''
+        stockQuantityLargeError.style.display = 'none'
+    }
+}
 
 
 
@@ -313,6 +368,9 @@ function validateProductColor(){
 productName.addEventListener('keyup', validateProductName)
 productDescription.addEventListener('keyup', validateProductDescription)
 productColor.addEventListener('keyup', validateProductColor)
+stockQuantitySmall.addEventListener('keyup', validateStockQtySmall)
+stockQuantityMedium.addEventListener('keyup', validateStockQtyMedium)
+stockQuantityLarge.addEventListener('keyup', validateStockQtyLarge)
 
 
 </script>

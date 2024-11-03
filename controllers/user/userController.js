@@ -284,8 +284,11 @@ const productDetails = async (req, res) => {
                 foreignField: '_id',
                 as: 'categoryDetails'
               }},
+              {$unwind:"$categoryDetails"},
               {$match:{_id:new mongoose.Types.ObjectId(req.query.id)}}
         ])
+        const product = productDetails[0]
+        const productCategory = product.categoryDetails.name
 
         const similarProducts = await Product.aggregate([
             {$lookup:{
@@ -300,7 +303,8 @@ const productDetails = async (req, res) => {
                 foreignField:'_id',
                 as:'categoryDetails'
             }},
-            {$match:{_id:{$ne:new mongoose.Types.ObjectId(req.query.id)},productName:{$regex:/casual/i}}},
+            {$unwind:'$categoryDetails'},
+            {$match:{_id:{$ne:new mongoose.Types.ObjectId(req.query.id)}, "categoryDetails.name":productCategory, style:product.style}},
             {$limit:4}
         ])
 
@@ -397,12 +401,29 @@ const loadUserHome = async (req, res) => {
                   }},
                   {$limit:4}
             ])
+            const newArrivals = await Product.aggregate([
+                {$lookup: {
+                    from: 'variants',
+                    localField: 'variants',
+                    foreignField: '_id',
+                    as: 'variantDetails'
+                  }},
+                  {$lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'categoryDetails'
+                  }},
+                  {$sort:{createdAt:-1}},
+                  {$limit:4}
+            ])
             // console.log(productDetails)
             const reviews = await ServiceReview.find().lean()
             // console.log(reviews)
             return res.render('user/home', {
                 layout:'user/main',
                 products:productDetails,
+                newArrivals,
                 reviews:reviews
             })
        
@@ -1144,6 +1165,20 @@ const searchProducts = async (req, res) => {
     }
 }
 
+const countCartItems = async (req, res) => {
+    try {
+        const user = req.session.user || req.user
+        if(user){
+            const cart = await Cart.findOne({userId:user})
+            return cart ? cart.items.length : 0
+        }
+        return null
+    } catch (error) {
+        console.log('error occured while geting cart count for badge !', error )
+        return null
+    }
+}
+
 module.exports = {
     loadUserHome,
     searchProducts,
@@ -1169,5 +1204,6 @@ module.exports = {
     verifyOtp,
     resendOtp,
     logout,
-    pageNotFound
+    pageNotFound,
+    countCartItems
 }

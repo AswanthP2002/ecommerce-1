@@ -1,4 +1,4 @@
-<section>
+<section class="pt-5 pb-5">
     <div class="container">
     <div class="row">
     <div class="col-md-4">
@@ -72,7 +72,7 @@
                 <option value="z-a">Name : Z-A</option>
             </select>
         </div>
-        <div class="row">
+        <div class="row gy-5">
             {{#each product}}
             <div class="card border-0 col-6 col-md-4">
                 <div class="card-body">
@@ -82,13 +82,23 @@
                                 style="width:300px;height:300px">
                         </div>
                     </a>
-                    <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
-                    <p class="rating lh-1">{{ratingStars this.rating}}</p>
-                    <div class="d-flex gap-3">
+                    <div id="product-card-productName"><p class="name mt-3 fw-bold fw-bold" style="font-size: 1rem;">{{this.productName}}</p></div>
+                    <p class="rating lh-1" style="font-size: .850rem;margin-top:-5px">{{ratingStars this.rating}}</p>
+                    <div class="d-flex gap-3" style="margin-top: -5px;">
                         <p class="of-price fw-bold fs-6">₹{{this.variantDetails.offerPrice}}</p>
+                        {{#if (checkOffer this.productOffer)}}
                         <p class="price fw-bold fs-6 text-decoration-line-through text-secondary"> ₹{{this.variantDetails.regularPrice}}</p>
                         <span class="discount-label fw-bold bg-olive d-flex justify-content-center align-items-center">{{this.productOffer}} %</span>
+                        {{/if}}
+                        {{#if (checkOffer this.categoryDetails.categoryOffer)}}
+                        <p class="price fw-bold fs-6 text-decoration-line-through text-secondary"> ₹{{this.variantDetails.regularPrice}}</p>
+                        <span class="discount-label fw-bold bg-olive d-flex justify-content-center align-items-center">{{this.categoryDetails.categoryOffer}} %</span>
+                        {{/if}}
                     </div>
+                </div>
+                <div class="d-flex justify-content-between" id="product-card-action" style="margin-top: -5px;">
+                    <button class="btn text-dark" id="add-to-wishlist">Add to Wishlist</button>
+                    <button class="btn text-light" id="add-to-cart">Add to Cart <i class="fa-solid fa-cart-shopping"></i></button>
                 </div>
             </div>
             {{/each}}
