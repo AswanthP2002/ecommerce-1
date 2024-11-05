@@ -1,6 +1,7 @@
 const express = require('express')
 const nodeMailer = require('nodemailer')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const env = require('dotenv').config()
 const User = require('../../models/userModel.js')
 const Product = require('../../models/productModel.js')
@@ -11,6 +12,7 @@ const Cart = require('../../models/cartModel.js')
 const { default: mongoose, STATES } = require('mongoose')
 const Order = require('../../models/ordersModel.js')
 const Category = require('../../models/categoryModel.js')
+const secret = process.env.JWT_SECRET
 
 //non-route functions ===> generate OTP
 const generateOTP = () => {
@@ -21,7 +23,60 @@ const generateOTP = () => {
     console.log(`otp before returning ${otp}`)
     return otp
 }
+const generateTocken = (userId) => {
+    
+    const token = jwt.sign({id:userId}, secret, {expiresIn:'10m'})
+    return token
+}
+
+const validateToken = (token) => {
+    try {
+        console.log('token for validation', token)
+        const decoded = jwt.verify(token, secret)
+        return decoded.id
+    } catch (error) {
+        console.log('error occured while decoding the tocken :: invalid', error)
+        return null
+    }
+}
 //===> send verification code
+const sendResetLink = async (email, resetLink) => {
+    const transport = nodeMailer.createTransport({
+        service:'gmail',
+        port:587,
+        secure:false,
+        requireTLS:true,
+        auth:{
+            user:process.env.NODEMAILER_EMAIL,
+            pass:process.env.NODEMAILER_PASSWORD
+        }
+    })
+
+    try {
+        const info = await transport.sendMail({
+            from:process.env.NODEMAILER_EMAIL,
+            to:email,
+            subject:'Password Reset Request',
+            html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+                <h2 style="text-align: center; color: #333;">Password Reset</h2>
+                <p>Hello,</p>
+                <p>We received a request to reset your password. Click the link below to reset it:</p>
+                <a href=${resetLink} style="display: inline-block; padding: 10px 20px; margin-top: 10px; color: #fff; background-color: #007BFF; text-decoration: none; border-radius: 5px;">
+                    Change Password
+                </a>
+                <p>If you did not request this, please ignore this email. Your password will remain unchanged.</p>
+                <p>Best regards,<br>Shopfy Fashions Team</p>
+            </div>
+        `
+        })
+
+        return info.messageId
+    } catch (error) {
+        console.log('error occured while sending password reset link', error)
+        res.redirect('/pageNotFound')
+    }
+}
 const sendVerificationCode = async (otp, email) => {
     const transport = nodeMailer.createTransport({
         service:'gmail',
@@ -1179,6 +1234,80 @@ const countCartItems = async (req, res) => {
     }
 }
 
+const loadPasswordresetRequestPage = (req, res) => {
+    try {
+        return res.render('user/forgotPassword', {
+            layout:false
+        })
+    } catch (error) {
+        console.log('error occured while loading the password reset request page!', error)
+        return res.redirect('/pageNotFound')
+    }
+}
+
+const sendPasswordResetLink = async (req, res) => {
+    const {email}  = req.body
+    console.log('this is the email', email) //testing
+    try {
+        if(email){
+            //check if the email is exist in the database
+            const isUserExist = await User.findOne({email})
+            if(!isUserExist){
+                return res.status(400).json({success:false, message:'User not found'})
+            }
+            const token = generateTocken(isUserExist._id)
+            const resetLink = `http://localhost:5000/password/reset/${token}`
+            console.log('This is the token', token)
+            const info = await sendResetLink(email, resetLink)
+
+            if (!info) {
+                throw new Error('Email sending error :: Password reset link is not sended properly')
+            }
+
+            return res.json({success:true, message:`We send the password reseting link to ${email}`})
+
+        }else{
+            return res.redirect('/pageNotFound')
+        }
+    } catch (error) {
+        console.log('error occured while requesting password reseting link', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime'})
+    }
+}
+
+const loadPaswordResetPage = async (req, res) => {
+    const {token} = req.params
+    const isValid = validateToken(token)
+
+    if(isValid){
+        return res.render('user/changePassword', {
+            layout:false,
+            token
+        })
+    }else{
+        return res.status(400).send('Invalid Request')
+    }
+}
+
+const updatePassword = async (req, res) => {
+    console.log('this function has been called')
+    const {token} = req.params
+    console.log('token before validation', token)
+    const {newPassword} = req.body
+    const userId = validateToken(token)
+    try {
+        if(userId){
+            const hashedPassword = await bcrypt.hash(newPassword, 10)
+            const update = await User.updateOne({_id:userId}, {password:hashedPassword})
+            if(update.modifiedCount == 0) return res.status(400).json({success:false, message:'Invalide User'})
+            return res.json({success:true, message:'Your password changed successfully!', redirectUrl:'/user_login'})
+        }
+    } catch (error) {
+        console.log('error occured while updating the password', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
+    }
+}
+
 module.exports = {
     loadUserHome,
     searchProducts,
@@ -1205,5 +1334,9 @@ module.exports = {
     resendOtp,
     logout,
     pageNotFound,
-    countCartItems
+    countCartItems,
+    loadPasswordresetRequestPage,
+    sendPasswordResetLink,
+    loadPaswordResetPage,
+    updatePassword
 }

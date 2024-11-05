@@ -65,8 +65,8 @@ app.use((req, res, next) => {
 app.use('/', userRouter)
 app.use('/', adminRouter)
 app.use('/test-path', (req, res) => {
-    res.render('admin/category', {
-        layout:'admin/main'
+    res.render('user/changePassword', {
+        layout:false
     })
 })
 

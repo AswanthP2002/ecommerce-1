@@ -23,14 +23,14 @@ body{
     font-size: 2.4rem;
     font-weight: bold;
 }
-#yellow-circle-bottom{
+.yellow-circle-bottom{
     bottom: -200px;
     right: -200px;
     width: 600px;
     height: 600px;
     z-index: 1;
 }
-#yellow-circle-top{
+.yellow-circle-top{
     top: -300px;
     left: -200px;
     width: 600px;
@@ -459,4 +459,27 @@ footer .container{
 }
 .modal{
     z-index: 100001;
+}
+#forgot-password, #change-password{
+    height: 100vh;
+    overflow: hidden;
+}
+#forgot-password #content, #change-password #content{
+    width: 400px;
+    min-width: 350;
+    margin: 100px auto;
+}
+#password-reset-form button, #password-change-form button{
+    background-color: rgb(252, 78, 78);
+    color: white;
+}
+#password-reset-form button:hover{
+    background-color: rgb(202, 38, 38);
+    
+}
+#password-change-form button:hover{
+    background-color: rgb(202, 38, 38);
+}
+.password-guidlines{
+    font-size: .850rem;
 }

@@ -51,5 +51,9 @@ router.post('/profile/address/edit', userAuth, userController.userAddressEdit)
 router.get('/user_login', userController.loadLogin)
 router.post('/user_login', userController.login)
 router.get('/user_logout', userController.logout)
+router.get('/password/reset-request', userController.loadPasswordresetRequestPage)
+router.post('/password/reset-request', userController.sendPasswordResetLink)
+router.get('/password/reset/:token', userController.loadPaswordResetPage)
+router.post('/password/reset/:token', userController.updatePassword)
 
 module.exports = router
