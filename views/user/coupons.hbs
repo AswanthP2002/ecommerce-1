@@ -1,0 +1,38 @@
+<section id="coupons" class="pt-5 pb-5">
+    {{#if coupons}}
+    <div class="container">
+        <div class="row">
+            {{#each coupons}}
+            <div class="col-12 col-md-4">
+                <div class="coupon">
+                    <div class="left">
+                        <div>Enjoy Your Gift</div>
+                    </div>
+                    <div class="center">
+                        <div>
+                            {{#if (checkOfferType this.offerType)}}
+                            <h2>{{this.offerPrice}}% OFF</h2>
+                            {{else}}
+                            <h2>Rs.{{this.offerPrice}} OFF</h2>
+                            {{/if}}
+                            <h3>Coupon</h3>
+                            <small>Minimum Purchase Rs.{{this.minimumPrice}}</small>
+                            <small>Valid until {{formatDate this.expireOn}}</small>
+                        </div>
+                    </div>
+
+                    <div class="right">
+                        <div>{{this.name}}</div>
+                    </div>
+
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+    {{else}}
+    <div id="no-coupon-section" class="d-flex justify-content-center align-items-center">
+        <img src="/images/frontend/no-coupons-removebg-preview.png" alt="" class="d-block">
+    </div>
+    {{/if}}
+</section>

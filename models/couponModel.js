@@ -9,12 +9,17 @@ const couponSchema = new Schema({
     },
     createdOn:{
         type:Date,
-        default:Date.now,
+        default:new Date(),
         required:true
     },
     expireOn:{
         type:Date,
         required:true
+    },
+    offerType:{
+        type:String,
+        enum:["fixed", "percentage"],
+        default:"Percentage"
     },
     offerPrice:{
         type:Number,

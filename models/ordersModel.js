@@ -44,6 +44,11 @@ const orderSchema = new Schema({
         type:String,
         required:true
     },
+    paymentStatus:{
+        type:String,
+        enum:['Pending', 'Paid'],
+        default:'Pending'
+    },
     address:{
         type:Schema.Types.ObjectId,
         ref:'Adress',
@@ -55,6 +60,11 @@ const orderSchema = new Schema({
         enum:['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
         default:'Pending'
     },
+    statusHistory:[{
+        status:{type:String},
+        timestamp:{type:Date, default:new Date()},
+        notes:{type:String}
+    }],
     couponApplied:{
         type:Boolean,
         default:false
@@ -66,6 +76,10 @@ const orderSchema = new Schema({
     },
     updatedAt:{
         type:Date
+    },
+    record:{
+        type:String,
+        default:"No Record"
     }
 })
 

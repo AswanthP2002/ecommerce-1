@@ -47,11 +47,16 @@
             {{#each newArrivals}}
             <div class="card border-0 col-6 col-md-3" data-aos="fade-up" data-aos-duration="2500">
                 <div class="card-body">
-                    <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
-                        <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
+                    
+                        <div class=" position-relative card-img-container rounded d-flex justify-content-center align-items-center align">
+                        <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
                         <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt="" style="width:300px;height:300px" >
+                        </a>
+                        <button type="button" id="wishlist-button" class="btn position-absolute wishlist-btn">
+                            <i class="fa-solid fa-heart heart-icon" id="wishlist-icon" data-productid="{{this._id}}"></i>
+                        </button>
                     </div>
-                    </a>
+                        
                     <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
                     <p class="rating lh-1">{{ratingStars this.rating}}</p>
                     <div class="d-flex gap-3">
@@ -59,7 +64,7 @@
                         <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
                         <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
                     </div>
-                    </div>
+                </div>
             </div>
             {{/each}}
         </div>
@@ -76,10 +81,15 @@
             {{#each products}}
             <div class="card border-0 col-6 col-md-3" data-aos="fade-up" data-aos-duration="2500">
                 <div class="card-body">
-                    <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
-                        <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
-                        <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt="" style="width:300px;height:300px" >
-                    </div>
+                    
+                        <div class="position-relative card-img-container rounded d-flex justify-content-center align-items-center align">
+                            <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
+                            <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt="" style="width:300px;height:300px" >
+                            </a>
+                            <button onclick="" type="button" id="wishlist-button" class="btn position-absolute wishlist-btn">
+                            <i class="fa-solid fa-heart heart-icon" id="wishlist-icon"></i>
+                            </button>
+                        </div>
                     </a>
                     <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
                     <p class="rating lh-1">{{ratingStars this.rating}}</p>

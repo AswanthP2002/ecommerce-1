@@ -13,6 +13,12 @@ router.use(async (req, res, next) => {
     res.locals.cartCount = cartCount
     next()
 })
+//check user wishlist
+router.use(async (req, res, next) => {
+    const userWishlist = await userController.CheckWishlist(req, res)
+    res.locals.userWishlist = userWishlist
+    next()
+})
 //Home/product page managment
 router.get('/', userController.loadUserHome)
 router.get('/search', userController.searchProducts)
@@ -24,8 +30,15 @@ router.post('/cart/quantity/update', userAuth, userController.cartQuantityUpdate
 router.post('/cart/remove', userAuth, userController.removeFromCart)
 router.post('/checkout', userAuth, userController.proceedToCheckout)
 router.get('/checkout', userAuth, userController.loadChekoutPge)
+router.post('/checkout/apply-coupon', userController.applyCoupon)
 router.post('/payment', userAuth, userController.paymentConfirm)
+router.get('/order/payment/cancel', userAuth, userController.cancelOrderPayment)
 router.post('/order/proceed', userAuth, userController.placeOrder)
+router.post('/order/cancel', userAuth, userController.cancelOrder)
+router.post('/order/return', userAuth, userController.returnRequest)
+router.post('/wishlist/add', userAuth, userController.addToWishlist)
+router.post('/wishlist/remove', userAuth, userController.removeFromWishlist)
+router.get('/wishlist', userAuth, userController.getWishlist)
 
 
 //Signup management
@@ -45,6 +58,11 @@ router.post('/profile/address/add', userAuth, userController.userAddressAdd)
 router.post('/profile/address/delete', userAuth, userController.userAddressDelete)
 router.get('/profile/address/edit', userAuth, userController.fetchEditDetails)
 router.post('/profile/address/edit', userAuth, userController.userAddressEdit)
+router.get('/orders', userAuth, userController.userOrders)
+router.get('/order/details', userAuth, userController.userOrderDetails)
+router.get('/my-wallet', userAuth, userController.getWallet)
+router.get('/wallet/create', userAuth, userController.createWallet)
+router.get('/coupons', userAuth, userController.getCoupons)
 
 
 //login management

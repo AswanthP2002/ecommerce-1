@@ -3,30 +3,24 @@
         <div class="row gy-3">
             <div class="col-md-7 order-2 order-md-1">
                 <div class="card shadow p-3">
-                    <p class="fw-bold">My Orders</p>
-                    {{#each orders}}
-                    <div class="border-bottom border-secondary d-flex justify-content-between p-3">
-                        <div>
-                            <p>Order Id : <span>{{this.orderId}}</span></p>
-                            <p>Date : <span>{{formatDate this.createdAt}}</span></p>
-                            <span>Ordered Items : </span>
-                            {{#each this.productDetails}}
-                            <span>{{this.productName}}</span>,
-                            {{/each}}
-                            <p>Total Price : <span>{{this.finalAmount}}</span></p>
-                            {{#if (isCancelled this.status 'Cancelled')}}
-                            <p style="color: red;">Order Status : {{this.status}}</p>
-                            {{else}}
-                            <p>Order Status : {{this.status}}</p>
-                            {{/if}}
-
-                        </div>
-                        <div class="d-flex flex-column justify-content-between">
-                            {{!-- <img src="/images/backend/products/" alt="" class="d-block bg-secondary" style="width: 80px;height:80px"> --}}
-                            <button onclick="orderView('{{this.orderId}}','{{formatDate this.createdAt}}',{{this.productDetails}})" type="button" class="border border-secondary" data-bs-toggle="modal" data-bs-target="#orderViewModal">Action</button>
-                        </div>
+                    <a href="/orders?id={{user._id}}" class="text-decoration-none">
+                        <div id="myOrders" class="border-bottom border-light d-flex gap-3 align-items-center pt-4 pb-4">
+                        <i class="fa-solid fa-shopping-bag"></i><p class="fw-bold mb-0">My Orders</p>
                     </div>
-                    {{/each}}
+                    </a>
+                    <div id="myWishlist" class="border-bottom border-light d-flex gap-3 align-items-center pt-4 pb-4">
+                        <i class="fa-solid fa-heart"></i><p class="fw-bold mb-0">My Wishlist</p>
+                    </div>
+                    <a href="/my-wallet?id={{user._id}}" class="text-decoration-none">
+                    <div id="myWallet" class="border-bottom border-light d-flex gap-3 align-items-center pt-4 pb-4">
+                        <i class="fa-solid fa-wallet"></i><p class="fw-bold mb-0">My Wallet</p>
+                    </div>
+                    </a>
+                    <a href="/coupons?user={{user._id}}" class="text-decoration-none">
+                    <div id="myCoupons" class="border-bottom border-light d-flex gap-3 align-items-center pt-4 pb-4">
+                        <i class="fa-solid fa-ticket"></i><p class="fw-bold mb-0">My Coupons</p>
+                    </div>
+                    </a>
                 </div>
             </div>
             <div class="col-md-5 order-1 order-md-2">
@@ -63,7 +57,7 @@
                 </div>
                 <div class="d-flex justify-content-between gap-3 mt-2">
                     <div class="card p-3 shadow w-50 d-flex justify-content-center align-items-center">
-                        <i class="fa-solid fa-heart"></i><span>My Wishlist</span>
+                        <i class="fa-solid fa-heart"></i><span><a href="/wishlist" class="text-decoration-none">My Wishlist</a></span>
                     </div>
                     <div class="card p-3 shadow w-50 d-flex justify-content-center align-items-center">
                         <i class="fa-solid fa-wallet"></i><span>Wallet</span>

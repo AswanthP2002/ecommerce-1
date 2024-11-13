@@ -78,10 +78,10 @@
                             {{#if (checkPossitive savedValue)}}
                             <p class="text-success">You saved Rs.<span id="savedValue">{{savedValue}}</span> here!</p>
                             {{/if}}
-                            <form action="#" class="d-flex gap-2 mt-3" id="form-promoCode">
+                            <form onsubmit="applyPromoCode(event, this)" action="" class="d-flex gap-2 mt-3" id="form-promoCode">
                                 <div class="border-0 d-flex gap-3 align-items-center ps-3">
                                     <i class="fa-solid fa-tag text-secondary" style=""></i>
-                                    <input type="text" name="promoCode" id="promoCode" class="border-0" placeholder="Apply promo code">
+                                    <input type="text" name="promoCode" id="promoCode" class="border-0" placeholder="Apply promo code" required>
                                 </div>
                                 <button type="submit" class="btn btn-dark">Apply</button>
                             </form>
@@ -101,6 +101,8 @@
 </section>
 <script>
 
+    let couponApplied
+    let couponAppliedOnce = false
     //remove item from cart
     function removeFromCart(productId){
         Swal.fire({
@@ -258,7 +260,7 @@
             headers:{
                 'content-type':'application/json'
             },
-            body:JSON.stringify({subTotal, grantTotal, discount})
+            body:JSON.stringify({subTotal, grantTotal, discount, couponApplied})
         })
         .then((response) => {
             return response.json()
@@ -272,6 +274,73 @@
                 icon:'error',
                 text:error.message,
                 showCancelButton:true
+            })
+        })
+    }
+
+    function applyPromoCode(event, form){
+        event.preventDefault()
+        if(couponAppliedOnce){
+            return Swal.fire({
+                icon:'info',
+                title:'Coupon Already applied!',
+                text:'A coupon already applied to your order',
+                showConfirmButton:false,
+                timer:2000
+            })
+        }
+        const code = document.getElementById('promoCode').value.trim()
+        const totalAmount = document.getElementById('grantTotal').textContent
+        fetch('/checkout/apply-coupon', {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify({code, totalAmount})
+        })
+        .then((response) => {
+            console.log('Response :: ', response)
+            if(!response.ok){
+                Swal.fire({
+                    icon:'error',
+                    title:'Server Error',
+                    text:'Server Not responsing, try after sometime!',
+                    showConfirmButton:true
+                })
+            }
+
+            return response.json()
+        })
+        .then((data) => {
+            if(data && data.success){
+                //document.getElementById('subTotal').textContent = subTotal
+                document.getElementById('discount').textContent = Number(document.getElementById('discount').textContent) + data.discountedPrice
+                document.getElementById('grantTotal').textContent = Number(document.getElementById('grantTotal').textContent) - data.discountedPrice
+                couponApplied = data.code
+                couponAppliedOnce = true
+                console.log('This is coupon', couponApplied)
+                Swal.fire({
+                    icon:'success',
+                    title:'Applied',
+                    text:data.message,
+                    showConfirmButton:false,
+                    timer:1600
+                })
+            }else{
+                Swal.fire({
+                    icon:'info',
+                    title:data.title,
+                    text:data.message,
+                    showConfirmButton:true
+                })
+            }
+        })
+        .then((error) => {
+            Swal.fire({
+                icon:'error',
+                title:'Error',
+                text:error.message,
+                showConfirmButton:true
             })
         })
     }

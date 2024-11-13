@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .step .circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ddd;
+        margin: 0 auto;
+        font-size: 14px;
+        color: #fff;
+    }
+
+    .step .circle.completed {
+        background-color: #28a745;
+        /* Bootstrap success color */
+    }
+
+    .step .label {
+        margin-top: 8px;
+        font-weight: bold;
+    }
+
+    .step .date {
+        font-size: 12px;
+        color: #888;
+    }
+</style>
+
+<body>
+    <div class="container mt-4">
+        <div class="row justify-content-between">
+            <div class="col text-center">
+                <div class="step">
+                    <div class="circle completed">&#10003;</div>
+                    <div class="label">Order Placed</div>
+                    <small class="text-muted date">Nov 1</small>
+                </div>
+            </div>
+            <div class="col text-center">
+                <div class="step">
+                    <div class="circle completed">&#10003;</div>
+                    <div class="label">Processing</div>
+                    <small class="text-muted date">Nov 2</small>
+                </div>
+            </div>
+            <div class="col text-center">
+                <div class="step">
+                    <div class="circle completed">&#10003;</div>
+                    <div class="label">Shipped</div>
+                    <small class="text-muted date">Nov 3</small>
+                </div>
+            </div>
+            <div class="col text-center">
+                <div class="step">
+                    <div class="circle">4</div>
+                    <div class="label">Delivered</div>
+                    <small class="text-muted date">-</small>
+                </div>
+            </div>
+        </div>
+        <div class="progress mt-3">
+            <div class="progress-bar bg-success" style="width: 75%;" role="progressbar"></div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -3,6 +3,8 @@ const nodeMailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const env = require('dotenv').config()
+const {v4:uuidv4} = require('uuid')
+const Razorpay = require('razorpay')
 const User = require('../../models/userModel.js')
 const Product = require('../../models/productModel.js')
 const {ServiceReview, ProductReview} = require('../../models/reviewModel.js')
@@ -12,7 +14,14 @@ const Cart = require('../../models/cartModel.js')
 const { default: mongoose, STATES } = require('mongoose')
 const Order = require('../../models/ordersModel.js')
 const Category = require('../../models/categoryModel.js')
+const Wishlist = require('../../models/wishlistModel.js')
+const Coupon = require('../../models/couponModel.js')
+const Wallet = require('../../models/walletModel.js')
 const secret = process.env.JWT_SECRET
+const razorpayInstance = new Razorpay({
+    key_id:process.env.RAZORPAY_KEY_ID,
+    key_secret:process.env.RAZORPAY_KEY_SECRET
+})
 
 //non-route functions ===> generate OTP
 const generateOTP = () => {
@@ -31,7 +40,7 @@ const generateTocken = (userId) => {
 
 const validateToken = (token) => {
     try {
-        console.log('token for validation', token)
+        //console.log('token for validation', token)
         const decoded = jwt.verify(token, secret)
         return decoded.id
     } catch (error) {
@@ -150,7 +159,7 @@ const productListPage = async (req, res) => {
     let matchCriteria = {}
     let sortCriteria = {}
     let currentSort;
-    console.log('thisi is color', color)
+    //console.log('thisi is color', color)
 
     const isFilter = category || minPrice || maxPrice || style || color || size
     const colorArray = color ? color : []
@@ -166,13 +175,13 @@ const productListPage = async (req, res) => {
         if (colorArray.length > 0) matchCriteria["colorGroup"] = { $in: colorArray }
     }
     
-    console.log('This is match criteria', matchCriteria)
+    //console.log('This is match criteria', matchCriteria)
     try {
         const category = await Category.find({isListed:true}, {_id:0, name:1}).lean()
-        console.log(category)
+        //console.log(category)
 
         if(req.query.sort){
-            console.log(req.query.sort)
+            //console.log(req.query.sort)
             sortOption = req.query.sort
             switch(sortOption){
                 case 'price-high-to-low':
@@ -229,7 +238,7 @@ const productListPage = async (req, res) => {
         aggregationPipeline.push({$sort:sortCriteria})
 
         const productDetails = await Product.aggregate(aggregationPipeline)
-        console.log('all set with product details rendered')
+        //console.log('all set with product details rendered')
         return res.render('user/product-list', {
             layout:'user/main',
             product:productDetails,
@@ -364,8 +373,8 @@ const productDetails = async (req, res) => {
         ])
 
         const productReviews = await ProductReview.find({productId:new mongoose.Types.ObjectId(req.query.id)}).lean()
-        console.log('This is the product details when details page loads') //testing
-        console.log(productDetails)
+        //console.log('This is the product details when details page loads') //testing
+        //console.log(productDetails)
         res.render('user/product-details', {
             layout:'user/main',
             product:productDetails[0],
@@ -440,7 +449,7 @@ const loadUserHome = async (req, res) => {
         // }else{
             
         // }
-        console.log('session when user dont exists', req.session) //testing
+        //console.log('session when user dont exists', req.session) //testing
             const productDetails = await Product.aggregate([
                 {$lookup: {
                     from: 'variants',
@@ -662,7 +671,7 @@ const loadUserProfile = async (req, res) => {
                         as:'productDetails'
                     }}
                 ])
-                console.log('userAddress', address)
+                //console.log('userAddress', address)
                 if(!address){
                     return res.render('user/user-profile', { //if any show the profile page
                         layout:'user/main',
@@ -682,6 +691,71 @@ const loadUserProfile = async (req, res) => {
         //}
     } catch (error) {
         console.log(`Error occured while loading user profile ${error}`)
+        return res.redirect('/pageNotFound')
+    }
+}
+const userOrders = async (req, res) => {
+    const user = req.query.id
+    try {
+        const orders = await Order.aggregate([
+            {$match:{userId:new mongoose.Types.ObjectId(user)}},
+            {$lookup:{
+                from:'products',
+                localField:'orderedItems.product',
+                foreignField:'_id',
+                as:'productDetails'
+            }},
+            {$unwind:"$productDetails"}
+        ])
+
+        return res.render('user/orders', {
+            layout:'user/main',
+            orders
+        })
+    } catch (error) {
+        console.log('error occured while rendering the user order history!', error)
+        res.redirect('/pageNotFound')
+    }
+}
+const userOrderDetails = async (req, res) => {
+    const orderId = req.query.orderId
+    try {
+        const orderDetails = await Order.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+            { $unwind: '$orderedItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: '$productDetails' }
+        ])
+
+        const addressRef = orderDetails[0].address
+        const addressDoc = await Adress.findOne({address:{$elemMatch:{_id:addressRef}}}).lean()
+        const addressArray = addressDoc.address
+        const shippingAddress = addressArray[0]
+        const paymentStatus = orderDetails[0].status
+        const orderObjectId = orderDetails[0]._id
+        const orderRecord = orderDetails[0].record
+        const {totalPrice, finalAmount} = orderDetails[0]
+
+        return res.render('user/orderDetails', {
+            layout:'user/main',
+            orderDetails,
+            shippingAddress,
+            paymentStatus,
+            orderObjectId,
+            orderRecord,
+            totalPrice,
+            finalAmount
+            
+        })
+    } catch (error) {
+        console.log('error occured while geting order ', error)
         return res.redirect('/pageNotFound')
     }
 }
@@ -729,12 +803,12 @@ const fetchEditDetails = async (req, res) => {
     try {
         const addressDoc = await Adress.findOne({address:{$elemMatch:{_id:addressId}}})
         const addressArray = addressDoc.address
-        console.log('full address list', addressArray)
+        //console.log('full address list', addressArray)
         const editableAddress = addressArray.find((address) => {
             return address._id == addressId
         })
-        console.log('request address id', addressId)
-        console.log('Editable address', editableAddress)
+        //console.log('request address id', addressId)
+        //console.log('Editable address', editableAddress)
 
         return res.json({success:true, editableAddress})
     } catch (error) {
@@ -756,10 +830,10 @@ const userAddressEdit = async (req, res) => {
 
     }
     
-    console.log('request for edit address reached here')
-    console.log('requested address id', addressId)
-    console.log(user)
-    console.log('request terminated for current fixing')
+    //console.log('request for edit address reached here')
+    //console.log('requested address id', addressId)
+    //console.log(user)
+    //console.log('request terminated for current fixing')
     //return res.redirect('/pageNotFoud') //checking
     try {
         await Adress.updateOne({address:{$elemMatch:{_id:new mongoose.Types.ObjectId(addressId)}}}, {
@@ -783,7 +857,7 @@ const userAddressEdit = async (req, res) => {
 }
 
 const userAddressDelete = async (req, res) => {
-    console.log(req.body)
+    //console.log(req.body)
     const addressId = req.body.addressId
     try {
         const addressDoc = await Adress.findOne({address:{$elemMatch:{_id:addressId}}})
@@ -855,7 +929,7 @@ const loadCartPage = async (req, res) => {
 
         ])
         console.log('cart details')
-        console.log(cart)
+        //console.log(cart)
         //payment details
         // const subTotal = cart.reduce((total, item) => {
         //     return total + (item.vriantDetails.regularPrice * item.items.quantity)
@@ -1032,10 +1106,11 @@ const proceedToCheckout = async (req, res) => {
     }else{
         return res.redirect('/pageNotFound')
     }
-    const {subTotal, grantTotal, discount} = req.body
+    const {subTotal, grantTotal, discount, couponApplied} = req.body
+    console.log('before redirecting to checkout page! this is applied coupon', couponApplied)
     try {
         //store details in the session
-        req.session.cart = {userId, subTotal, discount, grantTotal}
+        req.session.cart = {userId, subTotal, discount, grantTotal, couponApplied}
         return res.json({success:true, redirectUrl:'/checkout'})
     } catch (error) {
         console.log('Error occured while storing chekcout details in the session', error)
@@ -1083,16 +1158,18 @@ const loadChekoutPge = async (req, res) => {
         { $unwind: "$categoryDetails" }
 
     ])
-
-    const addressList = await Adress.findOne({userId:cartPayment.userId}).lean()
-
-    console.log(cartPayment)
-    console.log(cart)
+    console.log('This is the query used to get the address', cartPayment.userId)
+    const addressLists = await Adress.findOne({userId:cartPayment.userId}).lean()
+    console.log('user address lisst', addressLists)
+    const userWallet = await Wallet.findOne({userId:cartPayment.userId}).lean()
+    //console.log(cartPayment)
+    //console.log(cart)
     return res.render('user/checkout', {
         layout:'user/main',
         cart,
         cartPayment,
-        addressList:addressList.address
+        addressList:addressLists? addressLists?.address : [],
+        userWallet
     })
 }
 
@@ -1102,6 +1179,12 @@ const paymentConfirm = async (req, res) => {
         switch(paymentMethod){
             case 'cod':
                 res.json({success:true, title:'Cash on Delivery', message:'You will redirect to the order placing'})
+                break;
+            case 'onlinePayment':
+                res.json({success:true, title:'Online Payment', message:'You will redirect to the online payment options'})
+                break;
+            case 'wallet':
+                res.json({success:true, title:'Pay through wallet', message:'You will redirect to the wallet'})
                 break;
             default:
                 throw new Error('Invalid')
@@ -1125,8 +1208,19 @@ const placeOrder = async (req, res) => {
     }else{
         return  res.redirect('/pageNotFound')
     }
+
+    if(req.query.orderId){
+        console.log('currently order id exist in the query!', req.query.orderId)
+        const updatePaymentStatus = await Order.updateOne({orderId:req.query.orderId},
+            {paymentStatus:'Paid'}
+        )
+        if(updatePaymentStatus.modifiedCount === 0){
+            throw new Error('Can not update payment status')
+        }
+        return res.json({success:true, message:'Yay! your order has been successfully placed!'})
+    }
     const orderData = req.body
-    console.log(orderData)
+    //console.log(orderData)
     try {
         const orderedItems = await Cart.aggregate([
             { $match:{userId:new mongoose.Types.ObjectId(user)}},
@@ -1157,7 +1251,7 @@ const placeOrder = async (req, res) => {
             { $unwind: "$variantDetails" }
 
         ])
-        console.log('Aggregated items', orderedItems)
+        //console.log('Aggregated items', orderedItems)
 
         const formatOrderedItems = orderedItems.map((item) => {
             return {
@@ -1167,7 +1261,7 @@ const placeOrder = async (req, res) => {
                 price:item.variantDetails.regularPrice
             }
         })
-        console.log('checking the ordered items correctly maped' ,formatOrderedItems)
+        //console.log('checking the ordered items correctly maped' ,formatOrderedItems)
 
         const order = new Order({
             orderedItems:formatOrderedItems,
@@ -1189,6 +1283,28 @@ const placeOrder = async (req, res) => {
         })
         
         console.log('order saved')
+        //remove cart after order creation
+        const deleteCart = await Cart.deleteOne({userId:user})
+        if(deleteCart.deletedCount > 0){
+            console.log('cart deleted after placing order!')
+        }
+
+        //update the coupn applied user
+        if(orderData.couponApplied){
+            await Coupon.updateOne({name:orderData.couponApplied}, 
+                {$addToSet:{userId:user}}
+            )
+        }
+        if(orderData.paymentMethod === 'onlinePayment'){
+            const currency = 'INR'
+            const razorPayOrder = await razorpayInstance.orders.create({
+                amount:orderData.payableAmount * 100,
+                currency:currency,
+                receipt:order.orderId,
+                payment_capture:1
+            })
+            return res.json(razorPayOrder)
+        }
         return res.json({success:true, message:'Yay! your order has been successfully placed!'})
 
     } catch (error) {
@@ -1196,7 +1312,110 @@ const placeOrder = async (req, res) => {
         res.status(500).json({success:false, message:'Internal Server Error, please try again after sometimes'})
     }
 }
+const cancelOrder = async (req, res) => {
+    const {orderId, userId} = req.body
+    try {
+        const order = await Order.findOne({_id:orderId})
+        if(!order){
+            return res.status(400).json({success:false, message:'Order not found!'})
+        }
+        order.status = 'Cancelled'
+        if(order.paymentMethod === 'onlinePayment'){
+            order.record = 'Order cancelled and amount refunded'
+            order.statusHistory.push({
+                status:'Cancelled',
+                timestamp:new Date(),
+                notes:'Order cancelled'
+            })
 
+            //refund the amount to the wallet
+            const refundAmount = order.finalAmount
+            const userWallet = await Wallet.findOne({userId:userId})
+            //update the wallet
+            userWallet.transactions.push({
+                transactionType:"Credit",
+                amount:refundAmount,
+                date:new Date(),
+                status:"Completed",
+                description:"Order cancellation refund"
+            })
+            userWallet.balance += refundAmount
+
+            await userWallet.save()
+
+        }else{
+            order.record = 'Order cancelled'
+            order.statusHistory.push({
+                status:'Cancelled',
+                timestamp:new Date(),
+                notes:'Order cancelled'
+            })
+        }
+        await order.save()
+
+        return res.json({success:true, message:'Order Cancelled Successfully!'})
+    } catch (error) {
+        console.log('error occured while cancelling the order', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
+    }
+}
+
+const returnRequest = async (req, res) => {
+    
+    const {orderId, userId} = req.body
+    const requestedDate = new Date()
+    try {
+        //find the order
+        const order = await Order.findOne({_id:orderId})
+        if(!order){
+            return res.status(400).json({success:false, title:'Invalid', message:'Order not found!'})
+        }
+
+        //check eligibility
+        const returnValidity = 7 * 24 * 60 * 60 * 1000
+        const deliveryDate = order.statusHistory.find((historyData) => {
+            return historyData.status === 'Delivered'
+        })?.timestamp
+
+        if(!deliveryDate || requestedDate - deliveryDate > returnValidity){
+            return res.status(400).json({success:false, title:'Expired', message:'Sorry, your return period is ended'})
+        }
+
+        //proceed the return request
+        order.status = 'Return Request'
+        order.statusHistory.push({
+            status:'Return Request',
+            timestamp:requestedDate,
+            notes:'User requested for return'
+        })
+        order.record = 'Return request is on processing'
+
+        await order.save()
+
+        return res.json({success:true, title:'Success!', message:'Your return request submitted successfully!, request is currently on processing. You can see information here once it completed'})
+    } catch (error) {
+        console.log('error occured while processing the return request!', error)
+        return res.status(500).json({success:false, title:'Error', message:'Internal Server Error, please try again after sometime!'})
+    }
+}
+
+const cancelOrderPayment = async (req, res) => {
+    const { orderId } = req.query
+    if (orderId) {
+        //delete the order
+        try {
+            const deleteSavedOrder = await Order.deleteOne({ orderId: orderId })
+            if (deleteSavedOrder.deletedCount > 0) {
+                return res.json({ success: true })
+            }
+            throw new Error('Delete Count 0')
+        } catch (error) {
+            console.log('error occured while deleting the order for payment cancelation')
+            return res.status(500).json({success:false, message:'Internal Server Error, Please try again after some time!'})
+        }
+    }
+    return
+}
 const searchProducts = async (req, res) => {
     const query = req.query.query
     try {
@@ -1220,9 +1439,17 @@ const searchProducts = async (req, res) => {
     }
 }
 
+//app use
 const countCartItems = async (req, res) => {
     try {
-        const user = req.session.user || req.user
+        let user 
+        if(req.session.user){
+            user = req.session.user
+        }else if(req.user){
+            user = req.user._id
+        }
+
+
         if(user){
             const cart = await Cart.findOne({userId:user})
             return cart ? cart.items.length : 0
@@ -1231,6 +1458,30 @@ const countCartItems = async (req, res) => {
     } catch (error) {
         console.log('error occured while geting cart count for badge !', error )
         return null
+    }
+}
+//app use
+const CheckWishlist = async (req, res) => {
+    try {
+        let user
+        if(req.session.user){
+            user = req.session.user
+        }else if(req.user){
+            user = req.uesr._id
+        }
+
+        if(user){
+            //get user wishlist
+            const userWishlist = await Wishlist.findOne({userId:user})
+            const wishlistedProducts = userWishlist.products.map((product) => {
+                return product.productId
+            } )
+            return wishlistedProducts ? userWishlist : []
+        }
+        return []
+    } catch (error) {
+        console.log('Error occured while geting the wishlisted item for icon management!', error)
+        return []
     }
 }
 
@@ -1307,6 +1558,231 @@ const updatePassword = async (req, res) => {
         return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
     }
 }
+const addToWishlist = async (req, res) => {
+    console.log('Request reached here for add to wishlist!')
+    const {productId} = req.body
+    let user
+    if(req.session.user){
+        user = req.session.user
+    }else if(req.user){
+        user = req.user._id //fixed the id issue of passport users
+    }
+
+    try {
+        const productDetails = {
+            productId:productId,
+            addedOn:new Date()
+        }
+        const userWishlist = await Wishlist.findOne({userId:user})
+        if(!userWishlist){ //case : if the user creates wishlist for the first time!
+            const addNewtoWishlist = new Wishlist({
+                userId:user,
+                products:[productDetails]
+            })
+
+            await addNewtoWishlist.save()
+            return res.json({success:true, message:'Item Added to wishlist'})
+        }
+
+        //case : if the user already have wishlist
+        if(userWishlist.products.length > 0){ // add the product if it is not in the list
+            const updateWishlist = await Wishlist.updateOne(
+                {userId:user},
+                {$addToSet:{
+                    products:productDetails
+                }}
+            )
+
+            if(updateWishlist.modifiedCount > 0) return res.json({success:true, message:'Item Added to wishlist'})
+    
+        }
+        
+        if(userWishlist.products.length === 0){
+            const updateWishlist = await Wishlist.updateOne(
+                {userId:user},
+                {$push:{products:productDetails}}
+            )
+
+            if(updateWishlist.modifiedCount > 0){
+                return res.json({success:true, message:'Item Added to wishlist'})
+            }
+        }
+
+    } catch (error) {
+        console.log('Error occured while item ', error)
+        return res.status(500).json({success:false, message:'Internal Server Error please try again after sometime!'})
+    }
+}
+const removeFromWishlist = async (req, res) => {
+    const {productId} = req.body
+    const user = req.session.user || req.user._id //fixed the id issue of passport users
+    try {
+        //pull the product from wishlist
+        const removeItem = await Wishlist.updateOne(
+            {userId:user},
+            {$pull:{
+                products:{"productId":productId}
+            }}
+        )
+        if(removeItem.modifiedCount > 0){
+            return res.json({success:true, message:'Item removed from wishlist'})
+        }
+
+        throw new Error('Item not removed, please try again after somtime!')
+    } catch (error) {
+        console.log('Error occured while removing item from wishlist', error)
+        return res.status(500).json({success:false, message:'Internal Server Error please try again after sometime!'})
+    }
+}
+
+
+
+const getWishlist = async (req, res) => {
+    console.log('request for wishlist geting')
+    let user = req.session.user || req.user._id
+    console.log('This is user id', user)
+    //throw new Error('This is testing ERror for testing page') Testing :: Fixed the wishlist loading error
+    if (user) {
+        console.log('wishlist requested user!', user)
+        const wishlist = await Wishlist.aggregate([
+            { $match: { userId: new mongoose.Types.ObjectId(user) } },
+            { $unwind: "$products" },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: "products.productId",
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: "$productDetails" },
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'productDetails.category',
+                    foreignField: '_id',
+                    as: 'categoryDetails'
+                }
+            },
+            { $unwind: "$categoryDetails" },
+            {
+                $lookup: {
+                    from: 'variants',
+                    localField: 'products.productId',
+                    foreignField: 'productId',
+                    as: 'variantDetails'
+                }
+            },
+            { $unwind: '$variantDetails' },
+            { $match: { 'variantDetails.size': "small" } }
+        ])
+
+        console.log('user wishlist', wishlist)
+
+        return res.render('user/wishlists', {
+            layout:'user/main',
+            wishlist
+        })
+    }
+}
+
+const applyCoupon = async (req, res) => {
+    console.log('coupon applying request reached here!')
+    let user
+    if(req.session.user){
+        user = req.session.user
+    }else if(req.user){
+        user = req.user._id
+    }
+    const {code, totalAmount} = req.body
+    let discountedPrice
+    const today = new Date()
+    try {
+        //check if it invalid
+        const findCode = await Coupon.findOne({name:code})
+        if(!findCode){
+            return res.status(400).json({success:false, title:'Invalid Coupon', message:'The coupon code you entered is invalid, please check and try again'})
+        }
+
+        //check if it is not expired
+        const expiryDate = new Date(findCode.expireOn)
+        const isExpired = expiryDate < today
+        if(isExpired){
+            return res.status(400).json({success:false, title:'Coupon Expired!', message:'The coupon you have entered is expired and can not be applied, please try another one'})
+        }
+
+        //check if the user is already applied this coupon
+        const isUsed = await Coupon.findOne({userId:{$eq:user}})
+        if(isUsed){
+            return res.status(400).json({success:false, title:'Coupon Already used!', message:'This coupon has been already used, please try another one!'})
+        }
+        //check minimum price
+        if(parseInt(totalAmount) < findCode.minimumPrice){
+            return res.status(400).json({success:false, title:'Minimum purchase requirement', message:'Your cart items does not meet the minimum purchase requirement for this coupon'})
+        }
+        discountedPrice = (findCode.offerType === 'percentage') ? Math.round((parseInt(totalAmount) * findCode.offerPrice) / 100) : findCode.offerPrice
+        return res.json({success:true, discountedPrice, code:findCode.name, message:'Coupon Applied!'})
+
+    } catch (error) {
+        console.log('Error occured while, appliying coupon', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime'})
+    }
+}
+const getWallet = async (req, res) => {
+    const userId = req.query.id
+    try {
+        const userWallet = await Wallet.findOne({userId:userId}).lean()
+        const transactions = userWallet?.transactions
+
+        return res.render('user/wallet', {
+            layout:'user/main',
+            wallet:userWallet || null,
+            transactions:transactions || null
+        })
+    } catch (error) {
+        console.log('error occured while geting wallet!', error)
+        return res.redirect('/pageNotFound')
+    }
+    
+}
+const createWallet = async (req, res) => {
+    const userId = req.query.user
+    try {
+        const createWallet = new Wallet({
+            userId:userId,
+            balance:10,
+            transactions:[
+                {
+                    transactionType:"Credit",
+                    amount:10,
+                    date:new Date(),
+                    status:"Completed",
+                    description:"Welcome Bonus!"
+                }
+            ]
+        })
+
+        await createWallet.save()
+        return res.json({success:true, message:'Wallet created successfully!'})
+    } catch (error) {
+        console.log('error occured while creating the wallet')
+        return res.status(500).json({success:false, message:'Internal Server Error Please try again after some time!'})
+    }
+}
+
+const getCoupons = async (req, res) => {
+    const userId = req.query.user
+    try {
+        const coupons = await Coupon.find({isListed:true}).lean()
+        return res.render('user/coupons', {
+            layout:'user/main',
+            coupons:coupons || null
+        })
+    } catch (error) {
+        console.log('error occured while rendering coupons', error)
+        return res.redirect('/pageNotFound')
+    }
+}
 
 module.exports = {
     loadUserHome,
@@ -1338,5 +1814,18 @@ module.exports = {
     loadPasswordresetRequestPage,
     sendPasswordResetLink,
     loadPaswordResetPage,
-    updatePassword
+    updatePassword,
+    addToWishlist,
+    removeFromWishlist,
+    getWishlist,
+    CheckWishlist,
+    applyCoupon,
+    cancelOrderPayment,
+    userOrders,
+    userOrderDetails,
+    cancelOrder,
+    returnRequest,
+    getWallet,
+    createWallet,
+    getCoupons
 }

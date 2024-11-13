@@ -67,3 +67,12 @@ ul .nav-link{
     max-width: 100%;
     max-height: 100%;
 }
+#createCoupon-form{
+    border: 1px solid rgb(200, 197, 197);
+    max-width: 600px;
+    margin: auto;
+}
+.error-message{
+    display: none;
+    color: red;
+}

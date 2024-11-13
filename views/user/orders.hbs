@@ -1,0 +1,63 @@
+<section id="userOrders" class="pt-5 pb-5">
+    <div class="container">
+        {{#if orders}}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a class="text-decoration-none" href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/profile?id={{logedUser.id}}" class="text-decoration-none">My Account</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><a href="" class="text-decoration-none">My Orders</a></li>
+        </ol>
+        <p class="fw-bold fs-4">My Orders</p>
+        <div class="row gy-3">
+            {{#each orders}}
+            <div class="col-12">
+                <div class="border shadow d-flex justify-content-between p-3">
+                    <div id="orderItemImage">
+                        <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}" alt="" style="width: 70px;height:80px">
+                    </div>
+                    <div id="orderItem">
+                        <p class="itemDescription">{{this.productDetails.productName}}</p>
+                        <p class="text-secondary"></p>
+                    </div>
+                    <div id="orderAmount">
+                        <p>Rs.{{this.finalAmount}}</p>
+                    </div>
+                    <div id="orderStatus">
+                        {{#if (isCancelled this.status 'Cancelled')}}
+                        <p style="color: red;">Order Status : {{this.status}}</p>
+                        {{else}}
+                        <p>Order Status : {{this.status}}</p>
+                        {{/if}}
+                    </div>
+                    <div id="orderAction">
+                        <a href="/order/details?orderId={{this._id}}" class="btn" style="border:1px solid rgb(148, 146, 146);border-radius: 0;">Details</a>
+                    </div>
+                    {{!-- <div>
+                        <p>Order Id : <span>{{this.orderId}}</span></p>
+                        <p>Date : <span>{{formatDate this.createdAt}}</span></p>
+                        <span>Ordered Items : </span>
+                        {{#each this.productDetails}}
+                        <span>{{this.productName}}</span>,
+                        {{/each}}
+                        <p>Total Price : <span>{{this.finalAmount}}</span></p>
+                        {{#if (isCancelled this.status 'Cancelled')}}
+                        <p style="color: red;">Order Status : {{this.status}}</p>
+                        {{else}}
+                        <p>Order Status : {{this.status}}</p>
+                        {{/if}}
+
+                    </div>
+                    <div class="d-flex flex-column justify-content-between">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div> --}}
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        {{else}}
+        <div id="no-orders" class="d-flex align-items-center justify-content-center">
+            <img src="/images/frontend/no_orders-removebg-preview.png" alt="" class="d-block">
+        </div>
+        {{/if}}
+        
+    </div>
+</section>

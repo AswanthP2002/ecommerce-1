@@ -1,0 +1,336 @@
+<div class="col">
+    <form onsubmit="createCoupon(event, this)" method="post" id="createCoupon-form" class="bg-body p-3 rounded mt-2">
+        <p class="fs-4 fw-bold text-center">Create New Coupon</p>
+        <div class="form-group mt-3">
+            <label for="coupon-code" class="fw-bold">Coupon Code</label>
+            <input type="text" name="couponCode" id="coupon-code" class="form-control border-dark" placeholder="Enter unique coupon code" required>
+            <label for="" class="error-message" id="couponCodeError"></label>
+        </div>
+        <div class="form-group mt-3">
+            <label for="offer-type" class="fw-bold">Offer Type</label>
+            <select name="offerType" id="offer-type" class="form-control border-dark" required>
+                <option value="percentage">Percentage</option>
+                <option value="fixed">Fixed</option>
+            </select>
+        </div>
+        <div class="form-group mt-3">
+            <label for="offer-amount" class="fw-bold">Offer Amount</label>
+            <input type="text" name="offerAmount" id="offer-amount" class="form-control border-dark" placeholder="Enter discount" required>
+            <label for="" class="error-message" id="offerAmountError"></label>
+        </div>
+        <div class="form-group mt-3">
+            <label for="minimum-amout" class="fw-bold">Minimum Amount</label>
+            <input type="text" name="minimumPrice" id="minimum-price" class="form-control border-dark" placeholder="Enter the minimum price" required>
+            <label for="" class="error-message" id="minimumPriceError"></label>
+        </div>
+        <div class="form-group mt-3">
+            <label for="expiry-date" class="fw-bold">Expiration Date</label>
+            <input type="date" name="expiryDate" id="expiry-date" class="form-control border-dark" placeholder="dd-mm-yyyy" required>
+        </div>
+        <button type="submit" class="mt-4 btn btn-dark form-control">Create Coupon</button>
+    </form>
+    <div id="existing-coupons" class="bg-body p-2 mt-1">
+        <p class="fs-4 fw-bold mt-3 mb-3">Existing Coupons</p>
+        <div class="table-responsive">
+            <table class="table bordered">
+                <div class="thead">
+                    <tr class="table-secondary">
+                        <th>Code</th>
+                        <th>Discount</th>
+                        <th>Type</th>
+                        <th>Expiration</th>
+                        <th>Minimum Price</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                        <th>Remove</th>
+                    </tr>
+                </div>
+                <tbody>
+                    {{#each coupons}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>{{this.offerPrice}}</td>
+                        <td>{{this.offerType}}</td>
+                        <td>{{formatDate this.expireOn}}</td>
+                        <td>{{this.minimumPrice}}</td>
+                        {{#if (isExpired this.expireOn)}}
+                        <td class="text-danger">Expired</td>
+                        {{else}}
+                        <td class="text-success">Active</td>
+                        {{/if}}
+                        {{#if this.isListed}}
+                        <td><button onclick="confirm('Do you want to unlist this coupon'), unlistCoupon('{{this._id}}')" class="btn btn-secondary">Unlist</button></td>
+                        {{else}}
+                        <td><button onclick="confirm('Do you want to list this coupon'), listCoupon('{{this._id}}')" class="btn btn-secondary">List</button></td>
+                        {{/if}}
+                        <td><a onclick="confirm('Are your sure to remove this coupon'), deleteCoupon('{{this._id}}')" href="#"><i class="fa-solid fa-trash"></i></a></td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+<script>
+    const couponCode = document.getElementById('coupon-code')
+    const offerAmount = document.getElementById('offer-amount')
+    const minimumPrice = document.getElementById('minimum-price')
+    const errorMessage = document.querySelectorAll('.error-message')
+
+    function setError(element, message, display){
+        const errorElement = element.nextElementSibling
+        if(errorElement){
+            errorElement.innerHTML = message
+            errorElement.style.color = 'red'
+            errorElement.style.display = display
+        }
+    }
+    function createCoupon(event, form){
+        event.preventDefault()
+        let errorCount = 0
+        errorMessage.forEach((error) => {
+            if(error.innerHTML){
+                errorCount++
+            }
+        })
+        if(errorCount){
+            return Swal.fire({
+                icon:'warning',
+                title:'Missing',
+                text:'Please fill form correctly!',
+                showConfirmButton:false,
+                timer:1600
+            })
+        }
+
+        const formData = new FormData(form)
+        const formObject = {}
+        formData.forEach((value, key) => {
+            formObject[key] = value
+        })
+
+        fetch('/admin/coupon/add', {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify(formObject)
+        })
+        .then((response) => {
+            if(!response.ok){
+                Swal.fire({
+                    icon:'error',
+                    title:'Server Error',
+                    text:'Internal Server Error',
+                    showConfirmButton:true
+                })
+                return 
+            }
+            return response.json()
+        })
+        .then((data) => {
+            if(data && data.success){
+                Swal.fire({
+                    icon:'success',
+                    title:'Added',
+                    text:data.message,
+                    showConfirmButton:false,
+                    timer:1600
+                }).then(() => location.reload())
+            }else{
+                Swal.fire({
+                    icon:'warning',
+                    title:'Duplicate',
+                    text:data.message,
+                })
+            }
+        })
+        .catch((error) => {
+            Swal.fire({
+                icon:'error',
+                title:'Error',
+                text:error.message,
+                showConfirmButton:true
+            })
+        })
+
+    }
+
+    //validate code
+    function validateCode(){
+        const code = couponCode.value
+        couponCode.value = code.toUpperCase()
+        const pattern = /^[A-Z0-9]{6,8}$/
+        if(code.trim() === ''){
+            setError(couponCode, 'Code can not be empty', 'block')
+        }else if(!pattern.test(code)){
+            setError(couponCode, 'Code must be Alpha numeric 6-8 charecters', 'block')
+        }else{
+            setError(couponCode, '', 'none')
+        }
+    }
+
+    function validateAmount(){
+        const amount = offerAmount.value
+        const pattern = /^[0-9]+$/
+        if(amount.trim() === ''){
+            setError(offerAmount, 'Offer Amount can not be empty', 'block')
+        }else if(!pattern.test(amount)){
+            setError(offerAmount, 'Enter valid offer', 'block')
+        }else{
+            setError(offerAmount, '', 'none')
+        }
+    }
+
+    function validateMinimumPrice(){
+        const price = minimumPrice.value
+        const pattern = /^[0-9]+$/
+        if(price.trim() === ''){
+            setError(minimumPrice, 'Please provide minimum price', 'block')
+        }else if(!pattern.test(price)){
+            setError(minimumPrice, 'Enter valid offer', 'block')
+        }else{
+            setError(minimumPrice, '', 'none')
+        }
+    }
+
+    function deleteCoupon(couponId){
+        fetch('/admin/coupon/remove', {
+            method:'POST',
+            headers:{
+                'content-type':'application/json'
+            },
+            body:JSON.stringify({couponId})
+        })
+        .then((response) => {
+            if(!response.ok){
+                return Swal.fire({
+                    icon:'Error',
+                    title:'Server is not responding' 
+                })
+            }
+            return response.json()
+        })
+        .then((data) => {
+            if(data && data.success){
+                Swal.fire({
+                    icon:'success',
+                    title:data.title,
+                    text:data.message,
+                    showConfirmButton:false,
+                    timer:1600
+                }).then((data) => location.reload())
+            }
+        })
+        .catch((error) => {
+            Swal.fire({
+                icon:'error',
+                title:'Error!',
+                text:error.message,
+                showConfirmButton:true
+            })
+        })
+    }
+
+
+    couponCode.addEventListener('keyup', validateCode)
+    offerAmount.addEventListener('keyup', validateAmount)
+    minimumPrice.addEventListener('keyup', validateMinimumPrice)
+
+    function unlistCoupon(couponId){
+        if(couponId){
+            fetch('/admin/coupon/unlist', {
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({couponId})
+            })
+            .then((response) => {
+                if(!response.ok){
+                    Swal.fire({
+                        icon:'error',
+                        title:'Bad Request',
+                        text:'Server not responding!'
+                    })
+
+                    return
+                }
+
+                return response.json()
+            })
+            .then((data) => {
+                if(data && data.success){
+                    Swal.fire({
+                        icon:'success',
+                        title:'Unlisted',
+                        showConfirmButton:false,
+                        timer:1800
+                    }).then(() => location.reload())
+                }else{
+                    Swal.fire({
+                        icon:'error',
+                        title:'Invalid',
+                        text:'Coupon not found'
+                    })
+                }
+            })
+            .catch((error) => {
+                Swal.fire({
+                        icon:'error',
+                        title:'Error!',
+                        text:error.message
+                    })
+            })
+        }
+    }
+    function listCoupon(couponId){
+        if(couponId){
+            fetch('/admin/coupon/list', {
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({couponId})
+            })
+            .then((response) => {
+                if(!response.ok){
+                    Swal.fire({
+                        icon:'error',
+                        title:'Bad Request',
+                        text:'Server not responding!'
+                    })
+
+                    return
+                }
+
+                return response.json()
+            })
+            .then((data) => {
+                if(data && data.success){
+                    Swal.fire({
+                        icon:'success',
+                        title:'Listed',
+                        showConfirmButton:false,
+                        timer:1800
+                    }).then(() => location.reload())
+                }else{
+                    Swal.fire({
+                        icon:'error',
+                        title:'Invalid',
+                        text:'Coupon not found'
+                    })
+                }
+            })
+            .catch((error) => {
+                Swal.fire({
+                        icon:'error',
+                        title:'Error!',
+                        text:error.message
+                    })
+            })
+        }
+    }
+
+</script>

@@ -43,6 +43,7 @@ const userAuth = (req, res, next) => {
             })
 
     }else{
+        console.log('Currently there is no user, so redirected to user login')
         res.redirect('/user_login') //testing
     }    
 }

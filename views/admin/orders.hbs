@@ -17,16 +17,20 @@
                     <td>{{this._id}}</td>
                     <td>{{this.userDetails.name}}</td>
                     <td>{{formatDate this.date}}</td>
-                    <td></td>
-                    <td></td>
+                    <td>-</td>
+                    <td>{{this.paymentMethod}}</td>
                     <td>Rs.{{this.finalAmount}}</td>
                     <td>{{this.status}}</td>
                     <td>
+                        {{#if (isCancelled this.status 'Cancelled')}}
+                        <p class="text-danger">Order Cancelled</p>
+                        {{else}}
                         <select class="d-block mb-2" onchange="updateOrderStatus('{{this._id}}', this.value)">
                             {{#each ../statuses}}
                             <option value="{{this}}" {{#ifEquals this ../status}}selected{{/ifEquals}}>{{this}}</option>
                             {{/each}}
                         </select>
+                        {{/if}}
                         <a href="/admin/orders/view?orderId={{this._id}}" type="button" class="rounded btn btn-dark" style="width: 80px;">View</button>
                     </td>
                 </tr>

@@ -3,7 +3,7 @@
         <div class="border border-secondary rounded p-4">
             <div>
                 <p class="fw-bold fs-4">Deliver to</p>
-                
+
                 <div class="row">
                     {{#if addressList}}
                     {{#each addressList}}
@@ -15,9 +15,10 @@
                     </div>
                     {{/each}}
                     {{else}}
-                    <button onclick="window.location.href='/profile?id={{logedUser.id}}'" type="button" class="btn btn-primary">Add Address</button>
+                    <button onclick="window.location.href='/profile?id={{logedUser.id}}'" type="button"
+                        class="btn btn-primary">Add Address</button>
                     {{/if}}
-                    
+
                 </div>
             </div>
             <div class="mt-3">
@@ -37,8 +38,10 @@
                             {{#each cart}}
                             <tr>
                                 <td>
-                                    <div class="d-flex justify-content-center align-items-center bg-secondary" style="width: 80px;">
-                                        <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}" alt="product image" style="width: 80%;">
+                                    <div class="d-flex justify-content-center align-items-center bg-secondary"
+                                        style="width: 80px;">
+                                        <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}"
+                                            alt="product image" style="width: 80%;">
                                     </div>
                                 </td>
                                 <td>{{this.productDetails.productName}}</td>
@@ -56,19 +59,20 @@
                 <div>
                     <form action="#" id="paymentForm">
                         <label>
-                            <input type="radio" name="paymentMethod" value="cod" checked required> Cash on Delivery
+                            <input type="radio" name="paymentMethod" value="cod" checked> Cash on Delivery
                         </label><br>
                         <label>
-                            <input type="radio" name="paymentMethod" value="wallet" disabled> Wallet (Balance: ₹0.00)
+                            <input type="radio" name="paymentMethod" value="onlinePayment"> Online Payment
                         </label><br>
                         <label>
-                            <input type="radio" name="paymentMethod" value="debitCard" disabled> Debit/Credit Card
+                            <input type="radio" name="paymentMethod" value="wallet"> Wallet - Balance: ₹{{userWallet.balance}}
                         </label><br>
-                        <label>
-                            <input type="radio" name="paymentMethod" value="netBanking" disabled> Net Banking
-                        </label><br>
-                        <div class="d-flex justify-content-between">
-                            <p class="fs-3 fw-bold">total payable <span id="payableAmount">{{cartPayment.grantTotal}}</span> <span class="ms-2 fs-5 text-decoration-line-through text-secondary" id="totalAmount">{{cartPayment.subTotal}}</span></p>
+                        <div class="d-flex justify-content-between" id="checkout-payment"
+                            data-coupon="{{cartPayment.couponApplied}}">
+                            <p class="fs-3 fw-bold">total payable <span
+                                    id="payableAmount">{{cartPayment.grantTotal}}</span> <span
+                                    class="ms-2 fs-5 text-decoration-line-through text-secondary"
+                                    id="totalAmount">{{cartPayment.subTotal}}</span></p>
                             <button type="submit" class="btn btn-dark rounded ps-3 pe-3">Continue</button>
                         </div>
                         <a href="/cart" class="text-decoration-none text-primary">Return to Cart ></a>
@@ -102,7 +106,8 @@
                     </div>
                     <p class="text-center fs-4 fw-bold" id="order-confirm-message"></p>
                     <div class="d-flex justify-content-center gap-3">
-                        <button onclick="window.location.href='/profile?id={{logedUser.id}}'" class="btn btn-dark rounded">Orders</button>
+                        <button onclick="window.location.href='/profile?id={{logedUser.id}}'"
+                            class="btn btn-dark rounded">Orders</button>
                         <button onclick="window.location.href='/shop'" class="btn btn-secondary rounded">Shop</button>
                     </div>
                 </div>
@@ -110,88 +115,105 @@
         </div>
     </div>
 </section>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
     document.addEventListener('DOMContentLoaded', () => {
-            const orderConfirmModal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'))
-            const orderPlacedModal = new bootstrap.Modal(document.getElementById('orderPlacedModal'))
-            
-            document.getElementById('paymentForm').addEventListener('submit', (event) => {
-                event.preventDefault()
-                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value
-                const isAddressSelected = document.querySelector('input[name="selectedAddress"]:checked')
-                console.log(isAddressSelected)
-                if(!isAddressSelected){
-                    Swal.fire({
-                        title:'Delivery Address!',
-                        icon:'warning',
-                        text:'Please select Delivery Address before continuing!',
-                        showConfirmButton:false,
-                        timer:1800
-                    })
-                    return
-                }
+        const orderConfirmModal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'))
+        const orderPlacedModal = new bootstrap.Modal(document.getElementById('orderPlacedModal'))
 
-                fetch('/payment', {
-                    method: 'POST',
-                    headers: {
-                        'content-type': 'application/json'
-                    },
-                    body: JSON.stringify({ paymentMethod })
+        document.getElementById('paymentForm').addEventListener('submit', (event) => {
+            event.preventDefault()
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value
+            const isAddressSelected = document.querySelector('input[name="selectedAddress"]:checked')
+            console.log(isAddressSelected)
+            if (!isAddressSelected) {
+                Swal.fire({
+                    title: 'Delivery Address!',
+                    icon: 'warning',
+                    text: 'Please select Delivery Address before continuing!',
+                    showConfirmButton: false,
+                    timer: 1800
                 })
-                    .then((response) => {
-                        return response.json()
-                    })
-                    .then((data) => {
-                        Swal.fire({
-                            title: data.title,
-                            icon: 'info',
-                            text: data.message,
-                            showConfirmButton: false,
-                            timer: 1500
-                        })
-                            .then(() => {
-                                orderConfirmModal.show()
-                            })
-                    })
-                    .catch((error) => {
-                        Swal.fire({
-                            title: 'Something Went Wrong!',
-                            icon: 'error',
-                            text: error.message,
-                            showConfirmButton: true
-                        })
-                    })
+                return
+            }
+
+            fetch('/payment', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({ paymentMethod })
             })
-
-            document.getElementById('placeOrder-button').addEventListener('click', async () => {
-                const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value
-                const payableAmount = document.querySelector('#paymentForm #payableAmount').textContent
-                const totalAmount = document.querySelector('#paymentForm #totalAmount').textContent
-
-
-                const orderData = {
-                    paymentMethod:document.querySelector('input[name="paymentMethod"]:checked').value,
-                    selectedAddress:selectedAddress,
-                    totalAmount:Number(totalAmount),
-                    payableAmount:Number(payableAmount),
-                    testing:'order request reached herer4'
-                }
-
-                fetch('/order/proceed', {
-                    method:'POST',
-                    headers:{
-                        'content-type':'application/json'
-                    },
-                    body:JSON.stringify(orderData)
-                })
                 .then((response) => {
-                    if(response.ok){
+                    return response.json()
+                })
+                .then((data) => {
+                    Swal.fire({
+                        title: data.title,
+                        icon: 'info',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                            if (data.title === 'Online Payment') {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Proceed to Payment',
+                                    text: 'Do you want to proceed with the payment process?',
+                                    showCancelButton: true,
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'Continue Payment',
+                                    allowOutsideClick: false
+                                }).then((result) => {
+                                    if(result.isConfirmed){
+                                        proceedOnlinePayment()
+                                    }
+                                })
+                            } else {
+                                orderConfirmModal.show()
+                            }
+
+                        })
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        title: 'Something Went Wrong!',
+                        icon: 'error',
+                        text: error.message,
+                        showConfirmButton: true
+                    })
+                })
+        })
+
+        document.getElementById('placeOrder-button').addEventListener('click', async () => {
+            const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value
+            const payableAmount = document.querySelector('#paymentForm #payableAmount').textContent
+            const totalAmount = document.querySelector('#paymentForm #totalAmount').textContent
+
+
+            const orderData = {
+                paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+                selectedAddress: selectedAddress,
+                totalAmount: Number(totalAmount),
+                payableAmount: Number(payableAmount),
+                couponApplied: document.getElementById('checkout-payment').dataset.coupon
+            }
+            console.log('coupon', orderData.couponApplied)
+            fetch('/order/proceed', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            })
+                .then((response) => {
+                    if (response.ok) {
                         return response.json()
                     }
                 })
                 .then((data) => {
-                    if(data.success){
+                    if (data.success) {
                         document.getElementById('order-confirm-message').innerHTML = data.message
                         orderPlacedModal.show()
                         /*Swal.fire({
@@ -200,17 +222,123 @@
                             text:'Yay! your order has been placed!',
                             timer:2000
                         }).then(() => window.location.href = '/')*/
-                    }else{
+                    } else {
                         alert('ok sory')
                     }
                 })
                 .catch((error) => {
                     Swal.fire({
-                        icon:'error',
-                        title:'error occured'
+                        icon: 'error',
+                        title: 'error occured'
                     })
                 })
-                
-            })
+
         })
+    })
+
+    async function createRazorPayOrder() {
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value
+        const payableAmount = document.querySelector('#paymentForm #payableAmount').textContent
+        const totalAmount = document.querySelector('#paymentForm #totalAmount').textContent
+
+
+        const orderData = {
+            paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+            selectedAddress: selectedAddress,
+            totalAmount: Number(totalAmount),
+            payableAmount: Number(payableAmount),
+            couponApplied: document.getElementById('checkout-payment').dataset.coupon
+        }
+
+        const response = await fetch('/order/proceed', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(orderData)
+        })
+        const data = await response.json()
+        return data
+    }
+
+    async function proceedOnlinePayment() {
+        const razorpayOrder = await createRazorPayOrder()
+        var options = {
+            "key": "rzp_test_4MBYamMKeUifHI",
+            "amount": razorpayOrder.amount,
+            "currency": razorpayOrder.currency,
+            "name": "Shopy Fashions",
+            "description": "Thank you for shopping with Shopy Fashions! Your order is almost complete. Please proceed to secure your payment and enjoy our latest styles delivered right to your door!",
+            "image": "/images/frontend/shopyLogo.png",
+            "order_id": razorpayOrder.id,
+            "handler": function (response) {
+                console.log(response)
+                console.log("This step of Payment Succeeded");
+                fetch(`/order/proceed?orderId=${razorpayOrder.receipt}`,{
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    }
+                })
+                    .then((response) => {
+                        console.log(response)
+                        if(!response.ok){
+                            return alert('something went wrong while order success message showing!')
+                        }
+                        return response.json()
+                    })
+                    .then((data) => {
+                        if(data.success){
+                            const orderPlacedModal = new bootstrap.Modal(document.getElementById('orderPlacedModal'))
+                            document.getElementById('order-confirm-message').innerHTML = data.message
+                            orderPlacedModal.show()
+                        }
+                    })
+            },
+            "modal":{
+                "ondismiss":function(){
+                    console.log('Payment was canceled or payment failed!')
+                    fetch(`/order/payment/cancel?orderId=${razorpayOrder.receipt}`)
+                        .then((respnose) => {
+                            if(!respnose.ok){
+                                return alert('something went wrong while canceling payment')
+                            }
+                            return respnose.json()
+                        })
+                        .then((data) => {
+                            if(data.success){
+                                Swal.fire({
+                                    icon:'info',
+                                    title:'Cancelled',
+                                    text:'Payment Cancelled or Failed',
+                                    showConfirmButton:false,
+                                    timer:1800
+                                })
+                            }
+                        })
+                        .catch((error) => {
+                            Swal.fire({
+                                icon:'error',
+                                title:'Error',
+                                text:error.message,
+                            })
+                        })
+                }
+            },
+            "prefill": {
+                //Here we are prefilling random contact
+                "contact": "9876543210",
+                //name and email id, so while checkout
+                "name": "Sreya Suresh",
+                "email": "nimmishreya51@gmail.com"
+            },
+            "theme": {
+                "color": "#ffa7a7"
+            }
+        };
+        const razpay = new Razorpay(options)
+        razpay.open()
+    }
+
+    
 </script>

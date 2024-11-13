@@ -89,6 +89,11 @@ handlebars.registerHelper('json', (data) => {
 handlebars.registerHelper('formatDate', (date) => {
     return moment(date).format('DD-MM-YYYY')
 })
+handlebars.registerHelper('isExpired', (date) => {
+    const expirationDate = new Date(date)
+    const today = new Date()
+    return expirationDate < today
+})
 //get variant details
 handlebars.registerHelper('getVariantPrice', (arr, findOption, property) => {
     //console.log('items')
@@ -131,3 +136,13 @@ handlebars.registerHelper('getPaymentMethod', (paymentMethod) => {
     }
 })
 
+handlebars.registerHelper('isCancellable', (status) => {
+    return status === 'Pending' || status === 'Processing'
+})
+handlebars.registerHelper('isReturnable', (status) => {
+    console.log('checking the availabilty of the return is called ::::::')
+    return status === 'Delivered'
+})
+handlebars.registerHelper('checkOfferType', (offerType) => {
+    return offerType === 'percentage'
+})

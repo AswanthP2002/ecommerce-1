@@ -1,0 +1,240 @@
+<section id="orderDetails" class="pt-5 pb-5" style="background-color: rgb(244, 244, 247);">
+    <div class="container">
+        <div class="row gy-3">
+            <div class="col-12 col-md-4 bg-white border-right border-secondary p-2">
+                <p class="fw-bold fs-5">Delivery Address</p>
+                <p class="fw-bold" style="">{{shippingAddress.name}}</p>
+                <p style="font-size:.900rem">{{shippingAddress.building}}, {{shippingAddress.area}}<br>
+                {{shippingAddress.city}}, {{shippingAddress.state}} - {{shippingAddress.pinCode}}</p>
+            </div>
+            <div class="col-12 col-md-4 bg-white border-right border-secondary p-2">
+                <p class="fw-bold fs-5">Order Status</p>
+                {{!-- <div class="progression-container position-relative">
+                    <div class="progression d-flex">
+
+                    </div>
+                </div> --}}
+                {{#if (isCancelled paymentStatus)}}
+                <p class="text-danger">{{paymentStatus}}</p>
+                {{else}}
+                <p>{{paymentStatus}}</p>
+                {{/if}}
+                <p><i>* {{orderRecord}}</i></p>
+            </div>
+            <div class="col-12 col-md-4 bg-white p-2">
+                <p class="fw-bold fs-5">More Actions</p>
+                <div class="d-flex justify-content-between">
+                    <p>Download Invoice</p>
+                    <button class="btn" style="border-radius: 0;border:1px solid rgb(192, 189, 189)">Download</button>
+                </div>
+            </div>
+            <div class="col-12 p-3 bg-white">
+                <p class="fs-6 fw-bold">Ordered Items</p>
+                {{#each orderDetails}}
+                <div class="border-bottom d-flex justify-content-between">
+                    <div id="item-image">
+                        <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}" alt="" style="width: 70px;height: 80px;">
+                    </div>
+                    <div>
+                        <p>{{this.productDetails.productName}}</p>
+                    </div>
+                    <div>
+                        <p>Quantity : {{this.orderedItems.quantity}} Nos</p>
+                    </div>
+                    <div>
+                        <p>Price : Rs.{{this.orderedItems.price}}</p>
+                    </div>
+                </div>
+                {{/each}}
+                <div class="">
+                    <p class="fs-bold">Total Spend : {{finalAmount}}</p>
+                    <i class="fa-solid fa-circle-question" id="popoverButton" style="cursor: pointer;"></i>
+                </div>
+                <div id="orderActions">
+                   {{#if (isCancellable paymentStatus)}}
+                    <button onclick="cancelOrder('{{orderObjectId}}', '{{logedUser.id}}')" class="btn" id="orderCancelButton" style="border: 1px solid rgb(6, 150, 6);">Cancel Order</button>
+                   {{/if}}
+                   {{#if (isReturnable paymentStatus)}}
+                    <button onclick="returnItem('{{orderObjectId}}', '{{logedUser.id}}')" class="btn" id="orderReturnButton" style="border: 1px solid red;">Return Item</button>
+                   {{/if}}
+                   {{!-- {{else}}
+                    <button class="btn" id="orderReturnButton" style="border: 1px solid red;" disabled>Return Item</button>
+                   {{/if}}
+                   {{else}}
+                    <button class="btn" id="orderCancelButton" style="border: 1px solid rgb(6, 150, 6);" disabled>Cancel Order</button>
+                    <button class="btn" id="orderReturnButton" style="border: 1px solid red;" disabled>Return Item</button>
+                   {{/if}} --}}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        const itemTotal = "{{totalPrice}}"
+        const finalAmount = "{{finalAmount}}"
+        var popover = new bootstrap.Popover(document.getElementById('popoverButton'), {
+            title:'Price Details',
+            content:`
+            <div style='display:flex;justify-content-between;'>
+                <p style='font-size:0.7rem;'><b>Items</b></p><p style='font-size:0.7rem'>Rs.${itemTotal}</p>
+                <p style='font-size:0.7rem;'><b>Shipping</b></p><p style='font-size:0.7rem;'>Rs.60</p>
+            </div>
+            <div style='display:flex;justify-content-between;'>
+                <p style='font-size:0.7rem;'><b>Final</b></p><p style='font-size:0.7rem;'>Rs.${finalAmount}</p>
+            </div>`,
+            html:true,
+            trigger:'click'
+        })
+
+
+        
+    })
+
+    function cancelOrder(orderId, userId){
+        console.log('cancel request reached !!', 'oi',orderId, 'ui',userId)
+            if(orderId && userId){
+                console.log('condition true, ready to be confirmation alert!')
+                Swal.fire({
+                    icon:'info',
+                    title:'Cancel?',
+                    text:'Are you sure want to cance this order?',
+                    showConfirmButton:true, 
+                    showCancelButton:true,
+                    confirmButtonText:'Proceed with cancel',
+                    allowOutsideClick:false
+                }).then((result) => {
+                    if(result && result.isConfirmed){
+                        fetch('/order/cancel', {
+                            method:'POST',
+                            headers:{
+                                'content-type':'application/json'
+                            },
+                            body:JSON.stringify({orderId, userId})
+                        })
+                        .then((response) => {
+                            if(!response.ok){
+                                throw new Error('Server is not responding!')
+                            }
+
+                            return response.json()
+                        })
+                        .then((data) => {
+                            if(data && data.success){
+                                Swal.fire({
+                                    icon:'success',
+                                    title:'Success',
+                                    text:data.message,
+                                    showConfirmButton:false,
+                                    timer:1800
+                                }).then(() => {location.reload()})
+                            }else{
+                                Swal.fire({
+                                    icon:'error',
+                                    title:'Error',
+                                    text:data.message,
+                                    showConfirmButton:true
+                                })
+                            }
+                        })
+                        .catch((error) => {
+                            Swal.fire({
+                                icon:'error',
+                                title:'Error',
+                                text:error.message,
+                                showConfirmButton:true
+                            })
+                        })
+                    }
+                })
+            }
+    }
+    function returnItem(orderId, userId){
+
+        if(orderId, userId){
+            Swal.fire({
+                title: 'Return Item',
+                html: `
+                            <label for="returnReason">Reason for return:</label>
+                            <select class="form-control" id="returnReason" style="width: 100%; margin-top: 10px;">
+                                <option value="Damaged">Damaged or Deffective Item</option>
+                                <option value="Not as described">Not as described</option>
+                                <option value="Wrong item">Wrong item</option>
+                                <option value="Size/Color">Size/Color Issue</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <textarea class="form-control" id="returnComments" placeholder="Additional comments..." style="width: 100%; margin-top: 10px;" required></textarea>
+                        `,
+                showConfirmButton:true,
+                confirmButtonText:'Submit',
+                allowOutsideClick: false,
+                preConfirm:() => {
+                    const returnReason = document.getElementById("returnReason").value;
+                    const description = document.getElementById("returnComments").value
+
+                    if(!returnReason || !description){
+                        Swal.showValidationMessage("Please Provide Reason and description")
+                        return false
+                    }
+
+                    return {returnReason, description}
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const returnReason = result.value.returnReason
+                    const description = result.value.description
+
+                    fetch('/order/return', {
+                        method:'POST',
+                        headers:{
+                            'content-type':'application/json'
+                        },
+                        body:JSON.stringify({orderId, userId, returnReason, description})
+                    })
+                    .then((response) => {
+                        if(!response.ok){
+                            Swal.fire({
+                            icon:'error',
+                            title:'Error',
+                            text:'Server not responding',
+                            showConfirmButton:true
+                            })
+                        return
+                        }
+                        return response.json()
+                    })
+                    .then((data) => {
+                        if(data && data.success){
+                            Swal.fire({
+                                icon:'success',
+                                title:data.title,
+                                text:data.message,
+                                showConfirmButton:true
+                            }).then(() => location.reload())
+
+                        }else{
+                            Swal.fire({
+                                icon:'warning',
+                                title:data.title,
+                                text:data.message,
+                                showConfirmButton:true
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon:'error',
+                            title:'Error',
+                            text:error.message,
+                            showConfirmButton:true
+                        })
+                    })
+                }
+            });
+        }
+    }
+
+
+</script>
+

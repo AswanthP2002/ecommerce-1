@@ -47,6 +47,23 @@ const updateOrderStatus = async (req, res) => {
             return res.json({success:false, message:'Sorry can not find order'})
         }
 
+        //update history
+        const order = await Order.findOne({_id:orderId})
+        if(status === 'Returned'){
+            order.statusHistory.push({
+                status:status,
+                timestamp:new Date(),
+                notes:'Item Returned Amount Refunded to the customer'
+            })
+        }else{
+            order.statusHistory.push({
+                status:status,
+                timestamp:new Date()
+    
+            })
+        }
+        await order.save()
+
         console.log('order status updated')
         return res.json({success:true, message:`Order ${orderId} status updated`})
     } catch (error) {
