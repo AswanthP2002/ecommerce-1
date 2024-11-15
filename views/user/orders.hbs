@@ -12,10 +12,15 @@
             <div class="col-12">
                 <div class="border shadow d-flex justify-content-between p-3">
                     <div id="orderItemImage">
-                        <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}" alt="" style="width: 70px;height:80px">
+                        <img src="/images/backend/products/{{this.productDetails.[0].sku}}/{{this.productDetails.[0].productImage.[0]}}" alt="" style="width: 70px;height:80px">
                     </div>
                     <div id="orderItem">
-                        <p class="itemDescription">{{this.productDetails.productName}}</p>
+                        {{#if (multipleProduct this.productDetails)}}
+                        <p class="itemDescription">{{this.productDetails.[0].productName}} and {{getorderedItemsCount this.productDetails}} more item</p>
+                        {{else}}
+                        <p class="itemDescription">{{this.productDetails.[0].productName}}</p>
+                        {{/if}}
+                        
                         <p class="text-secondary"></p>
                     </div>
                     <div id="orderAmount">

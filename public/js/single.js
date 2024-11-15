@@ -128,7 +128,7 @@ function removeFromWishlist(productId, heartIcon){
                     text:data.message,
                     showConfirmButton:false,
                     timer:1300
-                })
+                }).then(() => location.reload())
             }
         })
         .catch((error) => {

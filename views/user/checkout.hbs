@@ -24,7 +24,7 @@
             <div class="mt-3">
                 <p class="fw-bold fs-4">In Pack</p>
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped table-bordered">
                         <thead>
                             <tr>
                                 <th>Item</th>
@@ -47,10 +47,32 @@
                                 <td>{{this.productDetails.productName}}</td>
                                 <td>{{this.productDetails.color}} & {{this.vriantDetails.size}}</td>
                                 <td>{{this.items.quantity}}</td>
-                                <td>{{this.vriantDetails.regularPrice}}</td>
+                                <td>Rs.{{this.vriantDetails.regularPrice}}</td>
                             </tr>
                             {{/each}}
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4"><b>Item Total</b></td>
+                                <td>Rs.{{cartPayment.subTotal}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">Discount</td>
+                                {{#if cartPayment.discount}}
+                                <td id="totalDiscount">{{cartPayment.discount}}</td>
+                                {{else}}
+                                <td>-</td>
+                                {{/if}}
+                            </tr>
+                            <tr>
+                                <td colspan="4">Shipping Fee</td>
+                                <td>Rs.60</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"><b>Grand Total</b></td>
+                                <td><b>Rs.{{cartPayment.grantTotal}}</b></td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -69,7 +91,7 @@
                         </label><br>
                         <div class="d-flex justify-content-between" id="checkout-payment"
                             data-coupon="{{cartPayment.couponApplied}}">
-                            <p class="fs-3 fw-bold">total payable <span
+                            <p class="fs-3 fw-bold">total payable Rs.<span
                                     id="payableAmount">{{cartPayment.grantTotal}}</span> <span
                                     class="ms-2 fs-5 text-decoration-line-through text-secondary"
                                     id="totalAmount">{{cartPayment.subTotal}}</span></p>
@@ -197,6 +219,7 @@
                 selectedAddress: selectedAddress,
                 totalAmount: Number(totalAmount),
                 payableAmount: Number(payableAmount),
+                discount:document.getElementById('totalDiscount').textContent,
                 couponApplied: document.getElementById('checkout-payment').dataset.coupon
             }
             console.log('coupon', orderData.couponApplied)

@@ -704,8 +704,7 @@ const userOrders = async (req, res) => {
                 localField:'orderedItems.product',
                 foreignField:'_id',
                 as:'productDetails'
-            }},
-            {$unwind:"$productDetails"}
+            }}
         ])
 
         return res.render('user/orders', {
@@ -1197,7 +1196,6 @@ const paymentConfirm = async (req, res) => {
 }
 
 const placeOrder = async (req, res) => {
-    console.log('request reached herer')
     //const user = req.session.user //changed : Applicable to both passport and traditional logins
     
     let user
@@ -1220,7 +1218,7 @@ const placeOrder = async (req, res) => {
         return res.json({success:true, message:'Yay! your order has been successfully placed!'})
     }
     const orderData = req.body
-    //console.log(orderData)
+    console.log('This is order data :::: ',orderData)
     try {
         const orderedItems = await Cart.aggregate([
             { $match:{userId:new mongoose.Types.ObjectId(user)}},
@@ -1257,11 +1255,11 @@ const placeOrder = async (req, res) => {
             return {
                 product:item.items.productId,
                 quantity:item.items.quantity,
-                size:item.items.size,
+                size:item?.items?.size || 'not available',
                 price:item.variantDetails.regularPrice
             }
         })
-        //console.log('checking the ordered items correctly maped' ,formatOrderedItems)
+        console.log('checking the ordered items correctly maped' ,formatOrderedItems)
 
         const order = new Order({
             orderedItems:formatOrderedItems,
@@ -1273,6 +1271,7 @@ const placeOrder = async (req, res) => {
         })
 
         await order.save()
+        console.log('current order  => ', order)
         for(let singleItem of formatOrderedItems){
             await Variant.updateOne({productId:singleItem.product, size:singleItem.size}, {
                 $inc:{quantity:-singleItem.quantity}
@@ -1316,8 +1315,13 @@ const cancelOrder = async (req, res) => {
     const {orderId, userId} = req.body
     try {
         const order = await Order.findOne({_id:orderId})
+        const userWallet = await Wallet.findOne({userId:userId})
         if(!order){
             return res.status(400).json({success:false, message:'Order not found!'})
+        }
+        if(order.paymentMethod === 'onlinePayment' && !userWallet){
+            console.log('user dont have wallet so check it!')
+            return res.json({success:false, message:'You need to activate your wallet before, continuing order cancelation'})
         }
         order.status = 'Cancelled'
         if(order.paymentMethod === 'onlinePayment'){
@@ -1330,9 +1334,9 @@ const cancelOrder = async (req, res) => {
 
             //refund the amount to the wallet
             const refundAmount = order.finalAmount
-            const userWallet = await Wallet.findOne({userId:userId})
+            
             //update the wallet
-            userWallet.transactions.push({
+            userWallet.transactions?.push({
                 transactionType:"Credit",
                 amount:refundAmount,
                 date:new Date(),
@@ -1467,7 +1471,7 @@ const CheckWishlist = async (req, res) => {
         if(req.session.user){
             user = req.session.user
         }else if(req.user){
-            user = req.uesr._id
+            user = req.uesr?._id //ternary used for error handling! //testing
         }
 
         if(user){

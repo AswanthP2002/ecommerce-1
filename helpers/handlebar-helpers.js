@@ -146,3 +146,9 @@ handlebars.registerHelper('isReturnable', (status) => {
 handlebars.registerHelper('checkOfferType', (offerType) => {
     return offerType === 'percentage'
 })
+handlebars.registerHelper('multipleProduct', (arr) => {
+    return arr.length > 1
+})
+handlebars.registerHelper('getorderedItemsCount', (arr) => {
+    return arr.length - 1
+})

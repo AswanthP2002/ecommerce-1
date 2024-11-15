@@ -23,6 +23,10 @@ const orderSchema = new Schema({
             type:Number,
             required:true
         },
+        size:{
+            type:String,
+            required:true
+        },
         price:{
             type:Number,
             default:0

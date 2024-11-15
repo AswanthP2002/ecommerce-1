@@ -19,6 +19,7 @@ router.use(async (req, res, next) => {
     res.locals.userWishlist = userWishlist
     next()
 })
+
 //Home/product page managment
 router.get('/', userController.loadUserHome)
 router.get('/search', userController.searchProducts)
@@ -75,3 +76,4 @@ router.get('/password/reset/:token', userController.loadPaswordResetPage)
 router.post('/password/reset/:token', userController.updatePassword)
 
 module.exports = router
+

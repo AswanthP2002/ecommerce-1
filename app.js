@@ -61,6 +61,10 @@ app.use((req, res, next) => {
     res.locals.flashMessage = req.flash('error')
     next()
 })
+// app.use((req, res, next) => {
+//     console.log('current request', req.url)
+//     next()
+// })
 //routes
 app.use('/', userRouter)
 app.use('/', adminRouter)
