@@ -4,6 +4,36 @@
         <p class="fw-bold mt-5 mb-3 text-left">My Wishlist</p>
         <div class="top-list-container row">
             {{#each wishlist}}
+            {{#if this.productDetails.isBlocked}}
+            {{!-- testing before//// --}}
+            {{!-- <div class="card border-0 col-6 col-md-3 position-relative d-flex justify-content-center">
+                <div class="position-absolute overlay" style="background-color: rgba(0,0,0,0.2);letf:0;top:0;width:100%;height:100%;z-index:5"></div>
+                <div class="card-body">
+                    
+                    <div
+                        class="position-relative card-img-container rounded d-flex justify-content-center align-items-center align">
+                        <a href="/products/product_details/?id={{this.products.productId}}" class="text-decoration-none">
+                            <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}" alt=""
+                                style="width:300px;height:300px">
+                        </a>
+                        <button onclick="" type="button" id="wishlist-button"
+                            class="btn position-absolute wishlist-btn">
+                            <i class="fa-solid fa-heart heart-icon" id="wishlist-icon" data-productid="{{this.products.productId}}"></i>
+                        </button>
+                    </div>
+                    </a>
+                    <p class="name mt-3 fw-bold fs-6">{{this.productDetails.productName}}</p>
+                    <p class="rating lh-1">{{ratingStars this.productDetails.rating}}</p>
+                    <div class="d-flex gap-3">
+                        <p class="of-price fw-bold fs-6">₹{{this.variantDetails.offerPrice}}</p>
+                        <p class="price fs-6 text-decoration-line-through text-secondary"> ₹{{this.variantDetails.regularPrice}}</p>
+                        <span
+                            class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productDetails.productOffer}}
+                            %</span>
+                    </div>
+                </div>
+            </div> --}}
+            {{else}}
             <div class="card border-0 col-6 col-md-3">
                 <div class="card-body">
 
@@ -30,6 +60,7 @@
                     </div>
                 </div>
             </div>
+            {{/if}}
             {{/each}}
         </div>
         

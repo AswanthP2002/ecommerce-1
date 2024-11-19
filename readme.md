@@ -1,1 +1,0 @@
-[x] => stoped on add to wishlist management route //

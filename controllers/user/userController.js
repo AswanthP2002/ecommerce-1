@@ -478,6 +478,7 @@ const loadUserHome = async (req, res) => {
                     foreignField: '_id',
                     as: 'categoryDetails'
                   }},
+                  {$match:{isBlocked:false}},
                   {$sort:{createdAt:-1}},
                   {$limit:4}
             ])
@@ -924,7 +925,8 @@ const loadCartPage = async (req, res) => {
                     as: "categoryDetails"
                 }
             },
-            { $unwind: "$categoryDetails" }
+            { $unwind: "$categoryDetails" },
+            {$match:{"productDetails.isBlocked":false}}
 
         ])
         console.log('cart details')
@@ -1444,7 +1446,7 @@ const searchProducts = async (req, res) => {
 }
 
 //app use
-const countCartItems = async (req, res) => {
+const countCartItems = async (req, res) => { //updating cart count :: fixing bug for the cart count after blocking product
     try {
         let user 
         if(req.session.user){
@@ -1455,8 +1457,23 @@ const countCartItems = async (req, res) => {
 
 
         if(user){
-            const cart = await Cart.findOne({userId:user})
-            return cart ? cart.items.length : 0
+            const cart = await Cart.aggregate([
+                { $match: { userId: new mongoose.Types.ObjectId('6705fe29ab952f2258f84d70') } },
+                { $unwind: "$items" },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'items.productId',
+                        foreignField: '_id',
+                        as: 'productDetails'
+                    }
+                },
+                { $unwind: "$productDetails" },
+                { $match: { 'productDetails.isBlocked': false } }
+            ])
+            return cart ? cart.length : 0
+            //const cart = await Cart.findOne({userId:user})
+            //return cart ? cart.items.length : 0
         }
         return null
     } catch (error) {
