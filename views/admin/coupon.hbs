@@ -1,5 +1,6 @@
 <div class="col">
-    <form onsubmit="createCoupon(event, this)" method="post" id="createCoupon-form" class="bg-body p-3 rounded mt-2">
+    <p class="fs-4 fw-bold">Coupons</p>
+    <form onsubmit="createCoupon(event, this)" method="post" id="createCoupon-form" class="mt-4 bg-body p-3 rounded mt-2" style="border-bottom: 2px solid #f4efef;">
         <p class="fs-4 fw-bold text-center">Create New Coupon</p>
         <div class="form-group mt-3">
             <label for="coupon-code" class="fw-bold">Coupon Code</label>
@@ -31,10 +32,17 @@
     </form>
     <div id="existing-coupons" class="bg-body p-2 mt-1">
         <p class="fs-4 fw-bold mt-3 mb-3">Existing Coupons</p>
-        <div class="table-responsive">
+        <div class="mt-3 d-flex gap-4">
+                <a href="" class="btn" style="background-color: #f4efef;"><i class="fa-solid fa-filter"></i></a>
+                <div style="background-color: #f4efef;">
+                    <a href="#" class="btn" id="admin-product-search-btn" style="background-color: #f4efef;"><i class="fa-solid fa-search"></i></a>
+                    <input type="text" placeholder="search for product" style="border: none;background-color: #f4efef;outline: none;width: 250;" id="admin-product-search">
+                </div>
+            </div>
+        <div class="table-responsive mt-4">
             <table class="table bordered">
                 <div class="thead">
-                    <tr class="table-secondary">
+                    <tr class="" style="background-color: #cbe7f9 !important;">
                         <th>Code</th>
                         <th>Discount</th>
                         <th>Type</th>
@@ -54,14 +62,14 @@
                         <td>{{formatDate this.expireOn}}</td>
                         <td>{{this.minimumPrice}}</td>
                         {{#if (isExpired this.expireOn)}}
-                        <td class="text-danger">Expired</td>
+                        <td><label class="ps-2 pe-2" for="" style="border: 1px solid rgb(238, 34, 34);border-radius: 15px;color:rgb(238, 34, 34);">Expired</label></td>
                         {{else}}
-                        <td class="text-success">Active</td>
+                        <td><label class="ps-2 pe-2" for="" style="border: 1px solid rgb(63, 217, 63);border-radius: 15px;color:rgb(63, 217, 63);">Active</label></td>
                         {{/if}}
                         {{#if this.isListed}}
-                        <td><button onclick="confirm('Do you want to unlist this coupon'), unlistCoupon('{{this._id}}')" class="btn btn-secondary">Unlist</button></td>
+                        <td><button onclick="confirm('Do you want to unlist this coupon'), unlistCoupon('{{this._id}}')" class="btn border-0 text-dark" style="background-color: #cbe7f9;">Unlist</button></td>
                         {{else}}
-                        <td><button onclick="confirm('Do you want to list this coupon'), listCoupon('{{this._id}}')" class="btn btn-secondary">List</button></td>
+                        <td><button onclick="confirm('Do you want to list this coupon'), listCoupon('{{this._id}}')" class="btn border-0 text-dark" style="background-color: rgb(245, 238, 252);">List</button></td>
                         {{/if}}
                         <td><a onclick="confirm('Are your sure to remove this coupon'), deleteCoupon('{{this._id}}')" href="#"><i class="fa-solid fa-trash"></i></a></td>
                     </tr>

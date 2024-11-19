@@ -15,7 +15,11 @@
 }
 ul .nav-link{
     font-family: 'Inter', sans-serif;
-    font-size: .8rem;
+    font-size: 1rem;
+    margin-top: -20px;
+}
+.nav-link.active{
+    background-color: #f4efef !important;
 }
 .user-details input{
     width: 250px;
@@ -68,11 +72,56 @@ ul .nav-link{
     max-height: 100%;
 }
 #createCoupon-form{
-    border: 1px solid rgb(200, 197, 197);
+    border: 2px solid #f4efef;
     max-width: 600px;
     margin: auto;
 }
 .error-message{
     display: none;
     color: red;
+}
+
+@media (max-width: 768px) {
+    #admin-product-list-table {
+        display: block;
+    }
+
+    #admin-product-list-table thead {
+        display: none; /* Hide table headers */
+    }
+
+    #admin-product-list-table tbody {
+        display: block;
+    }
+
+    #admin-product-list-table tr {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    #admin-product-list-table td {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+
+    #admin-product-list-table td::before {
+        content: attr(data-label); /* Use `data-label` for the column names */
+        font-weight: bold;
+        color: #555;
+    }
+}
+
+#table-custome-header{
+    background-color: rgb(243, 222, 250) !important;
+}
+#admin-product-search{
+    width: 0;
+    transition: .2s ease-in-out all;
+}
+#spending-statistics input, button{
+    height: 40px;
+}
+#salesCard-container .card{
+    min-width: 220px;
 }

@@ -1,6 +1,14 @@
 <div class="col">
-    <div class="table-responsive">
-        <table class="table table-striped">
+    <p class="fs-4 fw-bold">Orders</p>
+            <div class="mt-3 d-flex gap-4">
+                <a href="" class="btn" style="background-color: #f4efef;"><i class="fa-solid fa-filter"></i></a>
+                <div style="background-color: #f4efef;">
+                    <a href="#" class="btn" id="admin-product-search-btn" style="background-color: #f4efef;"><i class="fa-solid fa-search"></i></a>
+                    <input type="text" placeholder="search for product" style="border: none;background-color: #f4efef;outline: none;width: 250;" id="admin-product-search">
+                </div>
+            </div>
+        <div class="table-responsive mt-4">
+        <table class="table">
             <thead>
                 <th>Order No</th>
                 <th>Customer</th>
@@ -20,18 +28,42 @@
                     <td>-</td>
                     <td>{{this.paymentMethod}}</td>
                     <td>Rs.{{this.finalAmount}}</td>
-                    <td>{{this.status}}</td>
+                    {{#ifEquals this.status "Pending"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid #ffc107;border-radius: 15px;color:#ffc107;">{{this.status}}</label></td>
+                    {{/ifEquals}}
+                    {{#ifEquals this.status "Processing"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid #17a2b8;border-radius: 15px;color:#17a2b8;">{{this.status}}</label></td>
+                    {{/ifEquals}}
+                    {{#ifEquals this.status "Shipped"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid #007bff;border-radius: 15px;color:#007bff;">{{this.status}}</label></td>
+                    {{/ifEquals}}
+                    {{#ifEquals this.status "Delivered"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid #28a745;border-radius: 15px;color:#28a745;">{{this.status}}</label></td>
+                    {{/ifEquals}}
+                    {{#ifEquals this.status "Cancelled"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid #dc3545;border-radius: 15px;color:#dc3545;">{{this.status}}</label></td>
+                    {{/ifEquals}}
+                    {{#ifEquals this.status "Return Request"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid #6c757d;border-radius: 15px;color:#6c757d;">{{this.status}}</label></td>
+                    {{/ifEquals}}
+                    {{#ifEquals this.status "Returned"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid #6610f2);border-radius: 15px;color:#6610f2);">{{this.status}}</label></td>
+                    {{/ifEquals}}
                     <td>
                         {{#if (isCancelled this.status 'Cancelled')}}
-                        <p class="text-danger">Order Cancelled</p>
+                        <select class="" onchange="updateOrderStatus('{{this._id}}', this.value)" disabled>
+                            {{#each ../statuses}}
+                            <option value="{{this}}" {{#ifEquals this ../status}}selected{{/ifEquals}}>{{this}}</option>
+                            {{/each}}
+                        </select>
                         {{else}}
-                        <select class="d-block mb-2" onchange="updateOrderStatus('{{this._id}}', this.value)">
+                        <select class="" onchange="updateOrderStatus('{{this._id}}', this.value)">
                             {{#each ../statuses}}
                             <option value="{{this}}" {{#ifEquals this ../status}}selected{{/ifEquals}}>{{this}}</option>
                             {{/each}}
                         </select>
                         {{/if}}
-                        <a href="/admin/orders/view?orderId={{this._id}}" type="button" class="rounded btn btn-dark" style="width: 80px;">View</button>
+                        <a href="/admin/orders/view?orderId={{this._id}}" type="button" class="rounded btn border-0"><i class="fa-solid fa-eye"></i></button>
                     </td>
                 </tr>
                 {{/each}}

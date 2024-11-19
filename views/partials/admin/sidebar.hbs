@@ -1,35 +1,69 @@
 <div class="vh-100 d-flex flex-column pb-0 pb-md-4">
-    <div class="d-flex justify-content-start justify-content-sm-center">
-        <a href="/" class="text-dark fs-5 fw-bold text-decoration-none">Shopsy</a>
+    <div class="d-flex pt-3 pb-3">
+        <a href="/" class="text-dark fs-5 fw-bold text-decoration-none">
+            <img src="/images/frontend/shopy logo.png" alt="" style="width: 120px;height:auto">
+        </a>
     </div>
-    <ul class="nav nav-pills d-flex flex-column list-unstyled gap-4 mt-4">
+    <label for="" class="fw-bold text-secondary" style="font-size: .7rem;">MAIN MENU</label>
+    <ul class="nav nav-pills d-flex flex-column list-unstyled gap-4 mt-4 pb-3" style="border-bottom: 2px solid #f4efef;">
         <li class="nav-item">
-            <a href="" class="nav-link text-light bg-dark active" aria-current="page"><i class="fa-solid fa-bars">
-                    Dashboard</i></a>
+            <a href="" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-bars me-3">
+                    </i>Dashboard</a>
         </li>
         <li class="nav-item">
-            <a href="/admin/product/" class="nav-link text-dark"><i class="fa-solid fa-box"> Products</i></a>
+            <a href="/admin/product/" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-box me-3"></i>Products</a>
         </li>
         <li class="nav-item">
-            <a href="/admin/category" class="nav-link text-dark"><i class="fa-solid fa-box"> Categories</i></a>
+            <a href="/admin/category" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-layer-group me-3"></i>Categories</a>
         </li>
         <li class="nav-item">
-            <a href="/admin/customers" class="nav-link text-dark"><i class="fa-solid fa-users"> Users</i></a>
+            <a href="/admin/customers" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-users me-3"></i>Users</a>
         </li>
         <li class="nav-item">
-            <a href="/admin/orders" class="nav-link text-dark"><i class="fa-solid fa-cart-shopping"> Orders</i></a>
+            <a href="/admin/orders" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-cart-shopping me-3"></i>Orders</a>
         </li>
         <li class="nav-item">
-            <a href="" class="nav-link text-dark"><i class="fa-solid fa-paper"> Sales Report</i></a>
+            <a href="/admin/sales-report" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-chart-line me-3"></i>Sales Report</a>
         </li>
         <li class="nav-item">
-            <a href="/admin/coupons" class="nav-link text-dark"><i class="fa-solid fa-star"> Coupons</i></a>
+            <a href="/admin/coupons" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-ticket me-3"></i>Coupons</a>
         </li>
         <li class="nav-item">
+            <a href="#" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-star me-3"></i>Brands <span class="badge text-light" style="background-color: rgb(174, 96, 248);font-size: .6rem;">NEW</span></a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-image me-3"></i>Banners <span class="badge text-light" style="background-color: rgb(174, 96, 248);font-size: .6rem;">NEW</span></a>
+        </li>
+        {{!-- <li class="nav-item">
             <a href="" class="nav-link text-dark"><i class="fa-solid fa-box"> Returns</i></a>
+        </li> --}}
+    </ul>
+    <label for="" class="fw-bold text-secondary mt-3" style="font-size: .7rem;">ACCOUNT</label>
+    <ul class="nav nav-pills d-flex flex-column list-unstyled gap-4 mt-4 pb-3" style="border-bottom: 2px solid #f4efef;">
+        <li class="nav-item">
+            <a href="" class="nav-link fw-bold text-secondary"><i class="fa-solid fa-gear me-3">
+                    </i>Settings <span class="badge text-light" style="background-color: rgb(174, 96, 248);font-size: .6rem;">NEW</span></a>
+        </li>
+        <li class="nav-item">
+            <a href="" class="nav-link fw-bold text-secondary"><i class="fa-regular fa-circle-question me-3"></i>Help <span class="badge text-light" style="background-color: rgb(174, 96, 248);font-size: .6rem;">NEW</span></a>
         </li>
     </ul>
     <div id="profile" class="mt-auto ">
-        <a href="/admin/logout">Logout</a>
+        <a href="/admin/logout" class="text-decoration-none text-secondary">Logout <i class="fa-solid fa-right-from-bracket"></i></a>
     </div>
 </div>
+<script>
+    //script for admin navbar
+    
+    document.addEventListener('DOMContentLoaded', (e) => {
+        const currentPath = window.location.pathname
+        document.querySelectorAll('.nav-link').forEach((currentLink) => {
+            if(currentLink.getAttribute('href') === currentPath){
+                currentLink.classList.add('active')
+            }else{
+                currentLink.classList.remove('active')
+            }
+        })
+    })
+
+</script>

@@ -1,22 +1,23 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <div class="col">
     {{!-- The heading content will be heere if any --}}
+    <p class="fs-4 fw-bold">Categories</p>
     <div class="row">
         <div class="col-md-3">
-            <div class="card">
+            <div class="card" style="background-color: #f4efef;">
                 <div class="card-body">
                     <form action="/admin/category" method="post" onsubmit="return categoryFormSubmission(event)">
                         <div>
-                            <label for="">Name</label>
+                            <label for="" class="mb-1 text-secondary">Name</label>
                             <input type="text" class="form-control" placeholder="Category Name" name="name" id="name" required>
                             <label for="" class="error-message" id="category-name-error"></label>
                         </div>
-                        <div>
-                            <label for="">Description</label>
+                        <div class="mt-2">
+                            <label for="" class="mb-1 text-secondary">Description</label>
                             <textarea name="description" id="description" class="form-control" required></textarea>
                             <label for="" class="error-message" id="category-description-error"></label>
                         </div>
-                        <button type="submit" class="btn btn-info form-control">Add to Category</button>
+                        <button type="submit" class="btn btn-dark form-control mt-3">Add to Category</button>
                     </form>
                 </div>
             </div>
@@ -42,15 +43,15 @@
                             <td>{{this.description}}</td>
                             <td>{{this.categoryOffer}}</td>
                             {{#if (offerNill this.categoryOffer)}}
-                            <td><button class="btn btn-info" onclick="addOffer('{{this._id}}')">Add offer</button></td>
+                            <td><button class="btn border-0 text-dark" style="background-color: #cbe7f9;" onclick="addOffer('{{this._id}}')">Add offer</button></td>
                             {{else}}
-                            <td><button class="btn btn-info" onclick="removeOffer('{{this._id}}')">Remove Offer</button></td>
+                            <td><button class="btn border-0 text-dark" style="background-color: rgb(245, 238, 252);" onclick="removeOffer('{{this._id}}')">Remove Offer</button></td>
                             {{/if}}
                             {{#if this.isListed}}
-                            <td><label for="" class="text-success">Listed</label></td>
+                            <td><label class="ps-2 pe-2" for="" style="border: 1px solid rgb(63, 217, 63);border-radius: 15px;color:rgb(63, 217, 63);">Listed</label></td>
                             <td><a href="/admin/category/unlist?id={{this._id}}" class="btn btn-warning">Unlist</a></td>
                             {{else}}
-                            <td><labe class="text-warning">Unlinsted</labe></td>
+                            <td><label class="ps-2 pe-2" for="" style="border: 1px solid rgb(238, 34, 34);border-radius: 15px;color:rgb(238, 34, 34);">Unlisted</label></td>
                             <td><a href="/admin/category/list?id={{this._id}}" class="btn btn-secondary">List</a></td>
                             {{/if}}
                             <td><button onclick="getCategoryDetails('{{this._id}}')" class="btn btn-dark">Edit</button></td>

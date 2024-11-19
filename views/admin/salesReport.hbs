@@ -1,0 +1,202 @@
+<div class="col bg-white">
+    <div class="row">
+        <div class="col-md-7 vh-100" style="border-right: 2px solid #f4efef;">
+            <p class="fs-4 fw-bold">Sales Report</p>
+            <div class="card rounded p-3" style="border: 2px solid #f4efef;">
+                <div id="salesCard-container" class="d-flex justify-content-between">
+                    {{!-- data 1 --}}
+                    <div class="card rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: #f4efef;">
+                        <p class="card-title text-secondary" style=".8rem">Total Sales</p>
+                        <div class="d-flex gap-3 align-items-center">
+                            <p class="card-amount fs-4">{{sales}}</p>
+                            <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p>
+                        </div>
+                    </div>
+                    {{!-- data 2 --}}
+                    <div class="card rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: #eef8ff;">
+                        <p class="card-title text-secondary" style=".8rem">Total Order Amount</p>
+                        <div class="d-flex gap-3 align-items-center">
+                            <p class="card-amount fs-4">{{orderAmount}}</p>
+                            <p class="card-amount-value text-danger fw-bold" style="font-size: .8rem;">+2.89%</p>
+                        </div>
+                    </div>
+                    {{!-- data 3 --}}
+                    <div class="card rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: rgb(249, 245, 252);">
+                        <p class="card-title text-secondary" style=".8rem">Total Discount</p>
+                        <div class="d-flex gap-3 align-items-center">
+                            <p class="card-amount fs-4">{{discountAmount}}</p>
+                            <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-5" id="spending-statistics">
+                    <p class="fw-bold">Order Statistics</p>
+                    <div class="d-flex gap-1">
+                        <select onchange="filterSales(this)" name="timeRange" id="saleRange" class="">
+                            <option value="{{currentFilter}}">{{currentFilter}}</option>
+                            <option value="daily">daily</option>
+                            <option value="weekly">weekly</option>
+                            <option value="monthly">monthly</option>
+                            <option value="yearly">yearly</option>
+                        </select>
+                        <form onsubmit="filterSalesCustom(event)" action="">
+                            <input type="date" name="startDate" id="sartDate" class="" required>
+                            <input type="date" name="endDate" id="endDate" class="" required>
+                            <button type="submit">Generate</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card rounded mt-3 pt-2 pb-2 ps-3 pe-3 border-0">
+                        <p class="card-title text-secondary" style=".8rem">Orders</p>
+                        <div class="d-flex gap-3 align-items-center">
+                            <p class="card-amount fs-4">{{orders}}</p>
+                            <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p>
+                        </div>
+                        <p class="text-secondary" style=".8rem">Total orders in day</p>
+                </div>
+                <div class="">
+                    <canvas id="ordersChart" style="width:100%;height:300px"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 d-flex flex-column justify-content-center gap-3">
+            <button onclick="downloadPdf()" type="button" class="btn btn-primary">Export as PDF</button>
+            <button onclick="downloadExcel()" type="button" class="btn btn-success">Export as Excel sheet</button>
+        </div>
+    </div>
+</div>
+<script>
+
+        const saleRangeField = document.getElementById('saleRange')
+        //saleRangeField.addEventListener('change', filterSales(this))
+        function filterSales(element){
+            let range = element.value
+            console.log(range)
+            if(range){
+                window.location.href = `/admin/sales-report?range=${range}`
+            }else{
+                return Swal.fire({
+                    title:'Error',
+                    icon:'error',
+                    text:'Error on selecting range',
+                })
+            }
+        }
+        function filterSalesCustom(event){
+            event.preventDefault()
+            const formData = new FormData(event.target)
+            const formObject = {}
+            formData.forEach((value, key) => {
+                formObject[key] = value
+            })
+            const range = 'custom'
+            window.location.href = `/admin/sales-report?range=${range}&startDate=${formObject.startDate}&endDate=${formObject.endDate}`
+        }
+
+        function downloadPdf(){
+            const range = saleRangeField.value
+            if(range){
+                fetch('/admin/sales-report/download-pdf', {
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify({range})
+                })
+                .then((response) => {
+                    console.log(response)
+                    if(!response.ok) throw new Error('server not responding!')
+                    console.log('response converted to blob')
+                    return response.blob()
+                })
+                .then((blob) => {
+                    console.log(blob)
+                    const url = window.URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = 'sales-report.pdf'
+                    a.click()
+                })
+                .catch((error) => {
+                    return Swal.fire({
+                        icon:'error',
+                        title:error.message
+                    })
+                })
+            }
+        }
+
+        function downloadExcel(){
+            const range = saleRangeField.value
+            console.log('range before fetching ::: ', range)
+            if(range){
+                fetch('/admin/sales-report/download-excel', {
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    },
+                    body:JSON.stringify({range})
+                })
+                .then((response) => {
+                    if(!response.ok) throw new Error('Server not responding!')
+                    return response.blob()
+                })
+                .then((blob) => {
+                    const url = window.URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = 'sales-report.xlsx'
+                    a.click()
+                })
+                .catch((error) => {
+                    return Swal.fire({
+                        icon:'error',
+                        title:error.message
+                    })
+                })
+            }
+        }
+    document.addEventListener('DOMContentLoaded', (e) => {
+            const ctx = document.getElementById('ordersChart').getContext('2d');
+            new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], // Months
+        datasets: [
+            {
+                label: 'Achieved',
+                data: [45, 72, 68, 51, 39, 85, 92, 47, 63, 77, 59, 88], // Achieved values
+                backgroundColor: '#dccccc', // Achieved bar color
+                borderColor: '#dccccc',
+                borderWidth: 1,
+                barThickness:15
+            },
+            {
+                label: 'Target', // Target or Criterion values
+                data: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50], // Target values
+                backgroundColor: '#000000', // Target bar color
+                borderColor: '#000000',
+                borderWidth: 1,
+                barThickness:15
+            }
+        ]
+    },
+    options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 1500,
+            easing: 'easeOutExpo',
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+        //filter based on the checkout
+        
+        })
+</script>

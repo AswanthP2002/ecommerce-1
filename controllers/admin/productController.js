@@ -338,7 +338,7 @@ const removeProductOffer = async (req, res) => {
 const blockProduct = async (req, res) => {
     try {
         const productId = req.query.id
-        await Product.updateOne({_id:productId}, {$set:{isBlocked:true}})
+        await Product.updateOne({_id:productId}, {$set:{isBlocked:true, status:'Discontinued'}})
         return res.redirect('/admin/product')
     } catch (error) {
         console.log('Error occured while bloking the product', error.message)
@@ -349,7 +349,7 @@ const blockProduct = async (req, res) => {
 const unblockProduct = async (req, res) => {
     try {
         const productId = req.query.id
-        const productFound = await Product.updateOne({_id:productId}, {$set:{isBlocked:false}})
+        const productFound = await Product.updateOne({_id:productId}, {$set:{isBlocked:false, status:'Available'}})
         if(!productFound){
             console.log('product not found')
             return res.redirect('/admin/pageError')

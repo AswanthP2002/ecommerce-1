@@ -53,7 +53,7 @@ const productSchema = new Schema({
     },
     status:{
         type:String,
-        enum:['Available', 'out of stock', 'Discontinued'],
+        enum:['Available', 'Out of stock', 'Discontinued'],
         require:true,
         default:'Available'
     },
