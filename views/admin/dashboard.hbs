@@ -1,3 +1,326 @@
 <div class="col">
-            
+    <p class="fs-4 fw-bold">Dashboard</p>
+    <div class="row gy-3">
+        <div class="col-12">
+            <div class="rounded" style="border: 2px solid #f4efef;">
+                <div class="d-flex gap-3 justify-content-between p-3">
+                    <div class="card shadow w-25 border-0 p-3">
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+                                style="width: 40px;height:40px"><i class="fa-solid fa-gear"></i></div>
+                            <div>
+                                <p class="fw-bold fs-5">{{activeUsers}}</p>
+                                <p style="margin-top: -20px;" class="mb-0">Active Users</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow w-25 border-0 p-3">
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+                                style="width: 40px;height:40px"><i class="fa-solid fa-gear"></i></div>
+                            <div>
+                                <p class="fw-bold fs-5">₹{{currencyFormat sales}}</p>
+                                <p style="margin-top: -20px;" class="mb-0">Revenue</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow w-25 border-0 p-3">
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+                                style="width: 40px;height:40px"><i class="fa-solid fa-gear"></i></div>
+                            <div>
+                                <p class="fw-bold fs-5">{{totalProducts}}</p>
+                                <p style="margin-top: -20px;" class="mb-0">Products</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow w-25 border-0 p-3">
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+                                style="width: 40px;height:40px"><i class="fa-solid fa-gear"></i></div>
+                            <div>
+                                <p class="fw-bold fs-5">{{totalBrands}}</p>
+                                <p style="margin-top: -20px;" class="mb-0">Brands</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="rounded" style="border: 2px solid #f4efef;">
+                <canvas id="lineChart" height="400"></canvas>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="rounded p-2 d-flex justify-content-center gap-5" style="border: 2px solid #f4efef;flex-wrap: wrap;">
+                <div>
+                    <div style="width: 150px;height:150px">
+                        <canvas id="doughnut1"></canvas>
+                    </div>
+                    <p>Total Registered User {{userCompleted}}%</p>
+                </div>
+
+                <div>
+                    <div style="width: 150px;height:150px">
+                        <canvas id="doughnut2"></canvas>
+                    </div>
+                    <p>Order Processed {{orderProcessed}}%</p>
+                </div>
+
+                <div>
+                    <div style="width: 150px;height:150px">
+                        <canvas id="doughnut3"></canvas>
+                    </div>
+                    <p>Revenue Target</p>
+                </div>
+
+                <div>
+                    <div style="width: 150px;height:150px">
+                        <canvas id="doughnut4"></canvas>
+                    </div>
+                    <p>Order Target {{orderTargetCompleted}}%</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="rounded p-2" style="border: 2px solid #f4efef;">
+                <div class="row">
+                    <div class="col-12 col-md-4">
+                        <div class="card shadow p-3 border-0">
+                            <p class="card-title fw-bold text-primary">Best Selling Products</p>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Img</th>
+                                        <th>Product</th>
+                                        <th>Total Sold</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each bestSellingProducts}}
+                                    <tr>
+                                        <td>
+                                            <img src="/images/backend/products/{{this.sku}}/{{this.image.[0]}}" alt="product image" style="width: 50px;height:50px">
+                                        </td>
+                                        <td>{{this.productName}}</td>
+                                        <td>{{this.totalSold}}</td>
+                                        <td>{{this.revenue}}</td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card shadow p-3 border-0">
+                            <p class="card-title fw-bold text-primary">Best Selling Products</p>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Total Sold</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each bestSellingCategory}}
+                                    <tr>
+                                        <td>{{this._id}}</td>
+                                        <td>{{this.totalSold}}</td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card shadow p-3 border-0">
+                            <p class="card-title fw-bold text-primary">Best Selling Brands</p>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Brand Name</th>
+                                        <th>Total Sold</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each bestSellerBrands}}
+                                    <tr>
+                                        <td><img src="/images/backend/brands/{{this.brandName}}/{{this.brandImage.[0]}}" alt="brand image" style="width: 50px;height:50px"></td>
+                                        <td>{{this.brandName}}</td>
+                                        <td>{{this.totalSold}}</td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="rounded" style="border: 2px solid #f4efef;">category overview</div>
+        </div>
+        <div class="col-12">
+            <div class="rounded" style="border: 2px solid #f4efef;">brand metrix</div>
+        </div>
+    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const lineChart = document.getElementById('lineChart').getContext('2d')
+    const doughnut1 = document.getElementById('doughnut1').getContext('2d')
+    const doughnut2 = document.getElementById('doughnut2').getContext('2d')
+    const doughnut3 = document.getElementById('doughnut3').getContext('2d')
+    const doughnut4 = document.getElementById('doughnut4').getContext('2d')
+    new Chart(lineChart, {
+        type: 'line',
+        data: {
+            labels: ['2021', '2022', '2023', '2024'], // years
+            datasets: [
+                {
+                    label: 'Achieved Orders',
+                    data: [0, 0, 0, "{{sales}}"], // Example data
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.2)', // Optional for area under the line
+                    borderWidth: 2,
+                    tension: 0.4, // Smooth curves
+                    pointBackgroundColor: '#007bff',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5
+                },
+                {
+                    label: 'Target Orders',
+                    data: [5000, 10000, 15000, 20000], // Target line
+                    borderColor: '#6c757d',
+                    borderDash: [5, 5], // Dashed line
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointBackgroundColor: '#6c757d',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Orders'
+                    }
+                }
+            }
+        }
+    })
+    new Chart(doughnut1, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Remaining'], // Labels for the sections
+            datasets: [
+                {
+                    data: ["{{userCompleted}}", "{{userRemaining}}"], // Example values: 70% completed, 30% remaining
+                    backgroundColor: ['#0377fc', '#e0e0e0'], // Colors
+                    hoverBackgroundColor: ['#0377fc', '#d6d6d6'], // Hover colors
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%', // Adjusts the thickness of the circle
+            plugins: {
+                tooltip: { enabled: false }, // Hides tooltip
+                legend: { display: false } // Hides legend
+            }
+        }
+    })
+    new Chart(doughnut2, {
+        type:'doughnut',
+        data:{
+            labels:['Completed', 'Remaining'],
+            datasets:[
+                {
+                    data: ["{{orderProcessed}}", "{{remainingOrders}}"], // Example values: 70% completed, 30% remaining
+                    backgroundColor: ['#0377fc', '#e0e0e0'], // Colors
+                    hoverBackgroundColor: ['#0377fc', '#d6d6d6'], // Hover colors
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%', // Adjusts the thickness of the circle
+            plugins: {
+                tooltip: { enabled: false }, // Hides tooltip
+                legend: { display: false } // Hides legend
+            }
+        }
+    })
+    new Chart(doughnut3, {
+        type:'doughnut',
+        data:{
+            labels:['Completed', 'Remaining'],
+            datasets:[
+                {
+                    data: [45, 55], // Example values: 70% completed, 30% remaining
+                    backgroundColor: ['#0377fc', '#e0e0e0'], // Colors
+                    hoverBackgroundColor: ['#0377fc', '#d6d6d6'], // Hover colors
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%', // Adjusts the thickness of the circle
+            plugins: {
+                tooltip: { enabled: false }, // Hides tooltip
+                legend: { display: false } // Hides legend
+            }
+        }
+    })
+    new Chart(doughnut4, {
+        type:'doughnut',
+        data:{
+            labels:['Completed', 'Remaining'],
+            datasets:[
+                {
+                    data: ["{{orderTargetCompleted}}", "{{orderTargetRemaining}}"], // Example values: 70% completed, 30% remaining
+                    backgroundColor: ['#0377fc', '#e0e0e0'], // Colors
+                    hoverBackgroundColor: ['#0377fc', '#d6d6d6'], // Hover colors
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%', // Adjusts the thickness of the circle
+            plugins: {
+                tooltip: { enabled: false }, // Hides tooltip
+                legend: { display: false } // Hides legend
+            }
+        }
+    })
+
+
+</script>

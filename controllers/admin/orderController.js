@@ -7,28 +7,53 @@ const Adress = require("../../models/addressModel");
 const loadOrders = async (req, res) => {
     const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'];
     try {
+        let searchvalue = ""
+        if(req.query.search){
+            searchvalue = req.query.search
+        }
+        let page = 1
+        if(req.query.page){
+            page = parseInt(req.query.page)
+        }
+        let limit = 8
+        let skip = (page - 1) * limit
         const orders = await Order.aggregate([
             {$lookup: {
                 from: 'users',
                 localField: 'userId',
                 foreignField: '_id',
                 as: 'userDetails'
-              }},
-              {$unwind:'$userDetails'},
-              {$project:{
-                _id:1,
-                "userDetails.name":1,
-                createdAt:1,
-                finalAmount:1,
-                status:1
-              }}
+            }},
+            {$unwind:'$userDetails'},
+            {$facet: {
+                countData: [{ $count: "totalDocs" }],
+                paginatedResults: [
+                    { $skip: skip },
+                    { $limit: limit }
+                ]
+            }}
+            // {$project:{
+            //     _id:1,
+            //     "userDetails.name":1,
+            //     createdAt:1,
+            //     finalAmount:1,
+            //     status:1
+            //   }},
+              
         ])
+
+        const totalDocuments = orders[0]?.countData[0]?.totalDocs || 0
+        const totalPage = Math.ceil(totalDocuments / limit)
+        const pagination = orders[0]?.paginatedResults || []
+
         console.log('order aggregated items')
         console.log(orders)
 
         res.render('admin/orders', {
             layout:'admin/main',
-            orders,
+            orders:pagination,
+            page,
+            totalPage,
             statuses
         })
     } catch (error) {

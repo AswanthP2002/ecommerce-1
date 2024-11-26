@@ -6,6 +6,7 @@ const productController = require('../controllers/admin/productController.js')
 const orderController = require('../controllers/admin/orderController.js')
 const couponController = require('../controllers/admin/couponController.js')
 const salesController = require('../controllers/admin/salesController.js')
+const brandController = require('../controllers/admin/brandController.js')
 const {userAuth, adminAuth} = require('../middlewares/auth.js')
 const multer = require('multer')
 const upload = require('../helpers/multer-helper.js')
@@ -34,6 +35,13 @@ router.get('/admin/category/unlist', adminAuth, categoryController.unlistCategor
 router.get('/admin/category/list', adminAuth, categoryController.listCategory)
 router.get('/admin/category/edit', adminAuth, categoryController.fetcheditCategoryDetails)
 router.post('/admin/category/edit', adminAuth, categoryController.editCategory)
+
+//Admin Brand Management
+router.get('/admin/brands', adminAuth, brandController.loadBrandPage)
+router.post('/admin/brands/add', adminAuth, upload.single('brandImage'),brandController.addBrand)
+router.get('/admin/brands/unblock', adminAuth, brandController.unblockBrand)
+router.get('/admin/brands/block', adminAuth, brandController.blockBrand)
+
 
 //Admin Product Management
 router.get('/admin/product', adminAuth, productController.loadProductPage)

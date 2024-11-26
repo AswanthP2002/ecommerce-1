@@ -1,0 +1,331 @@
+<!-- Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+<!-- Cropper.js JavaScript -->
+<div class="col">
+    <p class="fs-4 fw-bold">Brands</p>
+    <div class="rounded p-1 p-md-3" style="border: 2px solid #f4efef;">
+        <div class="d-flex justify-content-between">
+            <p class="fs-5 fw-bold">Brand Management</p>
+            <button type="button" class="btn btn-primary text-light" data-bs-toggle="modal" data-bs-target="#addBrandModal"><i class="fa-solid fa-plus"></i> Add brand</button>
+        </div>
+        <div>
+            {{#if brands}}
+            <div class="row gy-3">
+                {{#each brands}}
+                <div class="col-12 col-md-3">
+                    <div class="card shadow p-1 rounded" style="background-color: #f4efef;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <div class="bg-light shadow rounded-circle d-flex align-items-center jusfitfy-content-center" style="overflow: hidden;">
+                                <img src="/images/backend/brands/{{this.brandName}}/{{this.brandImage}}" alt="brand image" class="d-block" style="height: 100px;width:100px;object-fit:cover;">
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center flex-column mt-2">
+                                <p class="fw-bold fs-4">{{this.brandName}}</p>
+                                <p class="text-secondary">{{this.totalProducts}} Products</p>
+                                {{#if this.isBlocked}}
+                                <button onclick="confirm('are you sure want to block this brand'), unblockBrand('{{this._id}}')" type="button" class="btn btn-secondary">Unblock</button>
+                                {{else}}
+                                <button onclick="confirm('are you sure want to unblokc this brand'), blockBrand('{{this._id}}')" type="button" class="btn btn-warning">Block</button>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+            {{else}}
+            <p class="text-secondary fs-3 text-center">No Brands</p>
+            {{/if}}
+        </div>
+
+        {{!-- modals --}}
+        <div class="modal fade" id="addBrandModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header d-flex justify-content-between">
+                       <p class="fs-5 fw-bold">Add new Brand</p>
+                        <button type="button" class="btn" data-bs-dismiss="modal">X</button>
+                    </div>
+                    <div class="modal-body">
+                            <form onsubmit="addNewBrand(event, this)" action="#" enctype="multipart/form-data">
+                                <div class="mt-2">
+                                    <label for="brandName">Brand Name</label>
+                                    <input type="text" class="form-control" id="brandName" name="brandName" placeholder="Enter brand name" required>
+                                    <label for="" class="errorMessage"></label>
+                                </div>
+                                <div class="mt-2">
+                                    <label for="brandImage" class="">Choose file</label>
+                                    <input type="file" id="brandImage" name="brandImage" class="form-control" required accept="image/jpg, image/jpeg, image/png">
+                                    <div>
+                                        <label for="preview">Preview</label>
+                                        <div id="preview"></div>
+                                    </div>
+                                    <div>
+                                        <label for="cropSize">Size</label>
+                                        <input type="range" name="" id="cropSize" min="50" max="150" value="100">
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-primary" id="saveButton">Crop</button>
+                                        <button type="button" class="btn btn-secondary" id="clearButton">Clear</button>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-3 mt-2">
+                                    <button type="submit" class="btn btn-success form-control">Save</button>
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+    const brandName = document.getElementById('brandName')
+    const fileInput = document.getElementById('brandImage')
+    const preview = document.getElementById('preview')
+    const cropSize = document.getElementById('cropSize')
+    const saveButton = document.getElementById('saveButton')
+    const clearButton = document.getElementById('clearButton')
+
+    let cropper = null
+
+    fileInput.addEventListener('change', (e) => {
+        const fileUpload = e.target.files[0]
+        if(!fileUpload) return
+
+        const reader = new FileReader()
+
+        reader.onload = (e) => {
+            if(cropper){
+                cropper.destroy()
+            }
+
+            preview.innerHTML = ''
+
+            const image = document.createElement('img')
+            image.src = e.target.result
+            image.id = 'cropImage'
+            image.style.maxWidth = '100%'
+            preview.appendChild(image)
+
+            cropper = new Cropper(image, {
+                aspectRatio: 1, // Square crop
+                viewMode: 1,
+                autoCropArea: 1,
+                movable: true,
+                zoomable: true,
+                scalable: true,
+                rotatable: true,
+                cropBoxResizable: true,
+                background: true,
+            })
+        }
+
+        reader.readAsDataURL(fileUpload)
+    })
+
+    saveButton.addEventListener('click', (e) => {
+        if(cropper){
+            const size = parseInt(cropSize.value)
+
+            const canvas = cropper.getCroppedCanvas({
+                width:size,
+                height:size
+            })
+
+            preview.innerHTML = ''
+            const croppedImage = document.createElement('img')
+            croppedImage.src = canvas.toDataURL()
+            preview.appendChild(croppedImage)
+
+            console.log('cropped image created!')
+        }else{
+            console.log('no cropper initalized')
+        }
+    })
+
+    clearButton.addEventListener('click', (e) => {
+        if(cropper){
+            cropper.destroy()
+            cropper = null
+        }
+
+        preview.innerHTML = ''
+        fileInput.value = ''
+    })
+
+    function setError(element, message, display){
+        const errorLabel = element.nextElementSibling
+        if(!errorLabel){
+            return Swal.fire({
+                    icon:'error',
+                    title:'Uncaught',
+                    text:'Not Responding, please try again after sometime!'
+                   })
+        }
+        errorLabel.innerHTML = message
+        errorLabel.style.color = 'red'
+        errorLabel.style.display = display
+
+    }
+
+    function validateBrandName(){
+        const name = brandName.value
+        brandName.value = name.toUpperCase()
+        const pattern = /^[A-Za-z ]*$/
+        if(name.trim() === ""){
+            setError(brandName, 'Brand name can not be empty', 'block')
+        }else if(!pattern.test(name)){
+            setError(brandName, 'Enter a valid a brand name', 'block')
+        }else{
+            setError(brandName, '', 'none')
+        }
+    }
+    function addNewBrand(event, form){
+        event.preventDefault()
+        const errorMessage = document.querySelector('.errorMessage')
+        if(errorMessage.innerHTML){
+            Swal.fire({
+                icon:'warning',
+                title:'Invalid',
+                text:'Fill the form correctly!'
+            }) 
+            
+            return
+        }
+
+        //proceed with submission
+        const formData = new FormData(form)
+        /*const formObject = {}
+        formData.forEach((value, key) => {
+            formObject[key] = value
+        })*/
+        fetch('/admin/brands/add', {
+            method:'POST',
+            body:formData
+        })
+        .then((response) => {
+            if(!response.ok){
+                Swal.fire({
+                    icon:'error',
+                    text:'Server not responding!'
+                })
+                return 
+            }
+
+            return response.json()
+        })
+        .then((data) => {
+            if(data && data.success){
+                console.log('success data', data)
+                console.log('success data')
+                Swal.fire({
+                    icon:'success',
+                    title:'Added',
+                    text:data.message,
+                    showConfirmButton:false,
+                    ShowCancelButton:false,
+                    timer:1800
+                }).then(() => window.location.reload())
+            }else{
+                console.log('duplicated data', data)
+                Swal.fire({
+                    icon:'info',
+                    title:'Duplicate',
+                    text:data.message
+                })
+            }
+        })
+        .catch((error) => {
+            console.log('error data')
+            Swal.fire({
+                icon:'error',
+                title:'error',
+                text:error.message
+            })
+        })
+    }
+    brandName.addEventListener('keyup', validateBrandName)
+
+    function unblockBrand(brandId){
+        if(!brandId){
+            Swal.fire({
+                icon:'error',
+                text:'Not responding, try again after sometime!'
+            })
+            return
+        }
+
+        fetch(`/admin/brands/unblock?brandId=${brandId}`)
+            .then((response) => {
+                if(!response.ok){
+                    Swal.fire({
+                        icon:'error',
+                        text:'Server not responding!'
+                    })
+                    return
+                }
+                return response.json()
+            })
+            .then((data) => {
+                if(data && data.success){
+                    Swal.fire({
+                        icon:'success',
+                        text:data.message,
+                        showConfirmButton:false,
+                        timer:1600
+                    }).then(() => window.location.reload())
+                }
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon:'error',
+                    text:error.message
+                })
+            })
+
+    }
+
+    function blockBrand(brandId){
+        if(!brandId){
+            Swal.fire({
+                icon:'error',
+                text:'Not responding, try again after sometime!'
+            })
+            return
+        }
+
+        fetch(`/admin/brands/block?brandId=${brandId}`)
+            .then((response) => {
+                if(!response.ok){
+                    Swal.fire({
+                        icon:'error',
+                        text:'Server not responding!'
+                    })
+                    return
+                }
+                return response.json()
+            })
+            .then((data) => {
+                if(data && data.success){
+                    Swal.fire({
+                        icon:'success',
+                        text:data.message,
+                        showConfirmButton:false,
+                        timer:1600
+                    }).then(() => window.location.reload())
+                }
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon:'error',
+                    text:error.message
+                })
+            })
+
+    }
+</script>

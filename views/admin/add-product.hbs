@@ -26,8 +26,13 @@
                     <label for="" class="error-message" id="productDescription-error"></label>
                 </div>
                 <div class="col-12 col-md-6">
-                    <label for="" class="fw-bold field-label">SKU</label>
-                    <input type="text" id="product_id" name="stockKeepingUnit" class="form-control" disabled>
+                    <label for="" class="fw-bold field-label">Brand</label>
+                    <select name="productBrand" id="product_brand" class="form-control" required>
+                        <option value="">Choose Brand</option>
+                        {{#each brands}}
+                        <option value="{{this.brandName}}">{{this.brandName}}</option>
+                        {{/each}}
+                    </select>
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="" class="fw-bold field-label">Product Style</label>

@@ -24,10 +24,13 @@
                 <tr>
                     <td>{{this._id}}</td>
                     <td>{{this.userDetails.name}}</td>
-                    <td>{{formatDate this.date}}</td>
+                    <td>{{formatDate this.createdAt}}</td>
                     <td>-</td>
                     <td>{{this.paymentMethod}}</td>
                     <td>Rs.{{this.finalAmount}}</td>
+                    {{#ifEquals this.status "Awaiting Payment"}}
+                    <td><label class="ps-2 pe-2" for="" style="border: 1px solid black;border-radius: 15px;">Awaiting</label></td>
+                    {{/ifEquals}}
                     {{#ifEquals this.status "Pending"}}
                     <td><label class="ps-2 pe-2" for="" style="border: 1px solid #ffc107;border-radius: 15px;color:#ffc107;">{{this.status}}</label></td>
                     {{/ifEquals}}

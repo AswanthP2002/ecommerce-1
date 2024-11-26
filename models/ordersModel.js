@@ -8,6 +8,9 @@ const orderSchema = new Schema({
         default:() => uuidv4(),
         unique:true
     },
+    razorpayOrderId:{
+        type:String
+    },
     userId:{
         type:Schema.Types.ObjectId,
         ref:'User',
@@ -50,8 +53,9 @@ const orderSchema = new Schema({
     },
     paymentStatus:{
         type:String,
-        enum:['Pending', 'Paid'],
-        default:'Pending'
+        enum:['Pending', 'Paid', 'Failed'],
+        default:'Pending',
+        required:true
     },
     address:{
         type:Schema.Types.ObjectId,
@@ -61,7 +65,7 @@ const orderSchema = new Schema({
     status:{
         type:String,
         required:true,
-        enum:['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
+        enum:['Awaiting Payment', 'Pending', 'Processing', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'],
         default:'Pending'
     },
     statusHistory:[{

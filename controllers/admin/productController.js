@@ -1,6 +1,7 @@
 const Product = require('../../models/productModel')
 const Category = require('../../models/categoryModel')
 const Variant = require('../../models/variantModel')
+const Brand = require('../../models/brandModel')
 const multer = require('multer')
 const storage = require('../../helpers/multer-helper')
 const fs = require('fs')
@@ -94,9 +95,11 @@ const getProductDetails = async (req, res) => {
 const addProductsPage = async (req, res) => {
     try {
         const category = await Category.find({isListed:true}).lean()
+        const brands = await Brand.find({isBlocked:false}).lean()
         res.render('admin/add-product', {
             layout:'admin/main',
-            categories:category
+            categories:category,
+            brands
         })
     } catch (error) {
         console.log(`Error while rendering add products page ${error}`)
@@ -107,12 +110,15 @@ const addProductsPage = async (req, res) => {
 const addProducts = async (req, res) => {
     try {
         const category = await Category.findOne({name:req.body.productCategory})
+        const brand = await Brand.findOne({brandName:req.body.productBrand})
+
         const productName = req.body.productName
         const product = new Product({
             productName:productName,
             productDescription:req.body.productDescription,
             sku:`${uuidv4()}-${productName.slice(0,3)}-${category.name}`,
             category:category._id,
+            brand:brand._id, //added brand referrence
             color:req.body.productColor,
             colorGroup:req.body.colorGroup,
             style:req.body.productStyle,

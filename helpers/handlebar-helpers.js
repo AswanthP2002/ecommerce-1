@@ -152,3 +152,7 @@ handlebars.registerHelper('multipleProduct', (arr) => {
 handlebars.registerHelper('getorderedItemsCount', (arr) => {
     return arr.length - 1
 })
+handlebars.registerHelper('currencyFormat', (amount) => {
+    let currency = Number(amount)
+    return currency.toLocaleString('en-US')
+})

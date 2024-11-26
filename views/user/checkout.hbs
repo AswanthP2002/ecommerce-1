@@ -3,7 +3,7 @@
         <div class="border border-secondary rounded p-4">
             <div>
                 <p class="fw-bold fs-4">Deliver to</p>
-
+                
                 <div class="row">
                     {{#if addressList}}
                     {{#each addressList}}
@@ -14,6 +14,7 @@
                         </div>
                     </div>
                     {{/each}}
+                    <button onclick="addNewAddress('{{logedUser.id}}')" type="button">Add Address</button>
                     {{else}}
                     <button onclick="window.location.href='/profile?id={{logedUser.id}}'" type="button"
                         class="btn btn-primary">Add Address</button>
@@ -139,11 +140,11 @@
 </section>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-
+    let tempOrder = null
     document.addEventListener('DOMContentLoaded', () => {
         const orderConfirmModal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'))
         const orderPlacedModal = new bootstrap.Modal(document.getElementById('orderPlacedModal'))
-
+        
         document.getElementById('paymentForm').addEventListener('submit', (event) => {
             event.preventDefault()
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value
@@ -158,6 +159,16 @@
                     timer: 1800
                 })
                 return
+            }
+            //restrict cash on deliver if the order amount is above 1000
+            const payableAmount = document.getElementById('payableAmount').textContent
+            if(paymentMethod === 'cod' && parseInt(payableAmount) > 1000){
+                Swal.fire({
+                    icon:'warning',
+                    title:'Payment Restriction',
+                    text:'Order exceeding Rs.1000 can not be paid via Cash on delivery. Please select an alternate payment method'
+                })
+                return 
             }
 
             fetch('/payment', {
@@ -220,7 +231,7 @@
                 totalAmount: Number(totalAmount),
                 payableAmount: Number(payableAmount),
                 discount:document.getElementById('totalDiscount').textContent,
-                couponApplied: document.getElementById('checkout-payment').dataset.coupon
+                couponApplied: document.getElementById('checkout-payment').dataset.coupon,
             }
             console.log('coupon', orderData.couponApplied)
             fetch('/order/proceed', {
@@ -270,7 +281,9 @@
             selectedAddress: selectedAddress,
             totalAmount: Number(totalAmount),
             payableAmount: Number(payableAmount),
-            couponApplied: document.getElementById('checkout-payment').dataset.coupon
+            discount:Number(document.getElementById('totalDiscount').textContent),
+            couponApplied: document.getElementById('checkout-payment').dataset.coupon,
+            tempOrder
         }
 
         const response = await fetch('/order/proceed', {
@@ -292,11 +305,11 @@
             "currency": razorpayOrder.currency,
             "name": "Shopy Fashions",
             "description": "Thank you for shopping with Shopy Fashions! Your order is almost complete. Please proceed to secure your payment and enjoy our latest styles delivered right to your door!",
-            "image": "/images/frontend/shopyLogo.png",
+            "image": "http://localhost:5000/public/images/frontend/shopy logo.png",
             "order_id": razorpayOrder.id,
             "handler": function (response) {
                 console.log(response)
-                console.log("This step of Payment Succeeded");
+                console.log("This step of Payment Succeeded", response);
                 fetch(`/order/proceed?orderId=${razorpayOrder.receipt}`,{
                     method:'POST',
                     headers:{
@@ -318,9 +331,9 @@
                         }
                     })
             },
-            "modal":{
+            /*"modal":{
                 "ondismiss":function(){
-                    console.log('Payment was canceled or payment failed!')
+                    alert('Payment was canceled')
                     fetch(`/order/payment/cancel?orderId=${razorpayOrder.receipt}`)
                         .then((respnose) => {
                             if(!respnose.ok){
@@ -347,6 +360,140 @@
                             })
                         })
                 }
+            },*/
+            "prefill": {
+                //Here we are prefilling random contact
+                "contact": "9876543210",
+                //name and email id, so while checkout
+                "name": "Sreya Suresh",
+                "email": "nimmishreya51@gmail.com"
+            },
+            "theme": {
+                "color": "#ffa7a7"
+            }
+        };
+        const razpay = new Razorpay(options)
+        razpay.open()
+        razpay.on('payment.failed', (response) => {
+            console.log('failed response', response)
+            if(response.error.reason === 'payment_failed'){
+                //handling failed payments
+                fetch(`/order/payment/failed?orderId=${razorpayOrder.receipt}`)
+                    .then((response) => {
+                        if(!response.ok) throw new Error('Not responding!')
+                        return response.json()
+                    })
+                    .then((data) => {
+                        if(data && data.success){
+                            //tempOrder = razorpayOrder.receipt
+                            //proceed with message
+                            console.log('this is data before calling retry!', data)
+                            //confirm('are you sure want to coninute?')
+                            Swal.fire({
+                                icon:'error',
+                                title:data.title,
+                                text:data.message,
+                                showCancelButton:true,
+                                showConfirmButton:true,
+                                cancelButtonText:'Pay later',
+                                confirmButtonText:'Retry',
+                                reverseButtons:true
+                            }).then(async (result) => {
+                                try{
+                                    console.log('This is data razorpaid before calling retyr1', data.razorPayId)
+                                    //confirm('are you suree want to continue?')
+                                   if(result.isConfirmed){
+                                    await proceedRetryPayment(data.razorPayId)
+                                   }else if(result.dismiss){
+                                    window.location.href = '/'
+                                   }
+                                }catch(e){
+                                    console.log('error occured while retyring payment', e)
+                                    Swal.fire({
+                                        icon:'error',
+                                        title:'Error',
+                                        text:'Internal Server Error, please try again after sometime!'
+                                    })
+                                }
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon:'error',
+                            title:error.message
+                        })
+                    })
+                console.log('payment failed reason : : failure')
+
+            }else if(response.error.reason === 'payment_cancelled'){
+                console.log('payment failed reason : : failed')
+                fetch(`/order/payment/cancel?orderId=${razorpayOrder.receipt}`)
+                    .then((response) => {
+                        if(!response.ok) throw new Error('Server not responding!')
+                        return response.json()
+                    })
+                    .then((data) => {
+                        if(data && data.success){
+                            Swal.fire({
+                                icon:'info',
+                                title:'Payment Cancelled',
+                                showConfirmButton:false,
+                                timer:1600
+                            })
+                        }else{
+                            console.log(data.message)
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon:'error',
+                            title:'Error',
+                            text:error.message
+                        })
+                    })
+            }
+        })
+
+        async function proceedRetryPayment(razorpayId){
+            console.log('this is razorpayid',razorpayId)
+            //confirm('are you want to continue?')
+            const response = await fetch(`/order/proceed?razorpayOrderId=${razorpayId}&retry=${true}`, {
+                method:'POST',
+                headers:{'content-type':'application/json'}
+            })
+            const razorpayOrder = await response.json()
+            var options = {
+            "key": "rzp_test_4MBYamMKeUifHI",
+            "amount": razorpayOrder.amount,
+            "currency": razorpayOrder.currency,
+            "name": "Shopy Fashions",
+            "description": "Thank you for shopping with Shopy Fashions! Your order is almost complete. Please proceed to secure your payment and enjoy our latest styles delivered right to your door!",
+            "image": "http://localhost:5000/public/images/frontend/shopy logo.png",
+            "order_id": razorpayOrder.id,
+            "handler": function (response) {
+                console.log(response)
+                console.log("This step of Payment Succeeded", response);
+                fetch(`/order/proceed?orderId=${razorpayOrder.receipt}`,{
+                    method:'POST',
+                    headers:{
+                        'content-type':'application/json'
+                    }
+                })
+                    .then((response) => {
+                        console.log(response)
+                        if(!response.ok){
+                            return alert('something went wrong while order success message showing!')
+                        }
+                        return response.json()
+                    })
+                    .then((data) => {
+                        if(data.success){
+                            const orderPlacedModal = new bootstrap.Modal(document.getElementById('orderPlacedModal'))
+                            document.getElementById('order-confirm-message').innerHTML = data.message
+                            orderPlacedModal.show()
+                        }
+                    })
             },
             "prefill": {
                 //Here we are prefilling random contact
@@ -361,6 +508,175 @@
         };
         const razpay = new Razorpay(options)
         razpay.open()
+        razpay.on('payment.failed', (response) => {
+            console.log('failed response', response)
+            if(response.error.reason === 'payment_failed'){
+                //handling failed payments
+                fetch(`/order/payment/failed?orderId=${razorpayOrder.receipt}`)
+                    .then((response) => {
+                        if(!response.ok) throw new Error('Not responding!')
+                        return response.json()
+                    })
+                    .then((data) => {
+                        if(data && data.success){
+                            tempOrder = razorpayOrder.receipt
+                            //proceed with message
+                            Swal.fire({
+                                icon:'error',
+                                title:data.title,
+                                text:data.message,
+                                showCancelButton:true,
+                                showConfirmButton:true,
+                                cancelButtonText:'Pay later',
+                                confirmButtonText:'Retry',
+                                reverseButtons:true
+                            }).then(async (result) => {
+                                try{
+                                   if(result.isConfirmed){
+                                    await proceedRetryPayment(data.razorPayId)
+                                   }else if(result.dismiss){
+                                    window.location.href = '/'
+                                   }
+                                }catch(e){
+                                    console.log('error occured while retyring payment', e)
+                                    Swal.fire({
+                                        icon:'error',
+                                        title:'Error',
+                                        text:'Internal Server Error, please try again after sometime!'
+                                    })
+                                }
+                            })
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon:'error',
+                            title:error.message
+                        })
+                    })
+                console.log('payment failed reason : : failure')
+
+            }else if(response.error.reason === 'payment_cancelled'){
+                console.log('payment failed reason : : failed')
+                fetch(`/order/payment/cancel?orderId=${razorpayOrder.receipt}`)
+                    .then((response) => {
+                        if(!response.ok) throw new Error('Server not responding!')
+                        return response.json()
+                    })
+                    .then((data) => {
+                        if(data && data.success){
+                            Swal.fire({
+                                icon:'info',
+                                title:'Payment Cancelled',
+                                showConfirmButton:false,
+                                timer:1600
+                            })
+                        }else{
+                            console.log(data.message)
+                        }
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon:'error',
+                            title:'Error',
+                            text:error.message
+                        })
+                    })
+            }
+        })
+        }
+    }
+
+    function addNewAddress(userId){
+        if(userId){
+            Swal.fire({
+                title:'Add Address!',
+                html:`
+                    <label for="name">Name</label>
+                    <input type="text" id="name" class="form-control mt-2">
+                    <label for="phone">Phone</label>
+                    <input type="text" id="phone" class="form-control mt-2">
+                    <label for="buildingName">Building / House Name</label>
+                    <input type="text" id="buildingName" class="form-control mt-2">
+                    <label for="areaName">Road / Area Name</label>
+                    <input type="text" id="areaName" class="form-control mt-2">
+                    <label for="cityName">City</label>
+                    <input type="text" id="cityName" class="form-control mt-2">
+                    <label for="stateName">State</label>
+                    <input type="text" id="stateName" class="form-control mt-2">
+                    <label for="pinCode">Pin Code</label>
+                    <input type="text" id="pinCode" class="form-control mt-2">
+                `,
+                showConfirmButton:true,
+                showCancelButton:true,
+                allowOutsideClick:false,
+                confirmButtonText:'Save',
+                preConfirm:() => {
+                    const name = document.getElementById('name').value
+                    const phoneNumber = document.getElementById('phone').value
+                    const building = document.getElementById('buildingName').value
+                    const area = document.getElementById('areaName').value
+                    const city = document.getElementById('cityName').value
+                    const state = document.getElementById('stateName').value
+                    const pinCode = document.getElementById('pinCode').value
+
+                    if(name.trim() === ""){
+                        Swal.showValidationMessage('Name can not be empty')
+                    }else if(phoneNumber.trim() === ""){
+                        Swal.showValidationMessage('Phone number can not be empty')
+                    }else if(building.trim() === ""){
+                        Swal.showValidationMessage('Building name can not be empty')
+                    }else if(area.trim() === ""){
+                        Swal.showValidationMessage('Area name can not be empty')
+                    }else if(city.trim() === ""){
+                        Swal.showValidationMessage('City name can not be empty')
+                    }else if(state.trim() === ""){
+                        Swal.showValidationMessage('State name can not be empty')
+                    }else if(pinCode.trim() === ""){
+                        Swal.showValidationMessage('Pin code can not empty')
+                    }else{
+                        return {name, phoneNumber, building, area, city, state, pinCode}
+                    }
+                }
+            }).then((result) => {
+                if(result.isConfirmed){
+                    const {name, phoneNumber, building, area, city, state, pinCode} = result.value
+                    //removed the test checker ::: swal
+                    fetch(`/profile/address/add?id=${userId}`, {
+                        method:'POST',
+                        headers:{
+                            'content-type':'application/json'
+                        },
+                        body:JSON.stringify({
+                            name, phoneNumber, building, area, city, state, pinCode
+                        })
+                    }).then((response) => {
+                        if(!response) throw new Error('Server Response not ok!')
+                        return response.json()
+                    }).then((data) => {
+                        Swal.fire({
+                            icon:'success',
+                            title:'Added',
+                            text:data.message,
+                            showConfirmButton:false
+                        }).then(() => window.location.reload())
+                    }).catch((error) => {
+                        Swal.fire({
+                            icon:'error',
+                            title:'Error',
+                            text:error.message
+                        })
+                    })
+                }
+            }).catch((error) => {
+                console.log('error', error)
+                swal.fire({
+                    icon:'error', 
+                    title:'Uncaught!',
+                    text:'Uncaught Error while geting data, please try again after sometime!'
+                })
+            })
+        }
     }
 
     

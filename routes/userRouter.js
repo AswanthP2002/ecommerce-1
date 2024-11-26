@@ -20,6 +20,12 @@ router.use(async (req, res, next) => {
     next()
 })
 
+//testing path
+router.use((req, res, next) => {
+    console.log('current requested path : ', req.path)
+    next()
+})
+
 //Home/product page managment
 router.get('/', userController.loadUserHome)
 router.get('/search', userController.searchProducts)
@@ -34,6 +40,7 @@ router.get('/checkout', userAuth, userController.loadChekoutPge)
 router.post('/checkout/apply-coupon', userController.applyCoupon)
 router.post('/payment', userAuth, userController.paymentConfirm)
 router.get('/order/payment/cancel', userAuth, userController.cancelOrderPayment)
+router.get('/order/payment/failed', userAuth, userController.failedOrders)
 router.post('/order/proceed', userAuth, userController.placeOrder)
 router.post('/order/cancel', userAuth, userController.cancelOrder)
 router.post('/order/return', userAuth, userController.returnRequest)
@@ -61,6 +68,7 @@ router.get('/profile/address/edit', userAuth, userController.fetchEditDetails)
 router.post('/profile/address/edit', userAuth, userController.userAddressEdit)
 router.get('/orders', userAuth, userController.userOrders)
 router.get('/order/details', userAuth, userController.userOrderDetails)
+router.get('/download-invoice', userAuth, userController.downloadInvoice)
 router.get('/my-wallet', userAuth, userController.getWallet)
 router.get('/wallet/create', userAuth, userController.createWallet)
 router.get('/coupons', userAuth, userController.getCoupons)

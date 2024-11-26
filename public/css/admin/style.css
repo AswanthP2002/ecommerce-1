@@ -132,3 +132,28 @@ ul .nav-link{
     top: 0;
     left: 0;
 } */
+
+#preview{
+    /* border: 1px solid black;
+    width: 300px;
+    height: auto;
+    max-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #f8f8f8; Light grey background */
+    border: 1px solid black;
+    width: 300px;
+    height: auto;
+    max-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+#preview img{
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+}

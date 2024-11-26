@@ -1,10 +1,14 @@
 const express = require('express')
+const fs = require('fs')
 const nodeMailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const env = require('dotenv').config()
 const {v4:uuidv4} = require('uuid')
 const Razorpay = require('razorpay')
+const puppeteer = require('puppeteer')
+const handlebars = require('handlebars')
+const moment = require('moment')
 const User = require('../../models/userModel.js')
 const Product = require('../../models/productModel.js')
 const {ServiceReview, ProductReview} = require('../../models/reviewModel.js')
@@ -32,6 +36,18 @@ const generateOTP = () => {
     console.log(`otp before returning ${otp}`)
     return otp
 }
+const generateInvoiceNumber = () => {
+    let invoice = 'SPY-IV'
+    for(let i = 1; i <= 8; i++){
+        let rand = Math.ceil(Math.random() * 10)
+        invoice += rand.toString()
+    }
+}
+
+const formatCurrency = (amount) => {
+    return amount.toLocaleString('en-US')
+}
+
 const generateTocken = (userId) => {
     
     const token = jwt.sign({id:userId}, secret, {expiresIn:'10m'})
@@ -245,87 +261,6 @@ const productListPage = async (req, res) => {
             currentSort,
             category
         })
-
-            console.log('sort criteria', sortCriteria)
-            /*const productDetails = await Product.aggregate([
-                {$lookup:{
-                    from:'variants',
-                    localField:'variants',
-                    foreignField:'_id',
-                    as:'variantDetails'
-                }},
-                {$unwind:"$variantDetails"},
-                {$match:{"variantDetails.size":"small"}},
-                {$lookup:{
-                    from:'categories',
-                    localField:'category',
-                    foreignField:'_id',
-                    as:'categoryDetails'
-                }},
-                {$unwind:"$categoryDetails"},
-                {$match:{"categoryDetails.isListed":true, isBlocked:false}},
-                {$sort:sortCriteria}
-            ])
-            console.log('sort criteria worked')
-            return res.render('user/product-list',{
-                layout:'user/main',
-                product:productDetails,
-                currentSort,
-                category
-            })
-        /*}else if(Object.keys(matchCriteria).length > 0){
-            const productDetails = await Product.aggregate([
-                {$lookup:{
-                    from:'variants',
-                    localField:'variants',
-                    foreignField:'_id',
-                    as:'variantDetails'
-                }},
-                {$unwind:"$variantDetails"},
-                {$lookup:{
-                    from:'categories',
-                    localField:'category',
-                    foreignField:'_id',
-                    as:'categoryDetails'
-                }},
-                {$unwind:"$categoryDetails"},
-                {$match:{"categoryDetails.isListed":true, isBlocked:false}},
-                {$match:matchCriteria}
-            ])
-
-            console.log('all set filter')
-            console.log('filtered products', productDetails)
-            return res.render('user/product-list', {
-                layout:'user/main',
-                product:productDetails,
-                category
-            })
-        } else{
-            const productDetails = await Product.aggregate([
-                {$lookup:{
-                    from:'variants',
-                    localField:'variants',
-                    foreignField:'_id',
-                    as:'variantDetails'
-                }},
-                {$unwind:"$variantDetails"},
-                {$match:{"variantDetails.size":"small"}},
-                {$lookup:{
-                    from:'categories',
-                    localField:'category',
-                    foreignField:'_id',
-                    as:'categoryDetails'
-                }},
-                {$unwind:"$categoryDetails"},
-                {$match:{"categoryDetails.isListed":true, isBlocked:false}},
-            ])
-            console.log('normal products worked')
-            return res.render('user/product-list', {
-                layout:'user/main',
-                product:productDetails,
-                category
-            })
-        }*/
         
     } catch (error) {
         console.log('Error occured while loading the product list page', error)
@@ -390,66 +325,6 @@ const productDetails = async (req, res) => {
 //load the user home page
 const loadUserHome = async (req, res) => {
     try {
-        // const user = req.session.user
-        // //console.log('passport logined user', req.user)
-        // if(user){
-        //     console.log('session when user exists //', req.session) //testing
-        //     const userData = await User.findOne({_id:user}).lean()
-        //     // console.log(userData)
-        //     const productDetails = await Product.aggregate([
-        //         {$lookup: {
-        //             from: 'variants',
-        //             localField: 'variants',
-        //             foreignField: '_id',
-        //             as: 'variantDetails'
-        //           }},
-        //           {$lookup: {
-        //             from: 'categories',
-        //             localField: 'category',
-        //             foreignField: '_id',
-        //             as: 'categoryDetails'
-        //           }},
-        //           {$limit:4}
-        //     ])
-        //     // console.log(productDetails)
-        //     const reviews = await ServiceReview.find().lean()
-        //     // console.log(reviews)
-        //     res.render('user/home',{
-        //         layout:'user/main',
-        //         user:userData,
-        //         products:productDetails,
-        //         reviews:reviews
-        //     })
-        // }else if(req.user){
-        //     const userData = await User.findOne({_id:req.user._id}).lean()
-        //     const productDetails = await Product.aggregate([
-        //         {$lookup: {
-        //             from: 'variants',
-        //             localField: 'variants',
-        //             foreignField: '_id',
-        //             as: 'variantDetails'
-        //           }},
-        //           {$lookup: {
-        //             from: 'categories',
-        //             localField: 'category',
-        //             foreignField: '_id',
-        //             as: 'categoryDetails'
-        //           }},
-        //           {$limit:4}
-        //     ])
-        //     // console.log(productDetails)
-        //     const reviews = await ServiceReview.find().lean()
-        //     // console.log(reviews)
-        //     res.render('user/home',{
-        //         layout:'user/main',
-        //         user:userData,
-        //         products:productDetails,
-        //         reviews:reviews
-        //     })
-        // }else{
-            
-        // }
-        //console.log('session when user dont exists', req.session) //testing
             const productDetails = await Product.aggregate([
                 {$lookup: {
                     from: 'variants',
@@ -739,6 +614,7 @@ const userOrderDetails = async (req, res) => {
         const addressArray = addressDoc.address
         const shippingAddress = addressArray[0]
         const paymentStatus = orderDetails[0].status
+        const razorpayOrderId = orderDetails[0].razorpayOrderId
         const orderObjectId = orderDetails[0]._id
         const orderRecord = orderDetails[0].record
         const {totalPrice, finalAmount} = orderDetails[0]
@@ -751,7 +627,8 @@ const userOrderDetails = async (req, res) => {
             orderObjectId,
             orderRecord,
             totalPrice,
-            finalAmount
+            finalAmount,
+            razorpayOrderId
             
         })
     } catch (error) {
@@ -1156,9 +1033,14 @@ const loadChekoutPge = async (req, res) => {
                 as: "categoryDetails"
             }
         },
-        { $unwind: "$categoryDetails" }
+        { $unwind: "$categoryDetails" },
+        { $match:{"productDetails.isBlocked":false}}
 
     ])
+    if(cart.length === 0){
+        console.log('items in carts are deleted')
+        return res.redirect('/')
+    }
     console.log('This is the query used to get the address', cartPayment.userId)
     const addressLists = await Adress.findOne({userId:cartPayment.userId}).lean()
     console.log('user address lisst', addressLists)
@@ -1209,16 +1091,59 @@ const placeOrder = async (req, res) => {
         return  res.redirect('/pageNotFound')
     }
 
+    let orderId
     if(req.query.orderId){
-        console.log('currently order id exist in the query!', req.query.orderId)
-        const updatePaymentStatus = await Order.updateOne({orderId:req.query.orderId},
-            {paymentStatus:'Paid'}
+        orderId = req.query.orderId
+    }else{
+        orderId = null
+    }
+
+    console.log('chekcing datasa', req.query)
+    if(orderId){
+        console.log('currently order id exist in the query!', orderId)
+        const needUpdation = await Order.findOne({orderId:orderId}, {orderId:1, status:1, paymentStatus:1})
+        console.log('item befor updation ', needUpdation)
+        const updatePaymentStatus = await Order.updateOne({orderId:orderId},
+           {$set:{
+            paymentStatus:"Paid",
+            status:"Processing"
+           }}
         )
+        console.log('This is failed payment after quick updation::: ', updatePaymentStatus)
+        const itemUpdated = await Order.findOne({orderId:orderId}, {orderId:1, status:1, paymentStatus:1})
+        console.log('item after updation ', itemUpdated)
         if(updatePaymentStatus.modifiedCount === 0){
             throw new Error('Can not update payment status')
         }
+        //delete item from cart
+        const deleteCart = await Cart.deleteOne({userId:user})
+        if(deleteCart.deletedCount > 0){
+            console.log('cart deleted after placing order!')
+        }
         return res.json({success:true, message:'Yay! your order has been successfully placed!'})
+    }else if(req.query.razorpayOrderId && req.query.retry){
+        console.log('request for retry payment reached herer', req.query)
+        console.log('request for retry payment reached here order id differnciated', req.query.razorpayOrderId)
+        //find the failed order user try to success
+        const retryOrder = await Order.findOne({razorpayOrderId:req.query.razorpayOrderId})
+        console.log('order found based on request', retryOrder)
+        //create a new razorpay order
+        const razorPayOrder = await razorpayInstance.orders.create({
+            amount:retryOrder.finalAmount * 100,
+            currency:'INR',
+            receipt:retryOrder.orderId,
+            payment_capture:1
+        })
+        console.log('created razropay order for retry paymetn')
+
+        retryOrder.razorpayOrderId = razorPayOrder.id
+        await retryOrder.save()
+        //send the response
+        console.log('database updated accordingly!')
+        console.log('every thing is fine, return proceed')
+        return res.json(razorPayOrder)
     }
+
     const orderData = req.body
     console.log('This is order data :::: ',orderData)
     try {
@@ -1266,6 +1191,7 @@ const placeOrder = async (req, res) => {
         const order = new Order({
             orderedItems:formatOrderedItems,
             totalPrice:orderData.totalAmount,
+            discount:orderData.discount,
             finalAmount:orderData.payableAmount,
             paymentMethod:orderData.paymentMethod,
             address:orderData.selectedAddress,
@@ -1284,11 +1210,6 @@ const placeOrder = async (req, res) => {
         })
         
         console.log('order saved')
-        //remove cart after order creation
-        const deleteCart = await Cart.deleteOne({userId:user})
-        if(deleteCart.deletedCount > 0){
-            console.log('cart deleted after placing order!')
-        }
 
         //update the coupn applied user
         if(orderData.couponApplied){
@@ -1304,13 +1225,44 @@ const placeOrder = async (req, res) => {
                 receipt:order.orderId,
                 payment_capture:1
             })
+
+            //since it is razorpay order so order status must be awaiting:::
+            order.status = "Awaiting Payment"
+            order.razorpayOrderId = razorPayOrder.id
+            await order.save()
             return res.json(razorPayOrder)
+        }
+
+        //remove cart after order creation
+        const deleteCart = await Cart.deleteOne({userId:user})
+        if(deleteCart.deletedCount > 0){
+            console.log('cart deleted after placing order!')
         }
         return res.json({success:true, message:'Yay! your order has been successfully placed!'})
 
     } catch (error) {
         console.log('Error occured while placing the order', error)
         res.status(500).json({success:false, message:'Internal Server Error, please try again after sometimes'})
+    }
+}
+
+const failedOrders = async (req, res) => {
+    const {orderId} = req.query
+    console.log('this is updatable orderId', orderId)
+    try {
+        const updateOrder = await Order.updateOne(
+            {orderId:orderId},
+            {$set:{
+                paymentStatus:"Failed"
+            }}
+        )
+        const failedOrder = await Order.findOne({orderId:orderId})
+        console.log('outcome after order payment status updation :: ', updateOrder)
+        //sending response
+        return res.json({success:true, title:'Payment Failed', message:'It seems your payment can not be processed. Dont worry, your order still saved you can retry your payment later from the orders page!', razorPayId:failedOrder.razorpayOrderId})
+    } catch (error) {
+        console.log('error occured while handling failed payments!', error)
+        return res.status(500).json({message:'Internal Server error!, please try again after sometime!'})
     }
 }
 const cancelOrder = async (req, res) => {
@@ -1410,6 +1362,10 @@ const cancelOrderPayment = async (req, res) => {
     if (orderId) {
         //delete the order
         try {
+            const findOrder = await Order.findOne({orderId:orderId})
+            if(findOrder && findOrder.paymentStatus === 'Failed'){
+                return res.json({success:false, message:'Payment Failed'})
+            }
             const deleteSavedOrder = await Order.deleteOne({ orderId: orderId })
             if (deleteSavedOrder.deletedCount > 0) {
                 return res.json({ success: true })
@@ -1805,6 +1761,153 @@ const getCoupons = async (req, res) => {
     }
 }
 
+const downloadInvoice = async (req, res) => {
+    const { orderId } = req.query;
+    try {
+        const orderDetails = await Order.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+            { $unwind: '$orderedItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderedItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: '$productDetails' }
+        ]);
+
+        const addressRef = orderDetails[0].address;
+        const addressDoc = await Adress.findOne({ address: { $elemMatch: { _id: addressRef } } }).lean();
+        const shippingAddress = addressDoc.address[0];
+        const paymentStatus = orderDetails[0].status;
+        const orderObjectId = orderDetails[0]._id;
+        const { totalPrice, finalAmount } = orderDetails[0];
+
+        const fullAddress = `${shippingAddress.building}, ${shippingAddress.area}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.pinCode}`;
+
+        const invoiceHtml = `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>Invoice</title>
+            </head>
+        <body>
+            <h4 style="font-weight:bold;text-align:center;">Tax Invoice</h4>
+            <div style="display:flex;justify-content:space-between;gap: 2rem;">
+            <div>
+                <p><b>Shopsy Ecommerce Pvt. Ltd.</b><br>
+                    <span style="font-size:.9rem"><i>
+                        123, Market Plaza,
+                    Green Street, Sector 21,
+                    New Town, Metro City, <br>
+                    State: XYZ
+                    PIN: 560001
+                    Phone: +91 98765 43210</i>
+                    </span>
+                </p>
+            </div>
+            <div>
+                <img src="/images/frontend/shopqr.png" style="width:100px;height:100px;" alt="page qr code">
+                <div style="border:1px dotted black">BCS654563</div>
+            </div>
+            </div>
+            <div style="border-top: 1px solid;margin-top: 5px;margin-bottom: 5px;"></div>
+            <div style="display: flex;gap: 3rem;">
+                <div>
+                    <p><b>Order Id : </b>${orderObjectId}</p>
+                    <p><b>Order Date : </b>${moment(orderDetails[0].createdAt).format('DD-MM-YYYY')}</p>
+                    <p><b>Invoice Date : </b>${moment(orderDetails[0].createdAt).format('DD-MM-YYYY')}</p>
+                </div>
+                <div>
+                    <p><b>Billing Address</b></p>
+                    <p>${shippingAddress.building}, ${shippingAddress.area}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.pinCode}</p>
+                </div>
+            </div>
+            <div style="border-top: 1px solid;margin-top: 5px;margin-bottom: 5px;"></div>
+            <div>
+                <table style="border-collapse:collapse;width: 100%;">
+                    <tr style="border:1px solid;">
+                        <th style="border:1px solid">Product</th>
+                        <th style="border:1px solid">Quantity</th>
+                        <th style="border:1px solid">Amount</th>
+                    </tr>
+                   {{#each items}}
+                    <tr style="border:1px solid;">
+                        <td style="border:1px solid">{{this.productDetails.productName}}</td>
+                        <td style="text-align: center;border:1px solid">{{this.orderedItems.quantity}}</td>
+                        <td style="text-align: right;border:1px solid">₹{{this.orderedItems.price}}</td>
+                    </tr>
+                   {{/each}}
+                    <tr style="border:1px solid;">
+                        <td colspan="2" style="border:1px solid"><b>Total</b></td>
+                        <td style="text-align: right;font-weight: bold;border:1px solid">{{totalPrice}}</td>
+                    </tr>
+                    <tr style="border:1px solid;">
+                        <td colspan="2" style="border:1px solid;"><b>Deductions</b></td>
+                        <td style="text-align: right;font-weight: bold;border:1px solid">0.00</td>
+                    </tr>
+                    <tr style="border:1px solid;">
+                        <td colspan="2" style="border:1px solid;"><b>Shipping Fee</b></td>
+                        <td style="text-align: right;font-weight: bold;border:1px solid">60.00</td>
+                    </tr>
+                    <tr style="border:1px solid;">
+                        <td colspan="2" style="border:1px solid;"><b>Total Price</b></td>
+                        <td style="text-align: right;font-weight: bold;border:1px solid">{{finalAmount}}</td>
+                    </tr>
+                </table>
+            <p style="font-size: .7rem;"><b>Decalartion : </b>The goods sold are indeded for end user consumption and not for resale</p>
+        </div>
+        <footer style="position: absolute;bottom: 0;">
+        <p style="font-size: .8rem;"><b>Shopsy Ecommerce Pvt. Ltd.</b>
+        123, Market Plaza,
+        Green Street, Sector 21,
+        New Town, Metro City,
+        State: XYZ
+        PIN: 560001
+        Phone: +91 98765 43210</p>
+        <div style="border-top: 1px dotted;">
+        <p style="text-align: end;margin: 0;">Page 1 of 1</p>
+        </div>
+    
+        </footer>
+    </body>
+    </html>
+    `
+        const compiledInvoice = handlebars.compile(invoiceHtml)
+        const data = {
+            items:orderDetails,
+            totalPrice,
+            finalAmount
+        }
+        const pupInvoice = compiledInvoice(data)
+        const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox', 'allow-file-access-from-files'] });
+        const page = await browser.newPage();
+        await page.setContent(pupInvoice);
+        //adding style to invoice
+        //await page.addStyleTag({path:'/public/css/user/puppeteer.css'})
+
+        const pdfBuffer = await page.pdf({ format: 'A4' });
+        const pathName = './testpdfbufer.pdf'
+        fs.writeFileSync(pathName, pdfBuffer)
+        await browser.close();
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=invoice-${orderObjectId}.pdf`);
+        res.download(pathName, 'testpdfbufer.pdf', (error) => {
+            if(error){
+                throw new Error(error.message)
+            }
+            console.log('file send to the frontend')
+        })
+    } catch (error) {
+        console.error('Error generating invoice:', error);
+        res.status(500).json({ success: false, message: 'Failed to generate invoice' });
+    }
+};
+
+
 module.exports = {
     loadUserHome,
     searchProducts,
@@ -1842,11 +1945,13 @@ module.exports = {
     CheckWishlist,
     applyCoupon,
     cancelOrderPayment,
+    failedOrders,
     userOrders,
     userOrderDetails,
     cancelOrder,
     returnRequest,
     getWallet,
     createWallet,
-    getCoupons
+    getCoupons,
+    downloadInvoice
 }
