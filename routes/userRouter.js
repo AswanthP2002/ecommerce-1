@@ -72,6 +72,8 @@ router.get('/download-invoice', userAuth, userController.downloadInvoice)
 router.get('/my-wallet', userAuth, userController.getWallet)
 router.get('/wallet/create', userAuth, userController.createWallet)
 router.get('/coupons', userAuth, userController.getCoupons)
+router.get('/referrals', userAuth, userController.loadReferralsPage)
+router.get('/referral/url/generate', userAuth, userController.generateReferralLink)
 
 
 //login management

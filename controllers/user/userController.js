@@ -1907,7 +1907,44 @@ const downloadInvoice = async (req, res) => {
     }
 };
 
+const loadReferralsPage = async (req, res) => {
+    const {user} = req.query
+    try {
+        //inital load
+        console.log('user id :: ', user)
+       const findUser = await User.findOne({_id:user})
+       console.log('user = ', findUser)
+       console.log('referral code = ', findUser.referalCode)
+       const referralUrl = findUser.referalCode
+        res.render('user/referral', {
+            layout:'user/main',
+            referralUrl
+        })
+    } catch (error) {
+        
+    }
+}
 
+const generateReferralLink = async (req, res) => {
+    const {user} = req.query
+    try {
+        if(!user) throw new Error('Invalid user id, from the fronend')
+        const findUser = await User.findOne({_id: new mongoose.Types.ObjectId(user)})
+        if(!findUser) return res.status(400).json({success:false, message:'User not found!'})
+        //has the refferer id
+        const referrer = findUser._id
+        const convertedToString = referrer.toString()
+        const referrerHashed = await bcrypt.hash(convertedToString, 10)
+        const referUrl = `http://localhost:5000/user_signup?referrer=${referrerHashed}`
+        //save the referal url
+        const saveReferralUrl = await User.updateOne({_id:user}, {$set:{referalCode:referUrl}})
+        console.log(saveReferralUrl)
+        return res.json({success:true, message:'Your referral link was generated, you can share this link with your friends!'})
+    } catch (error) {
+        console.log('error occured while generating the referral link', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
+    }
+}
 module.exports = {
     loadUserHome,
     searchProducts,
@@ -1953,5 +1990,7 @@ module.exports = {
     getWallet,
     createWallet,
     getCoupons,
-    downloadInvoice
+    downloadInvoice,
+    loadReferralsPage,
+    generateReferralLink
 }

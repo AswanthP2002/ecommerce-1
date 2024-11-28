@@ -1,0 +1,72 @@
+<section class="">
+    <div class="">
+        <div class="pt-5 pb-5">
+            <div class="container">
+                <h3 class="text-center text-dark">Invite & Earn</h3>
+                <p class="text-dark text-center">
+                    Share the love with your friends and get rewarded! Invite your friends to join
+                    <b>Shopy Fashions</b> and enjoy exclusive benefits together. For every successful referral,
+                    you’ll earn exciting rewards. Start sharing now and make shopping even more fun!"
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <div class="pt-5 pb-5" style="background-color: #ebf4f8;">
+            <div class="container">
+                {{#if referralUrl}}
+                <h4 class="text-center text-dark">Invite Using this Url</h4>
+                <input type="text" name="" id="" readonly class="form-control p-2" value="{{referralUrl}}">
+                {{else}}
+                <h4 class="text-center text-dark">Generate Referral Link</h4>
+                <div class="d-flex justify-content-center">
+                    <button onclick="generateRefferalUrl('{{logedUser.id}}')" type="button" class="btn btn-warning">Generate Url</button>
+                </div>
+                {{/if}}
+                <div class="mt-5">
+                    <h4 class="text-center">Ways to share the referral link</h4>
+                    <div>
+                    <label for="urlShareForm" class="fw-bold"><span class="badge bg-success text-light rounded-circle me-2">1</span>Send a quick email</label>
+                    <form action="#" id="urlShareForm" class="mt-2">
+                        {{#if referralUrl}}
+                        <div class="d-block d-md-flex gap-3">
+                            <input type="text" name="recipientName" id="" class="form-control" placeholder="Recipient name (optional)">
+                            <input type="email" name="recipeintEmail" id="" class="form-control" placeholder="Recipeint Email Address">
+                        </div>
+                            <button type="submit" class="btn btn-info mt-3">Send</button>
+                        {{else}}
+                        <div class="d-block d-md-flex gap-3">
+                            <input type="text" name="recipientName" id="" class="form-control" placeholder="Recipient name (optional)" disabled>
+                            <input type="email" name="recipeintEmail" id="" class="form-control" placeholder="Recipeint Email Address" disabled>
+                        </div>
+                            <button type="submit" class="btn btn-info mt-3" disabled>Send</button>
+                        {{/if}}
+                    </form>
+                    </div>
+                    <div class="mt-3">
+                        <label for="urlShareForm" class="fw-bold"><span class="badge bg-success text-light rounded-circle me-2">2</span>Share directely</label>
+                        <p class="mt-2"><i>Copy the generated referral url and share with your frieds directly!</i></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    //generate referral url
+    async function generateRefferalUrl(userId){
+        try{
+            const response = await fetch(`/referral/url/generate?user=${userId}`)
+            const data = await response.json()
+            Swal.fire({
+                icon:'success',
+                title:'Generated',
+                text:data.message,
+                showConfirmButton:false,
+                timer:1800
+            }).then(() => window.location.reload())
+        }catch(error){
+
+        }
+    }
+</script>
