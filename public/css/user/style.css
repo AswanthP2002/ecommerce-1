@@ -595,4 +595,12 @@ footer .container{
     font-weight: 600;
     letter-spacing: 2px;
   }
-  
+  #dv-applyReferralCode{
+    width: 30% !important;
+  }
+
+  @media (min-width:768px){
+    #dv-applyReferralCode{
+        width: 100%;
+    }
+  }

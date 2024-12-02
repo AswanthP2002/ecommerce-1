@@ -1932,12 +1932,13 @@ const generateReferralLink = async (req, res) => {
         const findUser = await User.findOne({_id: new mongoose.Types.ObjectId(user)})
         if(!findUser) return res.status(400).json({success:false, message:'User not found!'})
         //has the refferer id
-        const referrer = findUser._id
-        const convertedToString = referrer.toString()
-        const referrerHashed = await bcrypt.hash(convertedToString, 10)
-        const referUrl = `http://localhost:5000/user_signup?referrer=${referrerHashed}`
+        // const referrer = findUser._id
+        // const convertedToString = referrer.toString()
+        // const referrerHashed = await bcrypt.hash(convertedToString, 10)
+        // const referUrl = `http://localhost:5000/user_signup?referrer=${referrerHashed}`
         //save the referal url
-        const saveReferralUrl = await User.updateOne({_id:user}, {$set:{referalCode:referUrl}})
+        const ref = `REFSPY${user.toString().slice(-6)}`
+        const saveReferralUrl = await User.updateOne({_id:user}, {$set:{referalCode:ref}})
         console.log(saveReferralUrl)
         return res.json({success:true, message:'Your referral link was generated, you can share this link with your friends!'})
     } catch (error) {
