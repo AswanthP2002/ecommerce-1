@@ -38,6 +38,9 @@
                     {{/if}}
                     
                 </li>
+                <li class="nav-item">
+                    <a href="/wishlist" class="nav-link"><i class="fa-solid fa-heart"></i></a>
+                </li>
             </ul>
         </div>
     </div>
@@ -68,7 +71,7 @@
             if(products.length > 0){
                 products.forEach((product) => {
                     const productContainer = document.createElement('div')
-                productContainer.classList.add('d-flex', 'gap-3', 'align-items-center')
+                productContainer.classList.add('d-flex', 'gap-3', 'align-items-center', 'border', 'border-bottom-dark', 'p-2')
                 productContainer.id = 'search-product-container'
                 const productImage = document.createElement('img')
                 productImage.src = `/images/backend/products/${product.sku}/${product.productImage[0]}`
@@ -78,6 +81,8 @@
                 item.style.fontSize = '12px'
                 item.classList.add('mb-0', 'text-secondary')
                 item.textContent = product.productName
+                item.style.fontWeight = 'bold'
+                item.style.color = 'black'
 
                 productContainer.appendChild(productImage)
                 productContainer.appendChild(item)

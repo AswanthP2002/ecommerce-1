@@ -63,8 +63,9 @@
     </div>
 
             </div>
-            <div class="carousel-item bg-info" style="height: 100%;"><img src="/images/frontend/Desktop - 2.png" alt="" style="object-fit: cover;object-position: center;"></div>
-            <div class="carousel-item bg-primary" style="height: 100%;"><img src="/images/frontend/Desktop - 7.png" alt="" style="object-fit: cover;object-position: center;"></div>
+            {{#each landingBanners}}
+            <div class="carousel-item bg-info" style="height: 100%;"><img src="/images/backend/banners/{{this.bannerType}}/{{this.bannerImage}}" alt="" style="object-fit: cover;object-position: center;"></div>
+            {{/each}}
             {{!-- <div class="carousel-item bg-success" style="height: 100%;"><img src="/images/frontend/test banner.jpg" alt="" style="height:100%;width:100%"></div> --}}
         </div>
         <a href="#landingPageCarousel" class="carousel-controller-prev position-absolute" data-bs-slide="prev" style="top: 50%;left:20px">
@@ -89,9 +90,19 @@
             </div>
         </div>
 </div>
+<section id="clipping" class="pb-4 pt-4">
+    <p class="fw-bold fs-4 mt-5 text-center" data-aos="fade-right">New Deals, New Trends</p>
+    <div class="border border-warning m-auto mb-4" style="width:80px;3px solid black" data-aos="fade-right"></div>
+    <div class="d-flex gap-4 justify-content-center">
+        {{#each clippingBanners}}
+            <img src="/images/backend/banners/{{this.bannerType}}/{{this.bannerImage}}" alt="clipping Banners" style="max-width: 600px;">
+        {{/each}}
+    </div>
+</section>
 <section id="new-arrivals">
     <div class="container">
-        <p class="page-headings mt-5 mb-3 text-center" data-aos="fade-right">new arrivals</p>
+        <p class="fw-bold fs-4 mt-5 text-center" data-aos="fade-right">New Arrivals</p>
+    <div class="border border-warning m-auto mb-4" style="width:80px;3px solid black" data-aos="fade-right"></div>
         <div class="top-list-container row">
             {{#each newArrivals}}
             <div class="card border-0 col-6 col-md-3" data-aos="fade-up" data-aos-duration="2500">
@@ -106,12 +117,18 @@
                         </button>
                     </div>
                         
-                    <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
-                    <p class="rating lh-1">{{ratingStars this.rating}}</p>
-                    <div class="d-flex gap-3">
+                    <p class="name mt-3 fw-bold fs-6" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{this.productName}}</p>
+                    <p class="rating lh-1" style="margin-top: -10px;">{{ratingStars this.rating}}</p>
+                    <div class="d-flex gap-3" style="margin-top: -5px;">
                         <p class="of-price fw-bold fs-6">₹{{getVariantPrice this.variantDetails "small" "offerPrice"}}</p>
+                        {{#if (checkOffer this.productOffer)}}
                         <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
                         <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
+                        {{/if}}
+                        {{#if (checkOffer this.categoryDetails.categoryOffer)}}
+                        <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
+                        <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
+                        {{/if}}
                     </div>
                 </div>
             </div>
@@ -125,7 +142,8 @@
 {{!-- Top selling section --}}
 <section id="top-selling" class="pt-5">
     <div class="container">
-        <p class="page-headings mt-5 mb-3 text-center" data-aos="fade-left">Top Selling</p>
+        <p class="fw-bold fs-4 mt-5 text-center" data-aos="fade-right">Top Selling</p>
+    <div class="border border-warning m-auto mb-4" style="width:80px;3px solid black" data-aos="fade-right"></div>
         <div class="top-list-container row">
             {{#each products}}
             <div class="card border-0 col-6 col-md-3" data-aos="fade-up" data-aos-duration="2500">
@@ -141,11 +159,17 @@
                         </div>
                     </a>
                     <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
-                    <p class="rating lh-1">{{ratingStars this.rating}}</p>
-                    <div class="d-flex gap-3">
+                    <p class="rating lh-1" style="margin-top: -10px;">{{ratingStars this.rating}}</p>
+                    <div class="d-flex gap-3" style="margin-top: -5px;">
                         <p class="of-price fw-bold fs-6">₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
+                        {{#if (checkOffer this.productOffer)}}
                         <p class="price fs-6 text-decoration-line-through text-secondary"> ₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
                         <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
+                        {{/if}}
+                        {{#if (checkOffer this.categoryDetails.categoryOffer)}}
+                        <p class="price fs-6 text-decoration-line-through text-secondary"> ₹{{getIndex2 this.variantDetails 0 "regularPrice"}}</p>
+                        <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
+                        {{/if}}
                     </div>
                     </div>
             </div>
@@ -163,19 +187,19 @@
         <p class="page-headings mb-4" data-aos="fade-right">browse dress by style</p>
         <div class="row gap-3 justify-content-center">
             <div class="col-12 col-md-4 bg-body rounded cat-style-col position-relative overflow-hidden">
-                <p class="product-style-label fs-6 fw-bold position-absolute">Product Category Label</p>
+                <p class="product-style-label fs-6 fw-bold position-absolute">Casual wears</p>
                 <img src="/images/frontend/casual-style-removebg-preview (1).png" class="position-absolute product-style-cover" alt="" style="width: 500px;height: auto;top: -25px;right:-80px">
             </div>
             <div class="col-12 col-md-7 bg-body rounded cat-style-col position-relative overflow-hidden">
-                <p class="product-style-label fs-6 fw-bold position-absolute">Product Category Label</p>
+                <p class="product-style-label fs-6 fw-bold position-absolute">Formal Wears</p>
                 <img src="/images/frontend/formal-style-removebg-preview.png" class="position-absolute product-style-cover" alt="" style="width: 700px;height: auto;top: -25px;right:-90px">
             </div>
             <div class="col-12 col-md-7 bg-body rounded cat-style-col position-relative overflow-hidden">
-                <p class="product-style-label fs-6 fw-bold position-absolute">Product Category Label</p>
+                <p class="product-style-label fs-6 fw-bold position-absolute">Party Wears</p>
                 <img src="/images/frontend/party-style-removebg-preview.png" class="position-absolute product-style-cover" alt="" style="width: 600px;height: auto;top: -25px;right:0">
             </div>
             <div class="col-12 col-md-4 bg-body rounded cat-style-col position-relative overflow-hidden">
-                <p class="product-style-label fs-6 fw-bold position-absolute">Product Category Label</p>
+                <p class="product-style-label fs-6 fw-bold position-absolute">Sports Wears</p>
                 <img src="/images/frontend/sports-removebg-preview.png" class="position-absolute product-style-cover" alt="" style="width: 400px;height: auto;top: -100px;right:-5px">
             </div>
         </div>
@@ -190,11 +214,11 @@
         <div class="carousel-inner">
             {{#each (chunks reviews 4)}}
             <div class="carousel-item {{#if @first}} active {{/if}}">
-                <div class="row gap-3 justify-content-center">
+                <div class="row gap-3 justify-content-center pt-2 pb-2">
                     {{#each this}}
-                    <div class="card col-2" style="width: 250px;border-color:rgba(108, 108, 108, 0.5)">
-                        <p class="rating">{{ratingStars rating}}</p>
-                        <p class="customer-name fw-bold">{{customerName}} <span class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center p-1" style="width: 15px;height:15px"><i class="fa-solid fa-check" style="color: white;font-size:0.500rem"></i></span></p>
+                    <div class="card border-0 col-2 shadow" style="width: 250px;border-color:rgba(108, 108, 108, 0.5)">
+                        <p class="rating mt-2">{{ratingStars rating}}</p>
+                        <p class="customer-name fw-bold" style="margin-top: -10px;">{{customerName}} <span class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center p-1" style="width: 15px;height:15px"><i class="fa-solid fa-check" style="color: white;font-size:0.500rem"></i></span></p>
                         <p class="review-description">{{description}}</p>
                         <p class="date fw-bold">{{getCallender date}}</p>
                     </div>

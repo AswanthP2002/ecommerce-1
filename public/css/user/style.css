@@ -362,6 +362,8 @@ footer .container{
 }
 #search-results{
     width: 100%;
+    max-height: 400px;
+    overflow-y: scroll;
 }
 #search-product-container{
     background: transparent;

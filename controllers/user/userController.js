@@ -21,6 +21,7 @@ const Category = require('../../models/categoryModel.js')
 const Wishlist = require('../../models/wishlistModel.js')
 const Coupon = require('../../models/couponModel.js')
 const Wallet = require('../../models/walletModel.js')
+const Banner = require('../../models/bannerModel.js')
 const secret = process.env.JWT_SECRET
 const razorpayInstance = new Razorpay({
     key_id:process.env.RAZORPAY_KEY_ID,
@@ -359,12 +360,17 @@ const loadUserHome = async (req, res) => {
             ])
             // console.log(productDetails)
             const reviews = await ServiceReview.find().lean()
+            const clippingBanners = await Banner.find({bannerType:'clipping'}).lean()
+            const landingBanners = await Banner.find({bannerType:'landing'}).lean()
+            const offerBanners = await Banner.find({bannerType:'offer'}).lean()
             // console.log(reviews)
             return res.render('user/home', {
                 layout:'user/main',
                 products:productDetails,
                 newArrivals,
-                reviews:reviews
+                reviews:reviews,
+                clippingBanners:clippingBanners || null,
+                landingBanners:landingBanners || null
             })
        
     } catch (error) {
