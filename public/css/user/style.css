@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jost:ital,wght@0,100..900;1,100..900&family=Jura:wght@300..700&family=Krona+One&family=Lexend+Deca:wght@100..900&family=Libre+Caslon+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jost:ital,wght@0,100..900;1,100..900&family=Jura:wght@300..700&family=Krona+One&family=Lexend+Deca:wght@100..900&family=Libre+Caslon+Display&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 
 *{
@@ -18,10 +18,12 @@ body{
     --label-content:rgb(255,51,51);
 }
 /* Home - Navbar */
-.navbar-brand{
-    font-family: 'Inter', Verdana, Geneva, Tahoma, sans-serif;
+.navbar-brand img{
+    /*font-family: 'Inter', Verdana, Geneva, Tahoma, sans-serif;
     font-size: 2.4rem;
-    font-weight: bold;
+    font-weight: bold;*/
+    width: 180px;
+    height: auto;
 }
 .yellow-circle-bottom{
     bottom: -200px;
@@ -600,9 +602,137 @@ footer .container{
   #dv-applyReferralCode{
     width: 30% !important;
   }
+  #brandLIne{
+    overflow-x: hidden;
+    white-space: nowrap;
+  }
+  .brand-name{
+    margin-right: 20px;
+    white-space: nowrap;
+  }
+  .clipping-banner-img{
+    max-width: 500px;
+  }
+  .landingCarousels{
+    margin-top: 7rem !important;
+  }
+  #carousel-sportsSection{
+    background: linear-gradient(to bottom, #ed3336, #651321);
+  }
+  #landingCarousels-formals .page-headings{
+    font-family: 'Playfair Display', serif !important;
+    text-transform: capitalize;
+  }
+  #landingCarousels-formals .page-intro{
+    font-family: 'Poppins', serif !important;
+  }
+  #landingCarousels-formals .highlites{
+    font-family: "Roboto", serif;
+  }
+  #carousel-formalSection{
+    background: linear-gradient(to right, #0b0c11, #49506a);
+  }
+  #landingCarousels-sports .page-headings{
+    /*font-family: 'Anton', sans-serif !important;*/
+    text-transform: capitalize;
+  }
+  #landingCarousels-sports .page-intro{
+    font-family: 'Roboto', serif !important;
+    font-size: 1rem !important;
+  }
+  .custom-popover{
+    max-width: 300px;
+    min-width: 200px;
+    word-wrap: break-word;
+  }
 
   @media (min-width:768px){
     #dv-applyReferralCode{
         width: 100%;
+    }
+  }
+  .product-card-hover{
+    transition: transform .3s
+  }
+  .product-card-hover:hover{
+    /*box-shadow: 2px 2px 10px 0 rgba(0,0,0,0.2);
+    transform: scale(1.1);*/
+  }
+
+  @media (max-width:1200px){
+    #product-search{
+        width: 250px;
+    }
+    #landing-section .page-headings{
+        font-size: 2.5rem;
+    }
+    #navbarMenu ul li{
+        text-align: center;
+    }
+    .navbar-brand img{
+        width: 150px;
+    }
+    #img-landing-section{
+        width: 630px;
+        height: 450px;
+        z-index: 2;
+        position: relative;
+    }
+    .yellow-circle-bottom{
+        /*bottom: -200px;
+        right: -200px;*/
+        width: 500px;
+        height: 500px;
+        z-index: 1;
+    }
+    .yellow-circle-top{
+        /*top: -300px;
+        left: -200px;*/
+        width: 500px;
+        height: 500px;
+        z-index: 1;
+    }
+    #landing-section{
+        border: 1px solid black;
+    }
+  }
+
+  @media (max-width:1000px){
+    #landing-section{
+        min-height: 100vh;
+    }
+    #brandLine{
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    #brandLine::-webkit-scrollbar{
+        display: none;
+    }
+    .clipping-banner-img{
+        max-width: 350px;
+    }
+    /* #clippingBanner-container{
+        justify-content: start;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    #clippingBanner-container::-webkit-scrollbar{
+        display: none;
+    } */
+  }
+  @media (max-width:600px){
+    #clippingBanner-container{
+        flex-direction: column;
+        align-items: center;
+    }
+    .navbar-brand img{
+        width: 120px;
+    }
+    .page-headings{
+        font-size: 1.5rem;
     }
   }

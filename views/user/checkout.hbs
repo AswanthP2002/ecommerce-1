@@ -70,6 +70,10 @@
                                 <td>Rs.60</td>
                             </tr>
                             <tr>
+                                <td colspan="4">Tax <span id="taxPercentage">{{cartPayment.taxPercentage}}</span></td>
+                                <td>Rs.<span id="taxAmount">{{cartPayment.taxAmount}}</span></td>
+                            </tr>
+                            <tr>
                                 <td colspan="4"><b>Grand Total</b></td>
                                 <td><b>Rs.{{cartPayment.grantTotal}}</b></td>
                             </tr>
@@ -274,6 +278,8 @@
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value
         const payableAmount = document.querySelector('#paymentForm #payableAmount').textContent
         const totalAmount = document.querySelector('#paymentForm #totalAmount').textContent
+        const taxPercentage = Number(document.getElementById('taxPercentage').textContent)
+        const taxAmount = Number(document.getElementById('taxAmount').textContent)
 
 
         const orderData = {
@@ -283,7 +289,9 @@
             payableAmount: Number(payableAmount),
             discount:Number(document.getElementById('totalDiscount').textContent),
             couponApplied: document.getElementById('checkout-payment').dataset.coupon,
-            tempOrder
+            tempOrder,
+            taxPercentage,
+            taxAmount
         }
 
         const response = await fetch('/order/proceed', {

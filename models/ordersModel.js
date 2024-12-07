@@ -43,6 +43,12 @@ const orderSchema = new Schema({
         type:Number,
         default:0
     },
+    taxPercentage:{
+        type:Number
+    },
+    taxAmount:{
+        type:Number
+    },
     finalAmount:{
         type:Number,
         required:true

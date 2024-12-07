@@ -3,6 +3,8 @@ const fs = require('fs')
 const nodeMailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+// const useragent = require('useragent')
+// const geoip = require('geoip-lite')
 const env = require('dotenv').config()
 const {v4:uuidv4} = require('uuid')
 const Razorpay = require('razorpay')
@@ -22,6 +24,7 @@ const Wishlist = require('../../models/wishlistModel.js')
 const Coupon = require('../../models/couponModel.js')
 const Wallet = require('../../models/walletModel.js')
 const Banner = require('../../models/bannerModel.js')
+
 const secret = process.env.JWT_SECRET
 const razorpayInstance = new Razorpay({
     key_id:process.env.RAZORPAY_KEY_ID,
@@ -370,7 +373,7 @@ const loadUserHome = async (req, res) => {
                 newArrivals,
                 reviews:reviews,
                 clippingBanners:clippingBanners || null,
-                landingBanners:landingBanners || null
+                landingBanners:JSON.stringify(landingBanners) || null
             })
        
     } catch (error) {
@@ -508,6 +511,35 @@ const login = async (req, res) => {
         
         req.session.user = findUser._id
         req.session.userName = findUser.name
+        //save the user informations 
+        // const ip = req.ip || req.connection.remoteAddress
+        // const userAgent = useragent.parse(req.headers['user-agent'])
+        // const location = geoip.lookup(ip) || {area:'unknown', city:'unknown', country:'unknown'}
+        // console.log('ip details')
+        // console.log(location)
+        // console.log(geoip(ip))
+
+        // const loginDetails = {
+        //     ip:ip,
+        //     time:new Date(),
+        //     device:`${userAgent.family} 0n ${userAgent.os.family}`,
+        //     location:`${location.area}, ${location.city}, ${location.country}`
+        // }
+
+        // //check if new user?
+        // const existingUser = await LogHistory.findOne({userId:findUser._id})
+        // if(!existingUser){
+        //     const newUserHistory = new LogHistory({
+        //         userId:findUser._id,
+        //         loginHistory:[loginDetails]
+        //     })
+        //     await newUserHistory.save()
+        // }else{
+        //     const updateLoginHistory = await LogHistory.updateOne(
+        //         {userId:findUser._id},
+        //         {$push:{loginHistory:loginDetails}}
+        //     )
+        // }
         res.redirect('/')
     } catch (error) {
         console.log(`Error while user login ${error.message}`)
@@ -623,7 +655,7 @@ const userOrderDetails = async (req, res) => {
         const razorpayOrderId = orderDetails[0].razorpayOrderId
         const orderObjectId = orderDetails[0]._id
         const orderRecord = orderDetails[0].record
-        const {totalPrice, finalAmount} = orderDetails[0]
+        const {totalPrice, finalAmount, taxPercentage, taxAmount} = orderDetails[0]
 
         return res.render('user/orderDetails', {
             layout:'user/main',
@@ -634,8 +666,9 @@ const userOrderDetails = async (req, res) => {
             orderRecord,
             totalPrice,
             finalAmount,
+            taxPercentage, 
+            taxAmount,
             razorpayOrderId
-            
         })
     } catch (error) {
         console.log('error occured while geting order ', error)
@@ -820,24 +853,35 @@ const loadCartPage = async (req, res) => {
         // }, 0) commented because it was decalred more structured way down ==>
 
         function totalCartPrice(cart){
+            let taxAmount, taxValue
             const discountedValue = cart.reduce((total, item) => {
                 return total + ((item.vriantDetails.regularPrice - item.vriantDetails.offerPrice) * item.items.quantity) 
             }, 0)
             const subTotal = cart.reduce((total, item) => {
                 return total + (item.vriantDetails.regularPrice * item.items.quantity)
             }, 0)
+            if(subTotal < 1000){
+                taxValue = 5
+                taxAmount = (subTotal * taxValue) / 100
+            }else if(subTotal > 1000){
+                taxValue = 12
+                taxAmount = (subTotal * taxValue) / 100
+            }
+            
 
-            const grantTotal = (subTotal - discountedValue) + 60
+            const grantTotal = Math.round((subTotal - discountedValue) + 60 + taxAmount)
             console.log('discount value ',discountedValue)
 
             return {
                 subTotal,
                 discountedValue,
                 grantTotal,
-                savedValue:discountedValue - 60
+                savedValue:discountedValue - 60,
+                taxValue,
+                taxAmount
             }
         }
-        const {discountedValue, subTotal, grantTotal, savedValue} = totalCartPrice(cart)
+        const {discountedValue, subTotal, grantTotal, savedValue, taxValue, taxAmount} = totalCartPrice(cart)
 
         res.render('user/cart', {
             layout:'user/main',
@@ -845,7 +889,9 @@ const loadCartPage = async (req, res) => {
             subTotal,
             discountedValue,
             grantTotal,
-            savedValue
+            savedValue,
+            taxValue,
+            taxAmount
         })
     } catch (error) {
         console.log('cart error', error) //this is only for testing
@@ -990,11 +1036,11 @@ const proceedToCheckout = async (req, res) => {
     }else{
         return res.redirect('/pageNotFound')
     }
-    const {subTotal, grantTotal, discount, couponApplied} = req.body
+    const {subTotal, grantTotal, discount, couponApplied, taxPercentage, taxAmount} = req.body
     console.log('before redirecting to checkout page! this is applied coupon', couponApplied)
     try {
         //store details in the session
-        req.session.cart = {userId, subTotal, discount, grantTotal, couponApplied}
+        req.session.cart = {userId, subTotal, discount, grantTotal, couponApplied, taxPercentage, taxAmount}
         return res.json({success:true, redirectUrl:'/checkout'})
     } catch (error) {
         console.log('Error occured while storing chekcout details in the session', error)
@@ -1198,6 +1244,8 @@ const placeOrder = async (req, res) => {
             orderedItems:formatOrderedItems,
             totalPrice:orderData.totalAmount,
             discount:orderData.discount,
+            taxPercentage:orderData.taxPercentage,
+            taxAmount:orderData.taxAmount,
             finalAmount:orderData.payableAmount,
             paymentMethod:orderData.paymentMethod,
             address:orderData.selectedAddress,
@@ -1789,7 +1837,8 @@ const downloadInvoice = async (req, res) => {
         const shippingAddress = addressDoc.address[0];
         const paymentStatus = orderDetails[0].status;
         const orderObjectId = orderDetails[0]._id;
-        const { totalPrice, finalAmount } = orderDetails[0];
+        const { totalPrice, finalAmount, taxPercentage, taxAmount, discount } = orderDetails[0];
+        const invoiceNo = `INV-SPY-${orderObjectId.toString().slice(-6).toUpperCase()}`
 
         const fullAddress = `${shippingAddress.building}, ${shippingAddress.area}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.pinCode}`;
 
@@ -1816,7 +1865,7 @@ const downloadInvoice = async (req, res) => {
             </div>
             <div>
                 <img src="/images/frontend/shopqr.png" style="width:100px;height:100px;" alt="page qr code">
-                <div style="border:1px dotted black">BCS654563</div>
+                <div style="border:1px dotted black">{{invoiceNo}}</div>
             </div>
             </div>
             <div style="border-top: 1px solid;margin-top: 5px;margin-bottom: 5px;"></div>
@@ -1852,7 +1901,11 @@ const downloadInvoice = async (req, res) => {
                     </tr>
                     <tr style="border:1px solid;">
                         <td colspan="2" style="border:1px solid;"><b>Deductions</b></td>
-                        <td style="text-align: right;font-weight: bold;border:1px solid">0.00</td>
+                        <td style="text-align: right;font-weight: bold;border:1px solid">{{discount}}</td>
+                    </tr>
+                    <tr style="border:1px solid;">
+                        <td colspan="2" style="border:1px solid;"><b>Tax {{taxPercentage}}%</b></td>
+                        <td style="text-align: right;font-weight: bold;border:1px solid">{{taxAmount}}</td>
                     </tr>
                     <tr style="border:1px solid;">
                         <td colspan="2" style="border:1px solid;"><b>Shipping Fee</b></td>
@@ -1885,7 +1938,11 @@ const downloadInvoice = async (req, res) => {
         const data = {
             items:orderDetails,
             totalPrice,
-            finalAmount
+            finalAmount,
+            taxPercentage,
+            discount,
+            taxAmount,
+            invoiceNo
         }
         const pupInvoice = compiledInvoice(data)
         const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox', 'allow-file-access-from-files'] });

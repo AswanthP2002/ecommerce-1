@@ -1,6 +1,14 @@
 <nav class="navbar navbar-expand-md" id="user-navbar">
     <div class="container">
-        <a href="/" class="navbar-brand">Shopsy</a>
+        <a href="/" class="navbar-brand">
+            <img src="/images/frontend/shopy logo.png" alt="shopy logo">
+        </a>
+        {{!-- <ul class="d-block d-md-none list-unstyled">
+            <li class="nav-item ms-0 ms-md-3 position-relative">
+                    <input type="search" placeholder="Search for products" class="ps-3" id="product-search">
+                    <div id="search-results" style="left: 0;" class="bg-light position-absolute"></div>
+            </li>
+        </ul> --}}
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -10,7 +18,7 @@
                 <li class="nav-item"><a href="#Man" class="nav-link">Men</a></li>
                 <li class="nav-item"><a href="#women" class="nav-link">Women</a></li>
                 <li class="nav-item"><a href="/wishlist" class="nav-link" id="link-wishlist" data-userwishlist="{{userWishlist}}">Wishlist</a></li>
-                <li class="nav-item ms-0 ms-md-3 position-relative">
+                <li class="nav-item ms-0 ms-md-3 position-relative d-sm-none d-md-block">
                     <input type="search" placeholder="Search for products" class="ps-3" id="product-search">
                     <div id="search-results" style="left: 0;" class="bg-light position-absolute"></div>
                 </li>

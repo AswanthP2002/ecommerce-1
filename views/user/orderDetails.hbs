@@ -88,18 +88,27 @@
     document.addEventListener('DOMContentLoaded', (e) => {
         const itemTotal = "{{totalPrice}}"
         const finalAmount = "{{finalAmount}}"
+        const taxPercentage = "{{taxPercentage}}"
+        const taxAmount = "{{taxAmount}}"
+
         var popover = new bootstrap.Popover(document.getElementById('popoverButton'), {
             title:'Price Details',
             content:`
             <div style='display:flex;justify-content-between;'>
                 <p style='font-size:0.7rem;'><b>Items</b></p><p style='font-size:0.7rem'>Rs.${itemTotal}</p>
+            </div>
+            <div style='display:flex;justify-content-between;'>
                 <p style='font-size:0.7rem;'><b>Shipping</b></p><p style='font-size:0.7rem;'>Rs.60</p>
+            </div>
+            <div style='display:flex;justify-content-between;'>
+                <p style='font-size:0.7rem;'><b>Tax(${taxPercentage}%)</b></p><p style='font-size:0.7rem;'>Rs.${taxAmount}</p>
             </div>
             <div style='display:flex;justify-content-between;'>
                 <p style='font-size:0.7rem;'><b>Final</b></p><p style='font-size:0.7rem;'>Rs.${finalAmount}</p>
             </div>`,
             html:true,
-            trigger:'click'
+            trigger:'click',
+            customClass:'custom-popover'
         })
 
 
