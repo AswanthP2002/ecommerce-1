@@ -5,27 +5,27 @@
             <div class="card rounded p-3" style="border: 2px solid #f4efef;">
                 <div id="salesCard-container" class="d-flex justify-content-between">
                     {{!-- data 1 --}}
-                    <div class="card rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: #f4efef;">
+                    <div class="card shadow rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: #f4efef;">
                         <p class="card-title text-secondary" style=".8rem">Total Sales</p>
                         <div class="d-flex gap-3 align-items-center">
-                            <p class="card-amount fs-4">{{sales}}</p>
-                            <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p>
+                            <p class="card-amount fs-4">₹{{currencyFormat sales}}</p>
+                            {{!-- <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p> --}}
                         </div>
                     </div>
                     {{!-- data 2 --}}
-                    <div class="card rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: #eef8ff;">
+                    <div class="card shadow rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: #eef8ff;">
                         <p class="card-title text-secondary" style=".8rem">Total Order Amount</p>
                         <div class="d-flex gap-3 align-items-center">
-                            <p class="card-amount fs-4">{{orderAmount}}</p>
-                            <p class="card-amount-value text-danger fw-bold" style="font-size: .8rem;">+2.89%</p>
+                            <p class="card-amount fs-4">₹{{currencyFormat orderAmount}}</p>
+                            {{!-- <p class="card-amount-value text-danger fw-bold" style="font-size: .8rem;">+2.89%</p> --}}
                         </div>
                     </div>
                     {{!-- data 3 --}}
-                    <div class="card rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: rgb(249, 245, 252);">
+                    <div class="card shadow rounded pt-2 pb-2 ps-3 pe-3 border-0" style="background-color: rgb(249, 245, 252);">
                         <p class="card-title text-secondary" style=".8rem">Total Discount</p>
                         <div class="d-flex gap-3 align-items-center">
-                            <p class="card-amount fs-4">{{discountAmount}}</p>
-                            <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p>
+                            <p class="card-amount fs-4">₹{{currencyFormat discountAmount}}</p>
+                            {{!-- <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p> --}}
                         </div>
                     </div>
                 </div>
@@ -50,9 +50,9 @@
                         <p class="card-title text-secondary" style=".8rem">Orders</p>
                         <div class="d-flex gap-3 align-items-center">
                             <p class="card-amount fs-4">{{orders}}</p>
-                            <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p>
+                            {{!-- <p class="card-amount-value text-success fw-bold" style="font-size: .8rem;">+2.89%</p> --}}
                         </div>
-                        <p class="text-secondary" style=".8rem">Total orders in day</p>
+                        <p class="text-secondary" style=".8rem" id="chart-title"></p>
                 </div>
                 <div class="">
                     <canvas id="ordersChart" style="width:100%;height:300px"></canvas>
@@ -156,8 +156,107 @@
                 })
             }
         }
+        //testing the value from the server
+        
+                   
     document.addEventListener('DOMContentLoaded', (e) => {
+        const range = document.getElementById('saleRange').value || 'monthly'
+        const dataFromServer = "{{sampleData}}"
+        const decoding = dataFromServer.replace(/&quot;/g, '"')
+            //parse it
+        const ChartDataparsedOne = JSON.parse(decoding)
+        console.log(ChartDataparsedOne)
+        console.log(range)
+    
+        let ordersChart
+        function updateChart(range, data){
+            let labels = []
+            let chartData = []
+            let target = []
+
+            if(range === 'monthly'){
+                document.getElementById('chart-title').textContent = 'Monthly sales data'
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                target = [20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000, 20000]
+                chartData = new Array(12).fill(0)
+                data.forEach((item) => {
+                    chartData[item.month - 1] = item.sales
+                })
+            }else if(range === 'yearly'){
+                document.getElementById('chart-title').textContent = 'Yearly sales data'
+                console.log('this yearly functin invoked')
+                console.log('checking data before matching', data)
+                labels = data.map((item) => {
+                    return item.year
+                })
+                //testing
+                console.log('labels', labels)
+                
+                target = new Array(labels.length).fill(50000)
+                //testsing
+                console.log('target', target)
+                chartData = data.map((item) => {
+                    return item.sales
+                })
+                //testing
+                console.log('chartdata', chartData)
+            }else if(range === 'weekly'){
+                document.getElementById('chart-title').textContent = 'Weekly sales data'
+                labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                target = [1500, 1500, 1500, 1500, 1500, 1500, 1500]
+                chartData = new Array(7).fill(0)
+                data.forEach((item) => {
+                    chartData[item.day] = item.sales
+                })
+            }
+
+            if(ordersChart){
+                ordersChart.destroy()
+            }
+
             const ctx = document.getElementById('ordersChart').getContext('2d');
+            ordersChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels, // Months
+        datasets: [
+            {
+                label: 'Achieved',
+                data: chartData, // Achieved values
+                backgroundColor: '#dccccc', // Achieved bar color
+                borderColor: '#dccccc',
+                borderWidth: 1,
+                barThickness:15
+            },
+            {
+                label: 'Target', // Target or Criterion values
+                data: target, // Target values
+                backgroundColor: '#000000', // Target bar color
+                borderColor: '#000000',
+                borderWidth: 1,
+                barThickness:15
+            }
+        ]
+    },
+    options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 1500,
+            easing: 'easeOutExpo',
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+        }
+
+        updateChart(range, ChartDataparsedOne)
+            /*const ctx = document.getElementById('ordersChart').getContext('2d');
             new Chart(ctx, {
     type: 'bar',
     data: {
@@ -194,7 +293,7 @@
             }
         }
     }
-});
+});*/
 
         //filter based on the checkout
         
