@@ -256,10 +256,7 @@ const editProduct = async (req, res) => {
         if (!productUpdate) {
             return res.redirect('/pageError');
         }
-        // const variantSmall = await Variant.findOne({productId:productId, size:'small'})
-        // const variantMedium = await Variant.findOne({productId:productId, size:'medium'})
-        // const variantLarge = await Variant.findOne({productId:productId, size:'large'})
-
+        
         await Variant.updateOne({productId:productId, size:'small'}, {
             $set:{
                 regularPrice:req.body.productPriceSmall,

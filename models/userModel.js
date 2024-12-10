@@ -53,6 +53,9 @@ const userSchema = new Schema({
         type:Date,
         default:new Date()
     },
+    referredBy:{
+        type:Schema.Types.ObjectId
+    },
     referalCode:{
         type:String
     },

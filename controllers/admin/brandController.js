@@ -30,8 +30,7 @@ const addBrand = async (req, res) => {
     try {
         //testing pipeline
         console.log('request body :: ', req.body)
-        // console.log('request files :: ', req.file)
-        //return res.status(400).json({success:false,title:'Maintanance', message:'Checking Pipeline'})
+        
         //find if the brand is already exists??
         const isExisting = await Brand.find({brandName:req.body.brandName})
         if(isExisting.length > 0){

@@ -63,8 +63,7 @@ const loadSalesReportPage = async (req, res) => {
                 filterDate = {createdAt:{$gte:moment().startOf('week').toDate(), $lte:moment().endOf('week').toDate()}}
                 currentFilter = 'weekly'
                 console.log('filter date for week', filterDate)
-                // const startWeek = moment().startOf('week').toDate()
-                // const endWeek = moment().endOf('week').toDate()
+                
                 const {startOfWeek, endOfWeek} = getWeekStartAndEnd()
                 console.log('start and end week', startOfWeek, endOfWeek)
                 const formatedSales = await Order.aggregate([
@@ -77,29 +76,17 @@ const loadSalesReportPage = async (req, res) => {
                         totalSales:{$sum:{$ifNull:["$finalAmount", 0]}},
                         totalDiscount:{$sum:{$ifNull:["$discount", 0]}}
                     }}
-                    // {$match:{
-                    //     createdAt:{$gte:startOfWeek},
-                    //     createdAt:{$lte:endOfWeek},
-                    //     status:{$in:["Processing", "Shipping", "Delivered"]}
-                    // }},
-                    // {$group:{
-                    //     _id:"$createdAt",
-                    //     totalSales:{$sum:{$ifNull:["$finalAmount", 0]}},
-                    //     totalDiscount:{$sum:{$ifNull:["finalAmount", 0]}}
-                    // }},
-                    // {$sort:{"_id.dayOfWeek":1}}
+                    
                 ])
                 const weeklyData = formatedSales.map((data) => {
                     return {
-                        // day:data._id.dayOfWeek,
+                        
                         day:data._id.getDay(),
                         sales:data.totalSales,
                         discount:data.totalDiscount
                     }
                 })
-                // console.log(moment().startOf('isoWeek').toDate())
-                // console.log(moment().endOf('isoWeek').toDate())
-
+                
                 sampleData = weeklyData
                 console.log('weekly data', formatedSales)
             }else if(range === 'monthly'){
@@ -135,9 +122,7 @@ const loadSalesReportPage = async (req, res) => {
             }else if(range === 'yearly'){
                 filterDate = {createdAt:{$gte:moment().startOf('year').toDate(), $lte:moment().endOf('year').toDate()}}
                 currentFilter = 'yearly'
-                // const testData = await Order.aggregate([
-                //     {$match:{createdAt:{$gte:new Date('2020-')}}}
-                // ])
+                
                 const formatedSales = await Order.aggregate([
                     {$match:{
                         createdAt:{$gte:new Date('2020-01-01')},
@@ -157,11 +142,10 @@ const loadSalesReportPage = async (req, res) => {
                         discount:data.totalDiscount
                     }
                 })
-                // console.log('formated sales data', formatedSales)
+                
                 console.log('formated yearly data', yearlyData)
                 sampleData = yearlyData
-                // console.log('Formated sales : ', formatedSales)
-                // console.log('yearly seperated data :', yearlyData)
+                
             }else if(range === 'custom'){
                 console.log('before converting date :::: ')
                 console.log('start date : ', req.query.startDate)
@@ -195,25 +179,13 @@ const loadSalesReportPage = async (req, res) => {
                 throw new Error('Error occured in range')
             }
             
-            // const aggregatedSales = await Order.aggregate([
-            //     {$match:{
-            //         ...filterDate,
-            //         status:{$in:["Processing","Shipped","Deliverd"]}
-            //     }},
-            //     {$group:{
-            //         _id:null, 
-            //         totalOrderAmount:{$sum:{$ifNull:["$finalAmount", 0]}}, 
-            //         totalDiscount:{$sum:{$ifNull:["$discount", 0]}}
-            //     }}
-            // ])
+            
             let currentYear = new Date().getFullYear()
             const orders = await Order.find(
                 {...filterDate,
                 status:{$in:["Processing", "Shipping", "Delivered"]}}
             ).countDocuments()
-            // console.log('aggregated results for sales report!', aggregatedSales)
-            // const orderAmount = aggregatedSales[0]?.totalOrderAmount
-            // const discountAmount = aggregatedSales[0]?.totalDiscount
+            
             let tileOrderAmount
             let tileDiscount
             if(range === 'monthly'){

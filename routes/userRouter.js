@@ -9,7 +9,6 @@ const router = express.Router()
 //check uesr cart
 router.use(async (req, res, next) => {
     const cartCount = await userController.countCartItems(req, res)
-    console.log('request reached here || cart Count', cartCount)
     res.locals.cartCount = cartCount
     next()
 })
@@ -74,6 +73,11 @@ router.get('/wallet/create', userAuth, userController.createWallet)
 router.get('/coupons', userAuth, userController.getCoupons)
 router.get('/referrals', userAuth, userController.loadReferralsPage)
 router.get('/referral/url/generate', userAuth, userController.generateReferralLink)
+router.post('/referral-code/apply', (req, res, next) => {
+    console.log('referral code apply route executed')
+    //testing pipeline
+    next()
+}, userAuth, userController.applyReferralCode)
 
 
 //login management

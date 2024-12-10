@@ -12,7 +12,6 @@ handlebars.registerHelper('previousPage', (page) => {
     return page - 1
 })
 handlebars.registerHelper('nextPage', (page) => {
-    //console.log(typeof page)
     return Number(page) + 1
 })
 handlebars.registerHelper('createPagination', (totalPages) => {
@@ -46,8 +45,6 @@ handlebars.registerHelper('count', (variants) => {
     return totalQuantity
 })
 handlebars.registerHelper('getIndex', (category) => {
-    console.log('Category array')
-    console.log(category)
     const data = category[0]
     return data.name
 })
@@ -74,7 +71,6 @@ handlebars.registerHelper('chunks', (reviewArray, chunkSize) => {
     for(let i = 0; i < reviewArray.length; i += chunkSize){
         result.push(reviewArray.slice(i, i + chunkSize))
     }
-    //console.log(result[0[0]])
     return result
 })
 
@@ -96,8 +92,6 @@ handlebars.registerHelper('isExpired', (date) => {
 })
 //get variant details
 handlebars.registerHelper('getVariantPrice', (arr, findOption, property) => {
-    //console.log('items')
-    //console.log(arr)
     const item = arr.find((element) => {
         return element.size === findOption
     })
@@ -140,7 +134,6 @@ handlebars.registerHelper('isCancellable', (status) => {
     return status === 'Pending' || status === 'Processing'
 })
 handlebars.registerHelper('isReturnable', (status) => {
-    console.log('checking the availabilty of the return is called ::::::')
     return status === 'Delivered'
 })
 handlebars.registerHelper('checkOfferType', (offerType) => {

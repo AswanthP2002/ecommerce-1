@@ -13,12 +13,12 @@
                     <b>Shopy Fashions</b> and enjoy exclusive benefits together. For every successful referral,
                     you’ll earn exciting rewards. Start sharing now and make shopping even more fun!"
                 </p>
-                {{#if user.isApplied}}
-                    <p class="fw-bold text-center">You 've referred by #user name - referrer</p>
+                {{#if userIsReffered}}
+                    <p class="fw-bold text-center">You 've referred by {{referredBy}}</p>
                 {{else}}
                     <div class="d-flex gap-2 m-auto" id="dv-applyReferralCode">
-                        <input type="text" name="" id="" class="form-control" placeholder="Enter referral code">
-                        <button type="button" class="btn btn-info">Apply</button>
+                        <input type="text" name="" id="referralCode" class="form-control" placeholder="Enter referral code">
+                        <button onclick="applyRef('{{logedUser.id}}', this)" type="button" class="btn btn-info" id="applyRefButton">Apply</button>
                     </div>
                 {{/if}}
             </div>
@@ -134,4 +134,60 @@
             console.log('error occured while copying', e)
         }
     }
+
+    function applyRef(referrer, button){
+        const notify = new Notyf()
+        console.log('this is user', referrer)
+        console.log('this is button', button)
+        const referralCode = document.getElementById('referralCode').value
+        if(referrer && referralCode){
+            fetch(`/referral-code/apply?referrer=${referrer}`, {
+                method:'POST',
+                headers:{
+                    'content-type':'application/json'
+                },
+                body:JSON.stringify({referralCode})
+            })
+            .then((response) => {
+                console.log(response)
+                if(!response.status === 500) throw new Error('Page not responding, try again after sometime')
+                return response.json()
+            })
+            .then((data) => {
+                if(data && data.success){
+                    Swal.fire({
+                        icon:'success',
+                        title:'Applied',
+                        text:'Referral Code applied successfully. Reward granted & be ready for your first purchase!',
+                        showConfirmButton:false,
+                        showCanelButton:false,
+                        timer:1600
+                    }).then(() => window.location.reload())
+                        .then(() => {
+                            notify.success('Rs.50 credited to your wallet as referral reward!',{
+                                align:'center',
+                                verticalAlign:'top'
+                            })
+                        })
+                }else{
+                    Swal.fire({
+                        icon:'warning',
+                        title:data.title,
+                        text:data.message
+                    })
+                }
+            })
+            .catch((error) => {
+                console.log('error occured ', error)
+                Swal.fire({
+                    icon:'error',
+                    title:'Error',
+                    text:error.message
+                })
+            })
+        }
+    }
+
+    //const buttonT = document.getElementById('applyRefButton')
+    //buttonT.addEventListener('click', applyRef)
 </script>

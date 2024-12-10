@@ -3,8 +3,6 @@ const fs = require('fs')
 const nodeMailer = require('nodemailer')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-// const useragent = require('useragent')
-// const geoip = require('geoip-lite')
 const env = require('dotenv').config()
 const {v4:uuidv4} = require('uuid')
 const Razorpay = require('razorpay')
@@ -53,7 +51,6 @@ const formatCurrency = (amount) => {
 }
 
 const generateTocken = (userId) => {
-    
     const token = jwt.sign({id:userId}, secret, {expiresIn:'10m'})
     return token
 }
@@ -195,7 +192,6 @@ const productListPage = async (req, res) => {
         if (colorArray.length > 0) matchCriteria["colorGroup"] = { $in: colorArray }
     }
     
-    //console.log('This is match criteria', matchCriteria)
     try {
         const category = await Category.find({isListed:true}, {_id:0, name:1}).lean()
         //console.log(category)
@@ -256,9 +252,8 @@ const productListPage = async (req, res) => {
         }
 
         aggregationPipeline.push({$sort:sortCriteria})
-
         const productDetails = await Product.aggregate(aggregationPipeline)
-        //console.log('all set with product details rendered')
+
         return res.render('user/product-list', {
             layout:'user/main',
             product:productDetails,
@@ -312,8 +307,7 @@ const productDetails = async (req, res) => {
         ])
 
         const productReviews = await ProductReview.find({productId:new mongoose.Types.ObjectId(req.query.id)}).lean()
-        //console.log('This is the product details when details page loads') //testing
-        //console.log(productDetails)
+        
         res.render('user/product-details', {
             layout:'user/main',
             product:productDetails[0],
@@ -361,12 +355,12 @@ const loadUserHome = async (req, res) => {
                   {$sort:{createdAt:-1}},
                   {$limit:4}
             ])
-            // console.log(productDetails)
+
             const reviews = await ServiceReview.find().lean()
             const clippingBanners = await Banner.find({bannerType:'clipping'}).lean()
             const landingBanners = await Banner.find({bannerType:'landing'}).lean()
             const offerBanners = await Banner.find({bannerType:'offer'}).lean()
-            // console.log(reviews)
+            
             return res.render('user/home', {
                 layout:'user/main',
                 products:productDetails,
@@ -511,35 +505,6 @@ const login = async (req, res) => {
         
         req.session.user = findUser._id
         req.session.userName = findUser.name
-        //save the user informations 
-        // const ip = req.ip || req.connection.remoteAddress
-        // const userAgent = useragent.parse(req.headers['user-agent'])
-        // const location = geoip.lookup(ip) || {area:'unknown', city:'unknown', country:'unknown'}
-        // console.log('ip details')
-        // console.log(location)
-        // console.log(geoip(ip))
-
-        // const loginDetails = {
-        //     ip:ip,
-        //     time:new Date(),
-        //     device:`${userAgent.family} 0n ${userAgent.os.family}`,
-        //     location:`${location.area}, ${location.city}, ${location.country}`
-        // }
-
-        // //check if new user?
-        // const existingUser = await LogHistory.findOne({userId:findUser._id})
-        // if(!existingUser){
-        //     const newUserHistory = new LogHistory({
-        //         userId:findUser._id,
-        //         loginHistory:[loginDetails]
-        //     })
-        //     await newUserHistory.save()
-        // }else{
-        //     const updateLoginHistory = await LogHistory.updateOne(
-        //         {userId:findUser._id},
-        //         {$push:{loginHistory:loginDetails}}
-        //     )
-        // }
         res.redirect('/')
     } catch (error) {
         console.log(`Error while user login ${error.message}`)
@@ -571,9 +536,7 @@ const loadUserProfile = async (req, res) => {
     const userId = req.query.id
     console.log('user id is ', userId) //testing
     
-    try {  //cleared repeated checking of user // since alredy applied user authentication middleware
-        //if(userId){ //check if the user is loged in or not
-            //if(req.session.user){
+    try {  
                 const userData = await User.findOne({_id:userId}).lean()
                 const address = await Adress.findOne({userId:userId}).lean()
                 const orders = await Order.aggregate([
@@ -599,10 +562,7 @@ const loadUserProfile = async (req, res) => {
                     address:address.address,
                     orders
                 })
-            //}else{
-            //res.redirect('/user_login') //else redirect user to login
-            //}   
-        //}
+
     } catch (error) {
         console.log(`Error occured while loading user profile ${error}`)
         return res.redirect('/pageNotFound')
@@ -719,13 +679,10 @@ const fetchEditDetails = async (req, res) => {
     try {
         const addressDoc = await Adress.findOne({address:{$elemMatch:{_id:addressId}}})
         const addressArray = addressDoc.address
-        //console.log('full address list', addressArray)
         const editableAddress = addressArray.find((address) => {
             return address._id == addressId
         })
-        //console.log('request address id', addressId)
-        //console.log('Editable address', editableAddress)
-
+        
         return res.json({success:true, editableAddress})
     } catch (error) {
         console.log('error occured while fetching the address details')
@@ -735,7 +692,7 @@ const fetchEditDetails = async (req, res) => {
 
 const userAddressEdit = async (req, res) => {
     const addressId = req.query.addressId
-    //const user = req.session.user  //changed : Applicable to both traditional login & passport login
+    
     let user
     if(req.user){
         user = req.user._id
@@ -746,11 +703,6 @@ const userAddressEdit = async (req, res) => {
 
     }
     
-    //console.log('request for edit address reached here')
-    //console.log('requested address id', addressId)
-    //console.log(user)
-    //console.log('request terminated for current fixing')
-    //return res.redirect('/pageNotFoud') //checking
     try {
         await Adress.updateOne({address:{$elemMatch:{_id:new mongoose.Types.ObjectId(addressId)}}}, {
             $set:{
@@ -803,9 +755,7 @@ const loadCartPage = async (req, res) => {
 
     
     try {
-        //const cart = await Cart.findOne({userId:userId}).lean()
-        //const product = await Product.findOne({_id:cart.items.})
-
+        
         const cart = await Cart.aggregate([
             { $match: { userId: new mongoose.Types.ObjectId(userId)} },
             { $unwind: "$items" },
@@ -846,12 +796,7 @@ const loadCartPage = async (req, res) => {
 
         ])
         console.log('cart details')
-        //console.log(cart)
-        //payment details
-        // const subTotal = cart.reduce((total, item) => {
-        //     return total + (item.vriantDetails.regularPrice * item.items.quantity)
-        // }, 0) commented because it was decalred more structured way down ==>
-
+        
         function totalCartPrice(cart){
             let taxAmount, taxValue
             const discountedValue = cart.reduce((total, item) => {
@@ -900,7 +845,6 @@ const loadCartPage = async (req, res) => {
 
 const addToCart = async (req, res) => {
     const id = req.query.product
-    //const userId = req.query.user // Error occured, bug when user id is accessed directly from the session, since passport users are in userObject **** need to be fixed!!!
     let userId
     if(req.user){
         userId = req.user._id
@@ -1003,7 +947,7 @@ const cartQuantityUpdate = async (req, res) => {
 
 const removeFromCart = async (req, res) => {
     const {productId} = req.body
-    //const user = req.session.user //changed : Applicable to both traditional logined user and passport login user
+    
     let user
     if(req.user){
         user = req.user._id
@@ -1027,7 +971,7 @@ const removeFromCart = async (req, res) => {
 }
 
 const proceedToCheckout = async (req, res) => {
-    //const userId = req.session.user //changed:Applicable to both traditional passport
+    
     let userId
     if(req.user){
         userId = req.user._id
@@ -1095,10 +1039,9 @@ const loadChekoutPge = async (req, res) => {
     }
     console.log('This is the query used to get the address', cartPayment.userId)
     const addressLists = await Adress.findOne({userId:cartPayment.userId}).lean()
-    console.log('user address lisst', addressLists)
+    
     const userWallet = await Wallet.findOne({userId:cartPayment.userId}).lean()
-    //console.log(cartPayment)
-    //console.log(cart)
+
     return res.render('user/checkout', {
         layout:'user/main',
         cart,
@@ -1132,8 +1075,7 @@ const paymentConfirm = async (req, res) => {
 }
 
 const placeOrder = async (req, res) => {
-    //const user = req.session.user //changed : Applicable to both passport and traditional logins
-    
+        
     let user
     if(req.user){
         user = req.user._id
@@ -1154,7 +1096,7 @@ const placeOrder = async (req, res) => {
     if(orderId){
         console.log('currently order id exist in the query!', orderId)
         const needUpdation = await Order.findOne({orderId:orderId}, {orderId:1, status:1, paymentStatus:1})
-        console.log('item befor updation ', needUpdation)
+        
         const updatePaymentStatus = await Order.updateOne({orderId:orderId},
            {$set:{
             paymentStatus:"Paid",
@@ -1163,7 +1105,7 @@ const placeOrder = async (req, res) => {
         )
         console.log('This is failed payment after quick updation::: ', updatePaymentStatus)
         const itemUpdated = await Order.findOne({orderId:orderId}, {orderId:1, status:1, paymentStatus:1})
-        console.log('item after updation ', itemUpdated)
+        
         if(updatePaymentStatus.modifiedCount === 0){
             throw new Error('Can not update payment status')
         }
@@ -1172,13 +1114,60 @@ const placeOrder = async (req, res) => {
         if(deleteCart.deletedCount > 0){
             console.log('cart deleted after placing order!')
         }
+
+        const findUser = await User.findOne({_id:user})
+        if(!findUser.redeemed && findUser.referredBy){
+            const referrer = findUser.referredBy
+            const findWallet = await Wallet.findOne({userId:referrer})
+            if(!findWallet){
+                const newWallet = new Wallet({
+                    userId:referrer,
+                    balance:10,
+                    transactions:[
+                        {
+                            transactionType:"Credit",
+                            amount:10,
+                            date:new Date(),
+                            status:"Completed",
+                            description:"Welcome Bonus!"
+                        }
+                    ]
+                })
+
+                await newWallet.save()
+
+                newWallet.transactions?.push({
+                    transactionType:"Credit",
+                    amount:100,
+                    date:new Date(),
+                    status:"Completed",
+                    description:"Referral Bonus, as your referree made his/her first purchase"
+                })
+                findUser.redeemed = true
+                await findUser.save()
+                await newWallet.save()
+            }else{
+                findWallet.transactions?.push({
+                    transactionType:"Credit",
+                    amount:100,
+                    date:new Date(),
+                    status:"Completed",
+                    description:"Referral Bonus, as your referree made his/her first purchase"
+                })
+                findUser.redeemed = true
+                await findUser.save()
+                await findWallet.save()
+            }
+            
+        }
+
         return res.json({success:true, message:'Yay! your order has been successfully placed!'})
     }else if(req.query.razorpayOrderId && req.query.retry){
         console.log('request for retry payment reached herer', req.query)
         console.log('request for retry payment reached here order id differnciated', req.query.razorpayOrderId)
         //find the failed order user try to success
         const retryOrder = await Order.findOne({razorpayOrderId:req.query.razorpayOrderId})
-        console.log('order found based on request', retryOrder)
+        
         //create a new razorpay order
         const razorPayOrder = await razorpayInstance.orders.create({
             amount:retryOrder.finalAmount * 100,
@@ -1197,7 +1186,7 @@ const placeOrder = async (req, res) => {
     }
 
     const orderData = req.body
-    console.log('This is order data :::: ',orderData)
+    
     try {
         const orderedItems = await Cart.aggregate([
             { $match:{userId:new mongoose.Types.ObjectId(user)}},
@@ -1228,7 +1217,7 @@ const placeOrder = async (req, res) => {
             { $unwind: "$variantDetails" }
 
         ])
-        //console.log('Aggregated items', orderedItems)
+        
 
         const formatOrderedItems = orderedItems.map((item) => {
             return {
@@ -1238,7 +1227,7 @@ const placeOrder = async (req, res) => {
                 price:item.variantDetails.regularPrice
             }
         })
-        console.log('checking the ordered items correctly maped' ,formatOrderedItems)
+        
 
         const order = new Order({
             orderedItems:formatOrderedItems,
@@ -1253,7 +1242,7 @@ const placeOrder = async (req, res) => {
         })
 
         await order.save()
-        console.log('current order  => ', order)
+        
         for(let singleItem of formatOrderedItems){
             await Variant.updateOne({productId:singleItem.product, size:singleItem.size}, {
                 $inc:{quantity:-singleItem.quantity}
@@ -1292,6 +1281,52 @@ const placeOrder = async (req, res) => {
         if(deleteCart.deletedCount > 0){
             console.log('cart deleted after placing order!')
         }
+        //handle refer reward
+        const findUser = await User.findOne({_id:user})
+        if(!findUser.redeemed && findUser.referredBy){
+            const referrer = findUser.referredBy
+            const findWallet = await Wallet.findOne({userId:referrer})
+            if(!findWallet){
+                const newWallet = new Wallet({
+                    userId:referrer,
+                    balance:10,
+                    transactions:[
+                        {
+                            transactionType:"Credit",
+                            amount:10,
+                            date:new Date(),
+                            status:"Completed",
+                            description:"Welcome Bonus!"
+                        }
+                    ]
+                })
+
+                await newWallet.save()
+
+                newWallet.transactions?.push({
+                    transactionType:"Credit",
+                    amount:100,
+                    date:new Date(),
+                    status:"Completed",
+                    description:"Referral Bonus, as your referree made his/her first purchase"
+                })
+                findUser.redeemed = true
+                await newWallet.save()
+                await findUser.save()
+            }
+
+            findWallet.transactions?.push({
+                transactionType:"Credit",
+                amount:100,
+                date:new Date(),
+                status:"Completed",
+                description:"Referral Bonus, as your referree made his/her first purchase"
+            })
+            findUser.redeemed = true
+            await findUser.save()
+            await findWallet.save()
+            
+        }
         return res.json({success:true, message:'Yay! your order has been successfully placed!'})
 
     } catch (error) {
@@ -1311,7 +1346,7 @@ const failedOrders = async (req, res) => {
             }}
         )
         const failedOrder = await Order.findOne({orderId:orderId})
-        console.log('outcome after order payment status updation :: ', updateOrder)
+        
         //sending response
         return res.json({success:true, title:'Payment Failed', message:'It seems your payment can not be processed. Dont worry, your order still saved you can retry your payment later from the orders page!', razorPayId:failedOrder.razorpayOrderId})
     } catch (error) {
@@ -1435,8 +1470,7 @@ const cancelOrderPayment = async (req, res) => {
 const searchProducts = async (req, res) => {
     const query = req.query.query
     try {
-        //find product using reges
-        console.log
+        
         if(query && query.length > 0){
             const products = await Product.find(
                 {productName:{$regex:new RegExp(query, 'i')}},
@@ -1482,8 +1516,7 @@ const countCartItems = async (req, res) => { //updating cart count :: fixing bug
                 { $match: { 'productDetails.isBlocked': false } }
             ])
             return cart ? cart.length : 0
-            //const cart = await Cart.findOne({userId:user})
-            //return cart ? cart.items.length : 0
+            
         }
         return null
     } catch (error) {
@@ -1672,7 +1705,7 @@ const getWishlist = async (req, res) => {
     console.log('request for wishlist geting')
     let user = req.session.user || req.user._id
     console.log('This is user id', user)
-    //throw new Error('This is testing ERror for testing page') Testing :: Fixed the wishlist loading error
+    
     if (user) {
         console.log('wishlist requested user!', user)
         const wishlist = await Wishlist.aggregate([
@@ -1708,7 +1741,6 @@ const getWishlist = async (req, res) => {
             { $match: { 'variantDetails.size': "small" } }
         ])
 
-        console.log('user wishlist', wishlist)
 
         return res.render('user/wishlists', {
             layout:'user/main',
@@ -1948,9 +1980,7 @@ const downloadInvoice = async (req, res) => {
         const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox', 'allow-file-access-from-files'] });
         const page = await browser.newPage();
         await page.setContent(pupInvoice);
-        //adding style to invoice
-        //await page.addStyleTag({path:'/public/css/user/puppeteer.css'})
-
+        
         const pdfBuffer = await page.pdf({ format: 'A4' });
         const pathName = './testpdfbufer.pdf'
         fs.writeFileSync(pathName, pdfBuffer)
@@ -1976,15 +2006,26 @@ const loadReferralsPage = async (req, res) => {
         //inital load
         console.log('user id :: ', user)
        const findUser = await User.findOne({_id:user})
-       console.log('user = ', findUser)
+       
        console.log('referral code = ', findUser.referalCode)
        const referralUrl = findUser.referalCode
+       let referredBy = findUser.referredBy || null
+       console.log('referredbyUser', referredBy)
+       let userIsReffered
+       if(referredBy){
+        const referrer = await User.findOne({_id:referredBy})
+        referredBy = referrer.name
+        userIsReffered = true
+       }else{userIsReffered = false}
+       console.log('reered user name', referredBy)
         res.render('user/referral', {
             layout:'user/main',
-            referralUrl
+            referralUrl,
+            referredBy,
+            userIsReffered
         })
     } catch (error) {
-        
+        console.log(error)
     }
 }
 
@@ -1994,18 +2035,82 @@ const generateReferralLink = async (req, res) => {
         if(!user) throw new Error('Invalid user id, from the fronend')
         const findUser = await User.findOne({_id: new mongoose.Types.ObjectId(user)})
         if(!findUser) return res.status(400).json({success:false, message:'User not found!'})
-        //has the refferer id
-        // const referrer = findUser._id
-        // const convertedToString = referrer.toString()
-        // const referrerHashed = await bcrypt.hash(convertedToString, 10)
-        // const referUrl = `http://localhost:5000/user_signup?referrer=${referrerHashed}`
-        //save the referal url
+        
         const ref = `REFSPY${user.toString().slice(-6)}`
         const saveReferralUrl = await User.updateOne({_id:user}, {$set:{referalCode:ref}})
         console.log(saveReferralUrl)
         return res.json({success:true, message:'Your referral link was generated, you can share this link with your friends!'})
     } catch (error) {
         console.log('error occured while generating the referral link', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
+    }
+}
+
+const applyReferralCode = async (req, res) => {
+    console.log('function from server called successfully')
+    const {referrer} = req.query
+    try {
+        const {referralCode} = req.body
+        //check the owner
+        const findReferrer = await User.findOne({referalCode:referralCode})
+        if(!findReferrer) return res.status(404).josn({success:false, title:'Invalid', message:'Sorry, we can find the referrer, check the code!'})
+        //check if the code is already used?
+        const alreadyUsed = await User.findOne({redeemedUsers:{$in:[referrer]}})
+        if(alreadyUsed) return res.status(400).json({success:false, title:'Invalid', message:'You have already used this code!'})
+        //update code used status
+        //find referree
+        const referree = await User.findOne({_id:referrer})
+        if(!referree) throw new Error('Invalid user')
+        referree.referredBy = findReferrer._id
+        findReferrer.redeemedUsers.push(referree._id)
+
+        await referree.save()
+        await findReferrer.save()
+
+        //update wallet
+        const referreeWallet = await Wallet.findOne({userId:referree})
+        if(!referreeWallet){
+            
+            const newUserWallet = new Wallet({
+                userId:referree._id,
+                balance:10,
+                transactions:[
+                    {
+                        transactionType:"Credit",
+                        amount:10,
+                        date:new Date(),
+                        status:"Completed",
+                        description:"Welcome Bonus!"
+                    }
+                ]
+
+            })
+            await newUserWallet.save()
+
+            newUserWallet.transactions?.push({
+                transactionType:"Credit",
+                amount:50,
+                date:new Date(),
+                status:"Completed",
+                description:"Referral Bonus"
+            })
+            newUserWallet.balance += 50
+            await newUserWallet.save()
+        }else{
+            referreeWallet.transactions?.push({
+                transactionType:"Credit",
+                amount:50,
+                date:new Date(),
+                status:"Completed",
+                description:"Referral Bonus"
+            })
+            referreeWallet.balance += 50
+            await referreeWallet.save()
+        }
+
+        return res.json({success:true})
+        } catch (error) {
+        console.log('error occured while handling apply referral code', error)
         return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
     }
 }
@@ -2056,5 +2161,6 @@ module.exports = {
     getCoupons,
     downloadInvoice,
     loadReferralsPage,
-    generateReferralLink
+    generateReferralLink,
+    applyReferralCode
 }
