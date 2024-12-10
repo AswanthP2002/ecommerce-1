@@ -23,7 +23,7 @@ const loadProductPage = async (req, res) => {
         }
         let limit = 5
         let skip = (page - 1) * limit
-        const productDetails = await Product.aggregate([
+        const pipeline = [
             {$lookup: {
                 from: 'variants',
                 localField: 'variants',
@@ -35,16 +35,54 @@ const loadProductPage = async (req, res) => {
                 localField: 'category',
                 foreignField: '_id',
                 as: 'categoryDetails'
-              }},
-              {$facet: {
-                    countData: [{ $count: "totalDocs" }],
-                    paginatedResults: [
-                        { $skip: skip },
-                        { $limit: limit }
-                    ]
-                }
-            }
-        ])
+              }}
+        ]
+
+        if(searchvalue){
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { productName: { $regex: searchvalue, $options: 'i' } },
+                        { sku: { $regex: searchvalue, $options: 'i' } },
+                        { color: { $regex: searchvalue, $options: 'i' } },
+                        { "categoryDetails.name": { $regex: searchvalue, $options: 'i' } },
+                        { status: { $regex: searchvalue, $options: 'i'}}
+                    ],
+                },
+            })
+        }
+
+        pipeline.push({$facet: {
+            countData: [{ $count: "totalDocs" }],
+            paginatedResults: [
+                { $skip: skip },
+                { $limit: limit }
+            ]
+        }
+    })
+        // const productDetails = await Product.aggregate([
+        //     {$lookup: {
+        //         from: 'variants',
+        //         localField: 'variants',
+        //         foreignField: '_id',
+        //         as: 'variantDetails'
+        //       }},
+        //       {$lookup: {
+        //         from: 'categories',
+        //         localField: 'category',
+        //         foreignField: '_id',
+        //         as: 'categoryDetails'
+        //       }},
+        //       {$facet: {
+        //             countData: [{ $count: "totalDocs" }],
+        //             paginatedResults: [
+        //                 { $skip: skip },
+        //                 { $limit: limit }
+        //             ]
+        //         }
+        //     }
+        // ])
+        const productDetails = await Product.aggregate(pipeline)
         const totalDocuments = productDetails[0]?.countData[0]?.totalDocs || 0
         const totalPage = Math.ceil(totalDocuments / limit)
         const pagination = productDetails[0]?.paginatedResults || []

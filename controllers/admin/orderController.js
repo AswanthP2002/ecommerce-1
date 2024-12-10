@@ -3,6 +3,7 @@ const Order = require("../../models/ordersModel");
 const Product = require("../../models/productModel");
 const User = require("../../models/userModel");
 const Adress = require("../../models/addressModel");
+const Wallet = require('../../models/walletModel')
 
 const loadOrders = async (req, res) => {
     const statuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'Returned'];
@@ -17,21 +18,51 @@ const loadOrders = async (req, res) => {
         }
         let limit = 8
         let skip = (page - 1) * limit
-        const orders = await Order.aggregate([
+        const pipeline = [
             {$lookup: {
                 from: 'users',
                 localField: 'userId',
                 foreignField: '_id',
                 as: 'userDetails'
-            }},
-            {$unwind:'$userDetails'},
-            {$facet: {
-                countData: [{ $count: "totalDocs" }],
-                paginatedResults: [
-                    { $skip: skip },
-                    { $limit: limit }
-                ]
             }}
+        ]
+        pipeline.push({$unwind:'$userDetails'},)
+        if(searchvalue){
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { "userDetails.name": { $regex: searchvalue, $options: 'i' } },
+                        { orderId: { $regex: searchvalue, $options: 'i' } },
+                        { userId: { $regex: searchvalue, $options: 'i' } },
+                        { status: { $regex: searchvalue, $options: 'i'}},
+                        { paymentMethod: {$regex:searchvalue, $options: 'i'}}
+                    ],
+                },
+            })
+        }
+
+        pipeline.push({$facet: {
+            countData: [{ $count: "totalDocs" }],
+            paginatedResults: [
+                { $skip: skip },
+                { $limit: limit }
+            ]
+        }})
+        // const orders = await Order.aggregate([
+        //     {$lookup: {
+        //         from: 'users',
+        //         localField: 'userId',
+        //         foreignField: '_id',
+        //         as: 'userDetails'
+        //     }},
+        //     {$unwind:'$userDetails'},
+        //     {$facet: {
+        //         countData: [{ $count: "totalDocs" }],
+        //         paginatedResults: [
+        //             { $skip: skip },
+        //             { $limit: limit }
+        //         ]
+        //     }}
             // {$project:{
             //     _id:1,
             //     "userDetails.name":1,
@@ -40,7 +71,8 @@ const loadOrders = async (req, res) => {
             //     status:1
             //   }},
               
-        ])
+        //])
+        const orders = await Order.aggregate(pipeline)
 
         const totalDocuments = orders[0]?.countData[0]?.totalDocs || 0
         const totalPage = Math.ceil(totalDocuments / limit)
@@ -75,11 +107,46 @@ const updateOrderStatus = async (req, res) => {
         //update history
         const order = await Order.findOne({_id:orderId})
         if(status === 'Returned'){
+            //find user wallet
+            const findUserWallet = await Wallet.findOne({userId:order.userId})
+            if(!findUserWallet){//user dont have wallet
+                const newWallet = new Wallet({
+                    userId:order.userId,
+                    transactions:[{
+                        transactionType:'Credit',
+                        amount:10,
+                        date:new Date(),
+                        description:'Welcome Bonus!'
+                    }],
+                    balance:10
+                })
+
+                await newWallet.save()
+
+                newWallet.transactions?.push({
+                    transactionType:'Credit',
+                    amount:order.finalAmount,
+                    date:new Date(),
+                    description:'Order return amount refund!'
+                })
+                await newWallet.save()
+
+            }else{
+                findUserWallet.transactions?.push({
+                    transactionType:'Credit',
+                    amount:order.finalAmount,
+                    date:new Date(),
+                    description:'Order return amount refund!'
+                })
+
+                await findUserWallet.save()
+            }
             order.statusHistory.push({
                 status:status,
                 timestamp:new Date(),
                 notes:'Item Returned Amount Refunded to the customer'
             })
+            order.record = 'Item Returned, Amount Refunded to the customer'
         }else{
             order.statusHistory.push({
                 status:status,

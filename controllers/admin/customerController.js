@@ -15,8 +15,8 @@ const customersInfo = async (req, res) => {
         const userData =  await User.find({
             isAdmin:false,
             $or:[
-                {name:{$regex:".*"+searchValue+".*"}},
-                {email:{$regex:".*"+searchValue+".*"}}
+                {name:{$regex:".*"+searchValue+".*", $options:'i'}},
+                {email:{$regex:".*"+searchValue+".*", $options:'i'}}
             ]
         })
         .lean()

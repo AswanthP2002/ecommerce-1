@@ -91,9 +91,11 @@
                         <label>
                             <input type="radio" name="paymentMethod" value="onlinePayment"> Online Payment
                         </label><br>
+                        {{#if userWallet.balance}}
                         <label>
-                            <input type="radio" name="paymentMethod" value="wallet"> Wallet - Balance: ₹{{userWallet.balance}}
+                            <input type="radio" name="paymentMethod" value="wallet" id="paymentMethod-wallet"> <span id="wallet-notes">Wallet - Balance: ₹<span id="walletBalance">{{userWallet.balance}}</span></span>
                         </label><br>
+                        {{/if}}
                         <div class="d-flex justify-content-between" id="checkout-payment"
                             data-coupon="{{cartPayment.couponApplied}}">
                             <p class="fs-3 fw-bold">total payable Rs.<span
@@ -146,6 +148,19 @@
 <script>
     let tempOrder = null
     document.addEventListener('DOMContentLoaded', () => {
+            const payableAmount = document.getElementById('payableAmount').textContent
+            const walletAmount = document.getElementById('walletBalance').textContent
+            const walletRadio = document.getElementById('paymentMethod-wallet')
+            console.log('payable amount =', payableAmount)
+            console.log('wallet amount =', walletAmount)
+            if(Number(payableAmount) > Number(walletAmount)){
+                walletRadio.disabled = true
+                document.getElementById('wallet-notes').style.color = 'gray'
+            }else{
+                walletRadio.disabled = false
+                document.getElementById('wallet-notes').style.color = 'black'
+            }
+
         const orderConfirmModal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'))
         const orderPlacedModal = new bootstrap.Modal(document.getElementById('orderPlacedModal'))
         
@@ -165,7 +180,12 @@
                 return
             }
             //restrict cash on deliver if the order amount is above 1000
-            const payableAmount = document.getElementById('payableAmount').textContent
+            
+            //const radioWallet = document.getElementById('paymentMethod-wallet')
+           // radioWallet.onclick = alert('you will win tomorrow')
+            //if(parseInt(payableAmount) < parseInt(walletAmount)){
+
+            //}
             if(paymentMethod === 'cod' && parseInt(payableAmount) > 1000){
                 Swal.fire({
                     icon:'warning',
@@ -174,7 +194,7 @@
                 })
                 return 
             }
-
+            
             fetch('/payment', {
                 method: 'POST',
                 headers: {
@@ -207,6 +227,67 @@
                                         proceedOnlinePayment()
                                     }
                                 })
+                            }else if(data.title === 'Pay through wallet'){
+                                Swal.fire({
+                                    title: "Wallet Payment",
+                                    text: "Do you want to proceed with wallet payment?",
+                                    icon: "info",
+                                    showCancelButton: true,
+                                    confirmButtonText: `Pay Rs.${payableAmount}`,
+                                    cancelButtonText: "Cancel",
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                    // Logic when "Continue" is clicked
+                                        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value
+                                        const payableAmount = document.querySelector('#paymentForm #payableAmount').textContent
+                                        const totalAmount = document.querySelector('#paymentForm #totalAmount').textContent
+
+
+                                        const orderData = {
+                                            paymentMethod: document.querySelector('input[name="paymentMethod"]:checked').value,
+                                            selectedAddress: selectedAddress,
+                                            totalAmount: Number(totalAmount),
+                                            payableAmount: Number(payableAmount),
+                                            discount:document.getElementById('totalDiscount').textContent,
+                                            couponApplied: document.getElementById('checkout-payment').dataset.coupon,
+                                        }
+                                        console.log('coupon', orderData.couponApplied)
+                                        fetch('/order/proceed', {
+                                            method: 'POST',
+                                            headers: {
+                                                'content-type': 'application/json'
+                                            },
+                                            body: JSON.stringify(orderData)
+                                        })
+                                        .then((response) => {
+                                            if (response.ok) {
+                                                return response.json()
+                                            }
+                                        })
+                                        .then((data) => {
+                                            if (data.success) {
+                                                document.getElementById('order-confirm-message').innerHTML = data.message
+                                                orderPlacedModal.show()
+                                            } else {
+                                                throw new Error('error')
+                                            }
+                                        })
+                                        .catch((error) => {
+                                            Swal.fire({
+                                                icon: 'error',
+                                                title: 'error occured'
+                                            })
+                                        })
+                                        
+                                    } else {
+                                    // Logic when "Cancel" is clicked (optional)
+                                        Swal.fire({
+                                            title: "Cancelled",
+                                            text: "You have cancelled the wallet payment.",
+                                            icon: "error",
+                                        });
+                                    }
+                                });
                             } else {
                                 orderConfirmModal.show()
                             }
@@ -254,14 +335,8 @@
                     if (data.success) {
                         document.getElementById('order-confirm-message').innerHTML = data.message
                         orderPlacedModal.show()
-                        /*Swal.fire({
-                            title:'God saved you this time!',
-                            icon:'success',
-                            text:'Yay! your order has been placed!',
-                            timer:2000
-                        }).then(() => window.location.href = '/')*/
                     } else {
-                        alert('ok sory')
+                        throw new Error('error')
                     }
                 })
                 .catch((error) => {

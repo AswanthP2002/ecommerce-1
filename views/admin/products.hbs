@@ -5,9 +5,10 @@
             <div class="mt-3 d-flex gap-4">
                 <a href="/admin/product/add" class="btn" style="background-color: #f4efef;"><i class="fa-solid fa-plus"></i></a>
                 <a href="" class="btn" style="background-color: #f4efef;"><i class="fa-solid fa-filter"></i></a>
-                <div style="background-color: #f4efef;">
+                <div style="background-color: #f4efef;" style="width: 250px;">
                     <a href="#" class="btn" id="admin-product-search-btn" style="background-color: #f4efef;"><i class="fa-solid fa-search"></i></a>
                     <input type="text" placeholder="search for product" style="border: none;background-color: #f4efef;outline: none;width: 250;" id="admin-product-search">
+                    
                 </div>
                 {{!-- <input type="text" placeholder="Search Product"> --}}
             </div>
@@ -341,6 +342,16 @@
     const searchBar = document.getElementById('admin-product-search')
 
     searchButton.addEventListener('click', (e) => {
-        searchBar.style.width = '250px'
+        const searchvalue = searchBar.value.trim()
+        const url = new URL(window.location.href)
+        if(searchvalue){
+            url.searchParams.set('search', searchvalue)
+            url.searchParams.set('page', 1)
+        }else{
+            url.searchParams.delete('search')
+        }
+
+        window.location.href = url.toString()
     })
+
 </script>

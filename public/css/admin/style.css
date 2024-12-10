@@ -115,10 +115,10 @@ ul .nav-link{
 #table-custome-header{
     background-color: rgb(243, 222, 250) !important;
 }
-#admin-product-search{
+/* #admin-product-search{
     width: 0;
     transition: .2s ease-in-out all;
-}
+} */
 #spending-statistics input, button{
     height: 40px;
 }

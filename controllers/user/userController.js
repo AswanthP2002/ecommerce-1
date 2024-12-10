@@ -1276,6 +1276,24 @@ const placeOrder = async (req, res) => {
             return res.json(razorPayOrder)
         }
 
+        if(orderData.paymentMethod === 'wallet'){
+            const purchaseAmount = Number(orderData.payableAmount)
+            //deduct amount from wallet
+            const findUserWallet = await Wallet.findOne({userId:user})
+            findUserWallet.balance -= purchaseAmount
+            findUserWallet.transactions?.push({
+                transactionType:'Debit',
+                amount:purchaseAmount,
+                status:"Completed",
+                date:new Date(),
+                description:`Amount spend on order ${order._id}`
+            })
+
+            await findUserWallet.save()
+            order.paymentStatus = "Paid"
+            await order.save()
+        }
+
         //remove cart after order creation
         const deleteCart = await Cart.deleteOne({userId:user})
         if(deleteCart.deletedCount > 0){
