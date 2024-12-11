@@ -8,9 +8,11 @@
                         <i class="fa-solid fa-shopping-bag"></i><p class="fw-bold mb-0">My Orders</p>
                     </div>
                     </a>
+                    <a href="/wishlist?id" class="text-decoration-none">
                     <div id="myWishlist" class="border-bottom border-light d-flex gap-3 align-items-center pt-4 pb-4">
                         <i class="fa-solid fa-heart"></i><p class="fw-bold mb-0">My Wishlist</p>
                     </div>
+                    </a>
                     <a href="/my-wallet?id={{user._id}}" class="text-decoration-none">
                     <div id="myWallet" class="border-bottom border-light d-flex gap-3 align-items-center pt-4 pb-4">
                         <i class="fa-solid fa-wallet"></i><p class="fw-bold mb-0">My Wallet</p>
@@ -42,7 +44,7 @@
                         <label for="user-phone" class="fw-bold">Phone</label>
                         <p id="user-phone">{{user.phone}}</p>
                     </div>
-                    <button onclick="showUserDetailsPreview('{{user._id}}', '{{user.name}}', '{{user.email}}', '{{user.phone}}')" class="btn btn-dark" id="edit-profile-btn" data-bs-toggle="modal" data-bs-target="#profileEditModal">Edit Profile</button>
+                    {{!-- <button onclick="showUserDetailsPreview('{{user._id}}', '{{user.name}}', '{{user.email}}', '{{user.phone}}')" class="btn btn-dark" id="edit-profile-btn" data-bs-toggle="modal" data-bs-target="#profileEditModal">Edit Profile</button> --}}
                 </div>
                 <div class="card shadow p-3 mt-2" id="address">
                     <div class="d-flex justify-content-between align-items-center">
@@ -60,14 +62,14 @@
                         {{/each}}
                     </div>
                 </div>
-                <div class="d-flex justify-content-between gap-3 mt-2">
+                {{!-- <div class="d-flex justify-content-between gap-3 mt-2">
                     <div class="card p-3 shadow w-50 d-flex justify-content-center align-items-center">
                         <i class="fa-solid fa-heart"></i><span><a href="/wishlist" class="text-decoration-none">My Wishlist</a></span>
                     </div>
                     <div class="card p-3 shadow w-50 d-flex justify-content-center align-items-center">
                         <i class="fa-solid fa-wallet"></i><span>Wallet</span>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
         <div id="addressAddModal" class="modal fade">

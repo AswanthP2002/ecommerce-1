@@ -1,7 +1,9 @@
 <section class="pt-5 pb-5">
     <div class="container">
-    <div class="row">
-    <div class="col-md-4">
+    <div class="row position-relative">
+        <button type="button" class="btn" id="filters-btn">Filters <i class="fa-solid fa-gear"></i></button>
+    <div class="col-md-4" id="filter-col">
+        <button type="button" class="btn" id="filter-close"><i class="fa-solid fa-close fs-3"></i></button>
         <div id="filter-form" class="border border-dark p-3">
             <p class="fs-4 fw-bold">Filter</p>
             <form onsubmit="applyFilter(event, this)" action="">
@@ -72,22 +74,22 @@
                 <option value="z-a">Name : Z-A</option>
             </select>
         </div>
-        <div class="row gy-5">
+        <div class="row gy-3">
             {{#each product}}
             <div class="card border-0 col-6 col-md-4">
                 <div class="card-body">
                     
-                        <div class="position-relative card-img-container rounded d-flex justify-content-center align-items-center align">
+                        <figure class="position-relative card-img-container rounded d-flex justify-content-center align-items-center align" style="overflow: hidden;">
                             <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
-                            <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt=""
-                                style="width:300px;height:300px"> </a>
+                            <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt="" class="img-fluid"
+                                style="max-width:300px;height:auto;object-fit: cover;object-position:center"> </a>
                             <button onclick="" type="button" id="wishlist-button"
                             class="btn position-absolute wishlist-btn">
                             <i class="fa-solid fa-heart heart-icon" id="wishlist-icon" data-productId="{{this._id}}"></i>
                         </button>
-                        </div>
+                        </figure>
                     </a>
-                    <div id="product-card-productName"><p class="name mt-3 fw-bold fw-bold" style="font-size: 1rem;">{{this.productName}}</p></div>
+                    <figcaption id="product-card-productName"><p class="name mt-3 fw-bold fw-bold" style="font-size: 1rem;">{{this.productName}}</p>
                     <p class="rating lh-1" style="font-size: .850rem;margin-top:-5px">{{ratingStars this.rating}}</p>
                     <div class="d-flex gap-3" style="margin-top: -5px;">
                         <p class="of-price fw-bold fs-6">₹{{this.variantDetails.offerPrice}}</p>
@@ -100,11 +102,12 @@
                         <span class="discount-label fw-bold bg-olive d-flex justify-content-center align-items-center">{{this.categoryDetails.categoryOffer}} %</span>
                         {{/if}}
                     </div>
+                    </figcaption>
                 </div>
-                <div class="d-flex justify-content-between" id="product-card-action" style="margin-top: -5px;">
+                {{!-- <div class="d-flex justify-content-between" id="product-card-action" style="margin-top: -5px;">
                     <button class="btn text-dark" id="add-to-wishlist">Add to Wishlist</button>
                     <button class="btn text-light" id="add-to-cart">Add to Cart <i class="fa-solid fa-cart-shopping"></i></button>
-                </div>
+                </div> --}}
             </div>
             {{/each}}
         </div>
@@ -177,5 +180,15 @@
             })*/
 
     }
+    const filterButton = document.getElementById('filters-btn')
+    const filterForm = document.getElementById('filter-col')
+    const filterCloseButton = document.getElementById('filter-close')
+
+    filterButton.addEventListener('click', (e) => {
+        filterForm.style.display = 'block'
+    })
+    filterCloseButton.addEventListener('click', (e) => {
+        filterForm.style.display = 'none'
+    })
 
 </script>

@@ -41,7 +41,7 @@
             <div class="col-12 p-3 bg-white">
                 <p class="fs-6 fw-bold">Ordered Items</p>
                 {{#each orderDetails}}
-                <div class="border-bottom d-flex justify-content-between">
+                <div class="border-bottom d-flex justify-content-between" id="individual-orders-details">
                     <div id="item-image">
                         <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}" alt="" style="width: 70px;height: 80px;">
                     </div>

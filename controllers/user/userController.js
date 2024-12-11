@@ -1562,7 +1562,7 @@ const CheckWishlist = async (req, res) => {
         }
         return []
     } catch (error) {
-        console.log('Error occured while geting the wishlisted item for icon management!', error)
+        console.log('Error occured while geting the wishlisted item for icon management!')
         return []
     }
 }

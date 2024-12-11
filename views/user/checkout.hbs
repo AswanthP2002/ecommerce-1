@@ -14,7 +14,9 @@
                         </div>
                     </div>
                     {{/each}}
-                    <button onclick="addNewAddress('{{logedUser.id}}')" type="button">Add Address</button>
+                    <div class="col-12 p-2">
+                        <button onclick="addNewAddress('{{logedUser.id}}')" type="button" class="btn btn-primary" style="width: fit-content;">Add Address</button>
+                    </div>
                     {{else}}
                     <button onclick="window.location.href='/profile?id={{logedUser.id}}'" type="button"
                         class="btn btn-primary">Add Address</button>
@@ -414,36 +416,7 @@
                         }
                     })
             },
-            /*"modal":{
-                "ondismiss":function(){
-                    alert('Payment was canceled')
-                    fetch(`/order/payment/cancel?orderId=${razorpayOrder.receipt}`)
-                        .then((respnose) => {
-                            if(!respnose.ok){
-                                return alert('something went wrong while canceling payment')
-                            }
-                            return respnose.json()
-                        })
-                        .then((data) => {
-                            if(data.success){
-                                Swal.fire({
-                                    icon:'info',
-                                    title:'Cancelled',
-                                    text:'Payment Cancelled or Failed',
-                                    showConfirmButton:false,
-                                    timer:1800
-                                })
-                            }
-                        })
-                        .catch((error) => {
-                            Swal.fire({
-                                icon:'error',
-                                title:'Error',
-                                text:error.message,
-                            })
-                        })
-                }
-            },*/
+            
             "prefill": {
                 //Here we are prefilling random contact
                 "contact": "9876543210",

@@ -107,14 +107,16 @@
                 
                     {{#each similarProducts}}
                     <div class="card border-0 col-6 col-md-3 rounded">
-                        <div class="card-body">
-                            <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
-                                <div class="card-img-container rounded d-flex justify-content-center align-items-center align">
+                        
+                            
+                                <figure class="card-img-container rounded d-flex justify-content-center align-items-center align" style="overflow: hidden;">
+                                    <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
                                     <img src="/images/backend/products/{{this.sku}}/{{getImage this.productImage 0}}" alt=""
-                                        style="width:300px;height:300px">
-                                </div>
-                            </a>
-                            <p class="name mt-3 fw-bold fs-6">{{this.productName}}</p>
+                                      class="img-fluid"  style="max-width:300px;height:auto;object-fit: cover;object-position:center">
+                                    </a>
+                                </figure>
+                            <figcaption class="ps-3">
+                            <p class="name mt-3 fw-bold fs-6" style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{this.productName}}</p>
                             <p class="rating lh-1">{{ratingStars this.rating}}</p>
                             <div class="d-flex gap-3">
                                 <p class="of-price fw-bold fs-6">₹{{getVariantPrice this.variantDetails "small" "offerPrice"}}</p>
@@ -124,7 +126,7 @@
                                     class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}}
                                     %</span>
                             </div>
-                        </div>
+                            </figcaption>
                     </div>
                     {{/each}}
             </div>

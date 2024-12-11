@@ -4,7 +4,12 @@
         <div class="row">
             {{#each coupons}}
             <div class="col-12 col-md-4">
-                <div class="coupon">
+                <div class="coupon position-relative">
+                    {{#if (isExpired this.expireOn)}}
+                    <div class="d-flex align-items-center justify-content-center" style="position: absolute;top:0;left:0;height: 100%;width:100%;background-color: rgba(251, 251, 251, 0.771);">
+                        <p class="text-danger fw-bold">Expired</p>
+                    </div>
+                    {{/if}}
                     <div class="left">
                         <div>Enjoy Your Gift</div>
                     </div>

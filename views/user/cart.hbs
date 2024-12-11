@@ -13,7 +13,7 @@
                 <div class="col-md-7">
                     <div class="card p-3" id="cart-products">
                         {{#each cart}}
-                        <div class="border-bottom d-flex justify-content-between cart-product pb-3 cart" >
+                        <div class="border-bottom d-flex justify-content-between cart-product pb-3 cart" id="cart-productDetails-col">
                             <div class="d-flex gap-3">
                                 <div class="cart-img d-flex align-items-center justify-content-cente">
                                     <img src="/images/backend/products/{{this.productDetails.sku}}/{{getImage this.productDetails.productImage 0}}"
@@ -41,7 +41,7 @@
                                     
                                 </div>
                             </div>
-                            <div class="cart-action d-flex flex-column justify-content-between align-items-end">
+                            <div class="cart-action d-flex flex-column justify-content-between align-items-end" id="cart-action-btns">
                                 <a onclick="removeFromCart('{{this.productDetails._id}}')" href="#"><i class="fa-solid fa-trash"></i></a>
                                 <div class="quantity-btn d-flex align-items-center justify-content-center" data-product="{{this.items.productId}}" data-user="{{this.userId}}">
                                 

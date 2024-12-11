@@ -10,7 +10,7 @@
         <div class="row gy-3">
             {{#each orders}}
             <div class="col-12">
-                <div class="border shadow d-flex justify-content-between p-3">
+                <div class="border shadow d-flex justify-content-between p-3" id="individual-order">
                     <div id="orderItemImage">
                         <img src="/images/backend/products/{{this.productDetails.[0].sku}}/{{this.productDetails.[0].productImage.[0]}}" alt="" style="width: 70px;height:80px">
                     </div>
