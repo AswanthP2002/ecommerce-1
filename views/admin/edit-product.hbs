@@ -350,17 +350,7 @@ function validateProductColor(){
     }
 }
 
-f/*unction validateStockQtySmall(){
-    const quantity = stockQuantitySmall.value
-    const pattern = /^[0-9]+$/
-    if(quantity.trim() === ''){
-        setError(stockQuantitySmall, 'Quantity can not be empty', 'block')
-    }else if(!pattern.test(quantity)){
-        setError(stockQuantitySmall, 'Enter a valid quantity', 'block')
-    }else{
-        setError(stockQuantitySmall, '', 'none')
-    }
-}*/
+//new feature
 
 productName.addEventListener('keyup', validateProductName)
 productDescription.addEventListener('keyup', validateProductDescription)
