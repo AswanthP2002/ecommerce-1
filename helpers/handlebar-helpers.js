@@ -31,7 +31,12 @@ handlebars.registerHelper('offerNill', (offerPrice) => {
     return offerPrice === 0
 })
 handlebars.registerHelper('checkOffer', (offerPrice) => {
-    return offerPrice > 0
+    console.log('offer price is here', offerPrice, typeof offerPrice)
+    if(offerPrice > 0){
+        return true
+    }else{
+        return false
+    }
 })
 
 handlebars.registerHelper('getImage', (images, index) => {

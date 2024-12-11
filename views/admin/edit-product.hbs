@@ -8,7 +8,8 @@
             <div class="row gy-3">
                 <div class="col-12 col-md-6">
                     <label for="" class="fw-bold field-label">Product Name</label>
-                    <input type="text" class="form-control" id="product_name" name="productName" value="{{product.productName}}">
+                    <input type="text" class="form-control" id="product_name" name="productName" value="{{product.productName}}" required>
+                    <label for="" class="error-message" id="productName-error"></label>
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="" class="fw-bold field-label">Product Category</label>
@@ -21,7 +22,8 @@
                 </div>
                 <div class="col-12">
                     <label for="" class="fw-bold field-label">Product Description</label>
-                    <textarea name="productDescription" id="product_description" class="form-control">{{product.productDescription}}</textarea>
+                    <textarea name="productDescription" id="product_description" class="form-control" required>{{product.productDescription}}</textarea>
+                    <label for="" class="error-message" id="productDescription-error"></label>
                 </div>
                 <div class="col-12 col-md-6">
                     <label for="" class="fw-bold field-label">SKU</label>
@@ -51,7 +53,8 @@
                 </div> --}}
                 <div class="col-12 col-md-4">
                     <label for="" class="fw-bold field-label">Product Color</label>
-                    <input type="text" id="product_color" class="form-control" name="productColor" value="{{product.color}}">
+                    <input type="text" id="product_color" class="form-control" name="productColor" value="{{product.color}}" required>
+                    <label for="" class="error-message" id="productColor-error"></label>
                 </div>
                 <div class="col-12 col-md-4">
                     <label for="" class="fw-bold field-label">Color group</label>
@@ -89,11 +92,12 @@
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Product Price</label>
-                    <input type="number" class="form-control" name="productPriceSmall" id="product_price" value="{{getIndex2 product.variantDetails 0 "regularPrice"}}">
+                    <input type="number" class="form-control" name="productPriceSmall" id="product_price" value="{{getIndex2 product.variantDetails 0 "regularPrice"}}" required>
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
-                    <input type="number" id="stock_quantity" name="stockQuantitySmall" class="form-control" value="{{getIndex2 product.variantDetails 0 "quantity"}}">
+                    <input type="number" id="stock_quantity_small" name="stockQuantitySmall" class="form-control" value="{{getIndex2 product.variantDetails 0 "quantity"}}" required>
+                    <label for="" class="error-message" id="stockQuantity-small-error"></label>
                 </div>
 
                 <div class="col-4">
@@ -102,11 +106,11 @@
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Product Price</label>
-                    <input type="number" class="form-control" name="productPriceMedium" id="product_price" value="{{getIndex2 product.variantDetails 1 "regularPrice"}}">
+                    <input type="number" class="form-control" name="productPriceMedium" id="product_price" value="{{getIndex2 product.variantDetails 1 "regularPrice"}}" required>
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
-                    <input type="number" id="stock_quantity" name="stockQuantityMedium" class="form-control" value="{{getIndex2 product.variantDetails 1 "quantity"}}">
+                    <input type="number" id="stock_quantity_medium" name="stockQuantityMedium" class="form-control" value="{{getIndex2 product.variantDetails 1 "quantity"}}" required>
                 </div>
 
                 <div class="col-4">
@@ -115,11 +119,11 @@
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Product Price</label>
-                    <input type="number" class="form-control" name="productPriceLarge" id="product_price" value="{{getIndex2 product.variantDetails 2 "regularPrice"}}">
+                    <input type="number" class="form-control" name="productPriceLarge" id="product_price" value="{{getIndex2 product.variantDetails 2 "regularPrice"}}" required>
                 </div>
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
-                    <input type="number" id="stock_quantity" name="stockQuantityLarge" class="form-control" value="{{getIndex2 product.variantDetails 2 "quantity"}}">
+                    <input type="number" id="stock_quantity_large" name="stockQuantityLarge" class="form-control" value="{{getIndex2 product.variantDetails 2 "quantity"}}" required>
                 </div>
             </div>
 
@@ -264,4 +268,103 @@
 setCropper('file-input1', 'preview1', 'cropSize1', 'saveButton1', 'clearButton1')
 setCropper('file-input2', 'preview2', 'cropSize2', 'saveButton2', 'clearButton2')
 setCropper('file-input3', 'preview3', 'cropSize3', 'saveButton3', 'clearButton3')
+
+
+const stockQuantitySmall = document.getElementById('stock_quantity_small')
+/*const stockQuantityMedium = document.getElementById('stock_quantity_medium')
+const stockQuantityLarge = document.getElementById('stock_quantity_large')*/
+
+const productName = document.getElementById('product_name')
+const productDescription = document.getElementById('product_description')
+const productColor = document.getElementById('product_color')
+
+const errorMesage = document.querySelectorAll('.error-message')
+
+function validateForm(event){
+    /*if(productNameError.textContent || descriptionError.textContent || colorErorr.textContent || stockQuantitySmallError.textContent || stokcQuantityMediumError.textContent || stockQuantityLargeError.textContent){
+        event.preventDefault()
+        alert('Please fill the form correctly!')
+        return false
+    }*/
+    let errorCount = 0
+    errorMesage.forEach((element) => {
+        if(element.textContent){
+            event.preventDefault()
+            errorCount++
+        }
+    })
+    if(errorCount > 0){
+        event.preventDefault()
+        alert('pelease fill the form correctly')
+        return false
+    }
+    console.log('number of errors => ', errorCount)
+    event.preventDefault()
+    return false
+
+    //return true
+}
+
+//Product name validation
+
+
+function setError(element, message, view){
+    const errorLabel = element.nextElementSibling
+    if(errorLabel){
+        errorLabel.textContent = message
+        errorLabel.style.color = 'red'
+        errorLabel.style.display = view
+    }
+}
+
+function validateProductName(){
+    console.log('this name checking called')
+    const name = productName.value
+    if(name.trim() === ""){
+        setError(productName, 'Product name can not be empty', 'block')
+    }else{
+        setError(productName, '', 'none')
+    }
+}
+
+function validateProductDescription(){
+    const description = productDescription.value
+    console.log(description)
+    if(description.trim() === ""){
+        setError(productDescription, 'Product Description can not be empty', 'block')
+    }else{
+        setError(productDescription, '', 'none')
+    }
+}
+
+function validateProductColor(){
+    const color = productColor.value
+    const pattern = /^[a-zA-Z\s]+$/
+
+    if(color.trim() === ""){
+        setError(productColor, 'Product Color can not be empty', 'block')
+    }else if(!pattern.test(color)){
+        setError(productColor, 'Ente a valid color', 'block')
+    }else{
+        setError(productColor, '', 'none')
+    }
+}
+
+f/*unction validateStockQtySmall(){
+    const quantity = stockQuantitySmall.value
+    const pattern = /^[0-9]+$/
+    if(quantity.trim() === ''){
+        setError(stockQuantitySmall, 'Quantity can not be empty', 'block')
+    }else if(!pattern.test(quantity)){
+        setError(stockQuantitySmall, 'Enter a valid quantity', 'block')
+    }else{
+        setError(stockQuantitySmall, '', 'none')
+    }
+}*/
+
+productName.addEventListener('keyup', validateProductName)
+productDescription.addEventListener('keyup', validateProductDescription)
+productColor.addEventListener('keyup', validateProductColor)
+//stockQuantitySmall.addEventListener('keyup', validateProductColor)
+
 </script>

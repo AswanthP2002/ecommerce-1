@@ -98,7 +98,7 @@
     function categoryFormSubmission(event){
         event.preventDefault()
 
-        if(nameError.innerHTML || descriptionError.innerHTML){
+        if(nameError.textContent || descriptionError.textContent){
             alert('Fill the fields properly')
             return false
         }
@@ -140,19 +140,29 @@
         return true
 
     }
+    function sertError(element, message, view){
+        console.log('error seting function called')
+        const errorLabel = element.nextElementSibling
+        console.log(errorLabel)
+        if(!errorLabel) alert('no elemenet')
+        errorLabel.textContent = message
+        errorLabel.style.color = 'red'
+        errorLabel.style.display = view
+    }
 
     function validateName(){
+        console.log('name validator function invoked')
         const name = categoryName.value
         const namePattern = /^[a-zA-Z][a-zA-Z\s]*[a-zA-Z]$/
 
         if(name === ""){
-            nameError.style.color = 'Red'
-            nameError.innerHTML = 'Please provide a name for the category'
+            console.log('name is empty')
+            sertError(categoryName, 'Category name can not be empty', 'block')
         }else if(!namePattern.test(name)){
-            nameError.style.color = 'Red'
-            nameError.innerHTML = 'Please enter a valide name for the cateory'
+            console.log('name is missmatch')
+            sertError(categoryName, 'Please enter a valide name for the cateory', 'block')
         }else{
-            nameError.innerHTML = ""
+            sertError(categoryName, "", "none")
         }
     }
 
@@ -160,10 +170,9 @@
         const description = categoryDescription.value
 
         if(description === ""){
-            descriptionError.style.color = 'Red'
-            descriptionError.innerHTML = 'Please give a description for the category'
+            sertError(categoryDescription, 'Category Description can not be empty')
         }else{
-            descriptionError.innerHTML = ""
+            sertError(categoryDescription, "")
         }
     }
 

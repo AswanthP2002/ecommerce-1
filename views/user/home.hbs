@@ -183,10 +183,11 @@
                         {{#if (checkOffer this.productOffer)}}
                         <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
                         <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
-                        {{/if}}
-                        {{#if (checkOffer this.categoryDetails.categoryOffer)}}
-                        <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
-                        <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
+                        {{else}}
+                            {{#if (checkOffer this.categoryDetails.[0].categoryOffer)}}
+                                <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
+                                <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.categoryDetails.[0].categoryOffer}} %</span>
+                            {{/if}}
                         {{/if}}
                     </div>
                         </figcaption>
@@ -253,10 +254,11 @@
                         {{#if (checkOffer this.productOffer)}}
                         <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
                         <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
-                        {{/if}}
-                        {{#if (checkOffer this.categoryDetails.categoryOffer)}}
-                        <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
-                        <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.productOffer}} %</span>
+                        {{else}}
+                            {{#if (checkOffer this.categoryDetails.[0].categoryOffer)}}
+                                <p class=" text-secondary text-decoration-line-through price"> ₹{{getVariantPrice this.variantDetails "small" "regularPrice"}}</p>
+                                <span class="discount-label bg-olive d-flex justify-content-center align-items-center fw-bold">{{this.categoryDetails.[0].categoryOffer}} %</span>
+                            {{/if}}
                         {{/if}}
                     </div>
                         </figcaption>

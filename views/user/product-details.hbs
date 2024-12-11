@@ -31,10 +31,11 @@
                     {{#if (checkOffer product.productOffer)}}
                     <p class="text-decoration-line-through text-secondary product-base-price fs-5 fw-bold mb-0" id="product-details-regPrice">₹ {{getIndex2 product.variantDetails 0 "regularPrice"}}</p>
                     <label class="offer-label bg-olive discount-label d-flex align-items-center justify-content-center fw-bold" for="">{{product.productOffer}} %</label>
-                    {{/if}}
-                    {{#if (checkOffer (product.categoryDetails.categoryOffer))}}
-                    <p class="text-decoration-line-through text-secondary product-base-price fs-5 fw-bold mb-0" id="product-details-regPrice">₹ {{getIndex2 product.variantDetails 0 "regularPrice"}}</p>
-                    <label  class="offer-label bg-olive discount-label d-flex align-items-center justify-content-center fw-bold" for="">{{getIndex2 product.categoryDetails 0 "categoryOffer"}} %</label>
+                    {{else}}
+                        {{#if (checkOffer product.categoryDetails.categoryOffer)}}
+                            <p class="text-decoration-line-through text-secondary product-base-price fs-5 fw-bold mb-0" id="product-details-regPrice">₹ {{getIndex2 product.variantDetails 0 "regularPrice"}}</p>
+                            <label  class="offer-label bg-olive discount-label d-flex align-items-center justify-content-center fw-bold" for="">{{product.categoryDetails.categoryOffer}} %</label>
+                        {{/if}}
                     {{/if}}
                 </div>
                                
