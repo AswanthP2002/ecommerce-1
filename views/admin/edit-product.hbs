@@ -345,12 +345,12 @@ function validateProductColor(){
         setError(productColor, 'Product Color can not be empty', 'block')
     }else if(!pattern.test(color)){
         setError(productColor, 'Ente a valid color', 'block')
-    }else{
+    }else{ 
         setError(productColor, '', 'none')
     }
 }
 
-f/*unction validateStockQtySmall(){
+/*unction validateStockQtySmall(){
     const quantity = stockQuantitySmall.value
     const pattern = /^[0-9]+$/
     if(quantity.trim() === ''){

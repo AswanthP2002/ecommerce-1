@@ -252,6 +252,7 @@ const editProduct = async (req, res) => {
     try {
         //check product with that name is already exist?
         const categoryFind = await Category.findOne({name:req.body.productCategory})
+        
         const updateFields = {
             productName:req.body.productName,
             productDescription:req.body.productDescription,
@@ -263,6 +264,7 @@ const editProduct = async (req, res) => {
         }
 
         const product = await Product.findById(productId)
+
         const existingImages = product.productImage.slice()
 
         const files = req.files
@@ -294,6 +296,12 @@ const editProduct = async (req, res) => {
         if (!productUpdate) {
             return res.redirect('/pageError');
         }
+
+        const findVariant = await Variant.findOne({size:'small'})
+        if(findVariant.quantity < 5){
+            product.productName = `${product.productName} - Limited`
+        }
+        await product.save()
         
         await Variant.updateOne({productId:productId, size:'small'}, {
             $set:{
