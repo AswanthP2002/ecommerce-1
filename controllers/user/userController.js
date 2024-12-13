@@ -1589,7 +1589,7 @@ const sendPasswordResetLink = async (req, res) => {
                 return res.status(400).json({success:false, message:'User not found'})
             }
             const token = generateTocken(isUserExist._id)
-            const resetLink = `http://localhost:5000/password/reset/${token}`
+            const resetLink = `https://shopypro.shop/password/reset/${token}`
             console.log('This is the token', token)
             const info = await sendResetLink(email, resetLink)
 
@@ -1610,6 +1610,7 @@ const sendPasswordResetLink = async (req, res) => {
 
 const loadPaswordResetPage = async (req, res) => {
     const {token} = req.params
+    if(!token) return res.redirect('/pageNotFound')
     const isValid = validateToken(token)
 
     if(isValid){
