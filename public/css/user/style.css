@@ -73,6 +73,9 @@ body{
     font-size: .8rem;
     font-weight: 300;
 }
+.filter-type{
+    font-size: .9rem;
+}
 #btn-landing-section{
     
     display: inline-block;
@@ -284,6 +287,14 @@ footer .container{
 }
 #filter-form{
     max-width: 300px;
+}
+#filter-price input{
+    border-radius: 2px;
+    background-color: white;
+    border: 1px solid rgb(195, 194, 194);
+}
+.light-border{
+    border-color: rgb(182, 182, 182);
 }
 .discount-label{
     font-size: .7rem;
@@ -671,6 +682,16 @@ footer .container{
   #filter-close{
     display: none;
   }
+  #testimonial-container{
+    z-index: 1;
+    position: relative;
+    min-height: 350px;
+  }
+  #testimonial-container img{
+    max-width: 450px;
+    height: auto;
+  }
+
 
   @media (min-width:768px){
     #dv-applyReferralCode{

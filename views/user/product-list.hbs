@@ -1,69 +1,69 @@
 <section class="pt-5 pb-5">
-    <div class="container">
+    <div class="pe-2">
     <div class="row position-relative">
-        <button type="button" class="btn" id="filters-btn">Filters <i class="fa-solid fa-gear"></i></button>
-    <div class="col-md-4" id="filter-col">
+        <button type="button" class="btn" id="filters-btn">Filters <i class="fa-solid fa-sliders"></i></button>
+    <div class="col-md-4 col-lg-3" id="filter-col">
         <button type="button" class="btn" id="filter-close"><i class="fa-solid fa-close fs-3"></i></button>
-        <div id="filter-form" class="border border-dark p-3">
+        <div id="filter-form" class="p-3">
             <p class="fs-4 fw-bold">Filter</p>
             <form onsubmit="applyFilter(event, this)" action="">
-            <div class="border-top border-dark">
-                <p class="fw-bold">Category</p>
+            <div class="border-top light-border pt-2 pb-2">
+                <p class="fw-bold filter-type">Category</p>
                 {{#each category}}
-                <div>
-                    <input type="radio" name="category" value="{{this.name}}"><label for="">{{this.name}}</label>
+                <div class="mb-1">
+                    <input type="radio" name="category" value="{{this.name}}"><label for="" class="ms-2">{{this.name}}</label>
                 </div>
                 {{/each}}
             </div>
-            <div class="border-top border-dark mt-2">
-                <p class="fw-bold">Price</p>
+            <div class="border-top light-border mt-2 pt-2 pb-2" id="filter-price">
+                <p class="fw-bold filter-type">Price</p>
                 <div class="d-flex justify-content-between">
                     <input type="number" class="ps-2" name="minPrice" placeholder="Min" min="0" name="min-price" style="width: 120px;">
                     <input type="number" class="ps-2" name="maxPrice" placeholder="Max" min="0" name="max-price" style="width: 120px;">
                 </div>
             </div>
-            <div class="border-top border-dark mt-2">
-                <p class="fw-bold">Color</p>
+            <div class="border-top light-border mt-2 pt-2 pb-2">
+                <p class="fw-bold filter-type">Color</p>
                 <ul class="list-unstyled">
-                    <li><input type="checkbox" name="color[]" value="indigo" id="filter-Indigo"><label for="filter-Indigo">indigo</label></li>
-                    <li><input type="checkbox" name="color[]" value="blue" id="filter-blue"><label for="filter-blue">blue</label></li>
-                    <li><input type="checkbox" name="color[]" value="green" id="filter-green"><label for="filter-green">green</label></li>
-                    <li><input type="checkbox" name="color[]" value="yellow" id="filter-yellow"><label for="filter-yellow">yellow</label></li>
+                    <li class="mt-2"><input type="checkbox" name="color[]" value="indigo" id="filter-Indigo"><label for="filter-Indigo" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: indigo;"></span>Indigo</label></li>
+                    <li class="mt-2"><input type="checkbox" name="color[]" value="blue" id="filter-blue"><label for="filter-blue" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: blue;"></span>Blue</label></li>
+                    <li class="mt-2"><input type="checkbox" name="color[]" value="green" id="filter-green"><label for="filter-green" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: green;"></span>Green</label></li>
+                    <li class="mt-2"><input type="checkbox" name="color[]" value="yellow" id="filter-yellow"><label for="filter-yellow" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: yellow;"></span>Yellow</label></li>
                     <div class="collapse" id="filter-color-collapse">
-                        <li><input type="checkbox" name="color[]" value="orange" id="filter-orange"><label for="filter-orange">orange</label></li>
-                        <li><input type="checkbox" name="color[]" value="red" id="filter-red"><label for="filter-red">red</label></li>
-                        <li><input type="checkbox" name="color[]" value="white" id="filter-white"><label for="filter-white">white</label></li>
-                        <li><input type="checkbox" name="color[]" value="black" id="filter-black"><label for="filter-black">black</label></li>
+                        <li class="mt-2"><input type="checkbox" name="color[]" value="orange" id="filter-orange"><label for="filter-orange" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: orange;"></span>Orange</label></li>
+                        <li class="mt-2"><input type="checkbox" name="color[]" value="red" id="filter-red"><label for="filter-red" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: red;"></span>Red</label></li>
+                        <li class="mt-2"><input type="checkbox" name="color[]" value="white" id="filter-white"><label for="filter-white" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: white;"></span>White</label></li>
+                        <li class="mt-2"><input type="checkbox" name="color[]" value="black" id="filter-black"><label for="filter-black" class="ms-2"><span class="border me-2 color-circle rounded-circle ps-2 pe-2" style="background-color: black;"></span>Black</label></li>
                     </div>
                     
                 </ul>
                 <button type="button" id="filter-color-toggle" class="btn border-0" data-bs-toggle="collapse" data-bs-target="#filter-color-collapse" aria-expanded="false" aria-controls="filter-color-collapse">Show More</button>
             </div>
-            <div class="border-top border-dark mt-2">
-                <p class="fw-bold">Size</p>
+            <div class="border-top light-border mt-2 pt-2 pb-2">
+                <p class="fw-bold filter-type">Size</p>
                 <ul class="list-unstyled">
-                    <li><input type="checkbox" name="size[]" value="small" id=""><label for="">Small</label></li>
-                    <li><input type="checkbox" name="size[]" value="medium" id=""><label for="">Medium</label></li>
-                    <li><input type="checkbox" name="size[]" value="large" id=""><label for="">Large</label></li>
+                    <li class="mb-1"><input type="checkbox" name="size[]" value="small" id=""><label for="" class="ms-2">Small</label></li>
+                    <li class="mb-1"><input type="checkbox" name="size[]" value="medium" id=""><label for="" class="ms-2">Medium</label></li>
+                    <li class="mb-1"><input type="checkbox" name="size[]" value="large" id=""><label for="" class="ms-2">Large</label></li>
                 </ul>
             </div>
-            <div class="border-top border-dark mt-2">
-                <p class="fw-bold">Style</p>
+            <div class="border-top light-border mt-2 pb-2 pt-2">
+                <p class="fw-bold filter-type">Style</p>
                 <ul class="list-unstyled">
-                    <li><input type="checkbox" name="style[]" id="" value="formal"><label for="">Formal</label></li>
-                    <li><input type="checkbox" name="style[]" id="" value="casual"><label for="">Casual</label></li>
-                    <li><input type="checkbox" name="style[]" id="" value="party"><label for="">Party</label></li>
-                    <li><input type="checkbox" name="style[]" id="" value="sports"><label for="">Sports</label></li>
+                    <li class="mb-2"><input type="checkbox" name="style[]" id="" value="formal"><label for="" class="ms-2">Formal</label></li>
+                    <li class="mb-2"><input type="checkbox" name="style[]" id="" value="casual"><label for="" class="ms-2">Casual</label></li>
+                    <li class="mb-2"><input type="checkbox" name="style[]" id="" value="party"><label for="" class="ms-2">Party</label></li>
+                    <li class="mb-2"><input type="checkbox" name="style[]" id="" value="sports"><label for="" class="ms-2">Sports</label></li>
                 </ul>
             </div>
-            <button type="submit" class="p-1 btn btn-dark d-block m-auto" style="font-size: .850rem;border-radius: 15px;">Apply Sort</button>
+            <button type="submit" class="p-1 btn btn-dark d-block m-auto" style="font-size: .850rem;border-radius: 15px;">Apply Filter</button>
             </form>
         </div>
     </div>
-    <div class="col-md-8">
-        <div class="d-flex justify-content-end">
-            <span>Sort by : </span> 
-            <select name="sortOption" id="sortFeature" onchange="applySort()">
+    <div class="col-md-8 col-lg-9"> <!--applied color for testing -->
+        <div class="d-flex justify-content-end mb-2 align-items-center gap-1">
+            <span style="font-size: .9rem;">Sort by : </span> 
+            <select name="sortOption" id="sortFeature" onchange="applySort()" class="p-2 light-border">
                 {{#if currentSort}}
                 <option value="price-high-to-low">{{currentSort}}</option>
                 {{/if}}
@@ -76,8 +76,8 @@
         </div>
         <div class="row gy-3">
             {{#each product}}
-            <div class="card border-0 col-6 col-md-4">
-                <div class="card-body">
+            <div class="card border-0 col-6 col-md-4 col-lg-3">
+                {{!-- <div class="card-body"> --}}
                     
                         <figure class="position-relative card-img-container rounded d-flex justify-content-center align-items-center align" style="overflow: hidden;">
                             <a href="/products/product_details/?id={{this._id}}" class="text-decoration-none">
@@ -89,7 +89,7 @@
                         </button>
                         </figure>
                     </a>
-                    <figcaption id="product-card-productName"><p class="name mt-3 fw-bold fw-bold" style="font-size: 1rem;">{{this.productName}}</p>
+                    <figcaption id="product-card-productName"><p class="name mt-1 fw-bold fw-bold" style="font-size: 1rem;">{{this.productName}}</p>
                     <p class="rating lh-1" style="font-size: .850rem;margin-top:-5px">{{ratingStars this.rating}}</p>
                     <div class="d-flex gap-3" style="margin-top: -5px;">
                         <p class="of-price fw-bold fs-6">₹{{this.variantDetails.offerPrice}}</p>
@@ -103,7 +103,7 @@
                         {{/if}}
                     </div>
                     </figcaption>
-                </div>
+                {{!-- </div> --}}
                 {{!-- <div class="d-flex justify-content-between" id="product-card-action" style="margin-top: -5px;">
                     <button class="btn text-dark" id="add-to-wishlist">Add to Wishlist</button>
                     <button class="btn text-light" id="add-to-cart">Add to Cart <i class="fa-solid fa-cart-shopping"></i></button>

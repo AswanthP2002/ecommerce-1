@@ -1,5 +1,6 @@
 const express = require('express')
 const userController = require('../controllers/user/userController.js')
+const moduleController = require('../controllers/user/navigationController.js')
 const {userAuth} = require('../middlewares/auth.js')
 const passport = require('passport')
 const router = express.Router()
@@ -46,6 +47,12 @@ router.post('/order/return', userAuth, userController.returnRequest)
 router.post('/wishlist/add', userAuth, userController.addToWishlist)
 router.post('/wishlist/remove', userAuth, userController.removeFromWishlist)
 router.get('/wishlist', userAuth, userController.getWishlist)
+
+//home navigations
+router.get('/about-us', moduleController.loadAboutUs)
+router.get('/career', moduleController.loadCareers)
+router.get('/customer-service', moduleController.loadCustomerService)
+router.get('/faq', moduleController.loadFaq)
 
 
 //Signup management

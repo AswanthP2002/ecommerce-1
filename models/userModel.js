@@ -10,12 +10,11 @@ const userSchema = new Schema({
         type:String,
         required:true
     },
-    phone:{
+    phone:{ //before default value null :: cleared for null duplication for passport users
         type:String,
         required:false,
         unique:true,
         sparse:true,
-        default:null
     },
     password:{
         type:String,
