@@ -47,7 +47,14 @@ router.post('/order/return', userAuth, userController.returnRequest)
 router.post('/wishlist/add', userAuth, userController.addToWishlist)
 router.post('/wishlist/remove', userAuth, userController.removeFromWishlist)
 router.get('/wishlist', userAuth, userController.getWishlist)
-
+router.get('/product/check/availability', (req, res, next) => {
+    //checking pipeline
+    const {productId, size} = req.query
+    console.log('request details ', productId, size)
+    next()
+}, userController.increaseQuantity)
+//router.get('/product/quantity-reduce', userController.decreaseQuantity)
+ 
 //home navigations
 router.get('/about-us', moduleController.loadAboutUs)
 router.get('/career', moduleController.loadCareers)

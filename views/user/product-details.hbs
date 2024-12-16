@@ -135,7 +135,7 @@
     </div>
 </section>
 
-
+<script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
 <script>
     const dataContainer = document.getElementById('product-details-row')
     const data = dataContainer.getAttribute('data-product')
@@ -269,12 +269,58 @@
     }
 
     //manage the quantity
-    qunatityIncreaseButton.addEventListener('click', () => {
-        quantity++
-        document.getElementById('quantityField').value = quantity
+    qunatityIncreaseButton.addEventListener('click', async () => {
+        //check for availability
+        const notify = new Notyf()
+        try{
+            
+            const existingQuantity = document.getElementById('quantityField').value
+            const productId = "{{product._id}}"
+            const sizeInfo = document.querySelector('.active-size-btn').textContent
+            let size
+            switch(sizeInfo){
+                case 'S':
+                    size = 'small'
+                    break;
+                case 'M':
+                    size = 'medium'
+                    break;
+                case 'L':
+                    size = 'large'
+                    break
+                default:
+                    throw new Error('invalid value in sizeInfo::')
+            }
+
+            const response = await fetch(`/product/check/availability?productId=${productId}&size=${size}&quantity=${existingQuantity}`, {
+                method:'GET',
+            })
+            if(!response.ok) throw new Error('bad response')
+            const data = await response.json()
+            if(data && data.success){
+                quantity++
+                document.getElementById('quantityField').value = quantity
+            }else{
+                //notify.error(data.message)
+                Swal.fire({
+                    icon:'warning',
+                    title:'Insufficient',
+                    text:'Insufficent item stock',
+                    showConfirmButton:false,
+                    timer:1600
+                })
+            }
+        }catch(error){
+            console.log('error occured', error.message)
+            notify.error(error.message)
+        }
+        //quantity++
+        //document.getElementById('quantityField').value = quantity
     })
     quantityDecreaseButton.addEventListener('click', () => {
-        if(quantity !== 1){
+        
+        if(quantity > 1){
+        
             quantity--
             document.getElementById('quantityField').value = quantity
         }
@@ -330,7 +376,23 @@
 
         }, 2500)
     }
-
+    const pinCode = document.getElementById('pincode-delivery-info')
+    const info = document.getElementById('check-result-info')
+    function validatePinCode(){
+        const pin = pinCode.value
+        const pattern = /^[1-9][0-9]{5}$/
+        if(pin.trim() === ""){
+            info.style.color = 'red'
+            info.style.display = 'block'
+            info.innerHTML = 'Please provide the pincode'
+        }else if(!pattern.test(pin)){
+            info.style.color = 'red'
+            info.style.display = 'block'
+            info.innerHTML = 'Please provide a valid pincode'
+        }else{
+            info.style.display = 'none'
+        }
+    }
 
     //add to cart
     /*function addToCart(productId, userId){

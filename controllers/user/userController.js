@@ -2133,6 +2133,29 @@ const applyReferralCode = async (req, res) => {
         return res.status(500).json({success:false, message:'Internal Server Error, please try again after sometime!'})
     }
 }
+
+const increaseQuantity = async (req, res) => {
+    try {
+        const {productId, size, quantity} = req.query
+        //find product
+        const findProduct = await Product.findOne({ _id: productId })
+        if (!findProduct) return res.redirect('/pageNotFound')
+        //find variant
+        const findRequestedVariant = await Variant.findOne({ productId: productId, size: size })
+        if (!findRequestedVariant) return res.redirect('/pageNotFound')
+        if (findRequestedVariant.quantity - quantity > 0) {
+            return res.json({ success: true })
+        } else {
+            //not ok to increase quantity due to insufficient quantity
+            console.log('cant update quantity message sent to the client')
+            return res.json({ success: false, message: 'Insufficient Quantity!' })
+        }
+    } catch (error) {
+        console.log('error occured while updating the quntiyt', error)
+        return res.status(500).json({success:false, message:'Internal Server Error, please try again after some time'})
+    }
+}
+
 module.exports = {
     loadUserHome,
     searchProducts,
@@ -2181,5 +2204,7 @@ module.exports = {
     downloadInvoice,
     loadReferralsPage,
     generateReferralLink,
-    applyReferralCode
+    applyReferralCode,
+    increaseQuantity,
+    //decreaseQuantity
 }
