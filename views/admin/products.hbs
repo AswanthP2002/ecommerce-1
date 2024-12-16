@@ -250,15 +250,23 @@
 
     //Add offer
     async function addOffer(productId){
-        const {value:offerPercentage} = await Swal.fire({
+        const {value:offerPercentage, isConfirmed} = await Swal.fire({
             title:'Enter offer in percentage',
             input:'number',
             inputLabel:'percentage',
             inputPlaceholder:'%',
-            showCancelButton:true
+            showCancelButton:true,
+            inputValidator:(value) => {
+                if(value > 100){
+                    return 'You cant enter an amount more than 100'
+                    
+                }else{
+                    return null
+                }
+            }
         })
         //console.log('data ready to be fetched')
-
+        if(isConfirmed){
         fetch('/admin/product/addOffer', {
             method:'POST',
             headers:{
@@ -294,6 +302,7 @@
             alert(error.message)
             console.log(error)
         })
+        }
     }
 
     //Remove offer

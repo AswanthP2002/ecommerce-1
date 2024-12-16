@@ -88,6 +88,8 @@
 
     function setError(element, message, display){
         const errorElement = element.nextElementSibling
+        console.log('this function called for eeror seting')
+        console.log(errorElement, message, display)
         if(errorElement){
             errorElement.innerHTML = message
             errorElement.style.color = 'red'
@@ -105,7 +107,7 @@
         if(errorCount){
             return Swal.fire({
                 icon:'warning',
-                title:'Missing',
+                title:'Invalid Details',
                 text:'Please fill form correctly!',
                 showConfirmButton:false,
                 timer:1600
@@ -165,11 +167,20 @@
 
     }
 
+    let offerTypeField = document.getElementById('offer-type')
+    let offerType = "percentage"
+    let offerFlag = false
+    offerTypeField.addEventListener('change', () => {
+        offerType = offerTypeField.value
+        
+    })
+
     //validate code
     function validateCode(){
         const code = couponCode.value
         couponCode.value = code.toUpperCase()
-        const pattern = /^[A-Z0-9]{6,8}$/
+        const pattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6}$/
+
         if(code.trim() === ''){
             setError(couponCode, 'Code can not be empty', 'block')
         }else if(!pattern.test(code)){
@@ -181,11 +192,14 @@
 
     function validateAmount(){
         const amount = offerAmount.value
+        console.log(offerType, amount)
         const pattern = /^[0-9]+$/
         if(amount.trim() === ''){
             setError(offerAmount, 'Offer Amount can not be empty', 'block')
         }else if(!pattern.test(amount)){
             setError(offerAmount, 'Enter valid offer', 'block')
+        }else if(offerType == 'percentage' && parseInt(amount) > 100){
+            setError(offerAmount, 'You cant enter an amount more than 100!', 'block')
         }else{
             setError(offerAmount, '', 'none')
         }
@@ -194,13 +208,36 @@
     function validateMinimumPrice(){
         const price = minimumPrice.value
         const pattern = /^[0-9]+$/
-        if(price.trim() === ''){
+        console.log('offer type', offerType)
+        if(offerType === 'fixed'){
+            //get the offer amount
+            const offAmount = parseInt(offerAmount.value)
+            
+            
+            let lowerLimit = offAmount
+            
+            if(Number(price) < lowerLimit){
+                console.log(true)
+                setError(minimumPrice, 'You cant allow an amount smaller than offer amount', 'block')
+            }else if(price.trim() === ''){
             setError(minimumPrice, 'Please provide minimum price', 'block')
-        }else if(!pattern.test(price)){
+            }else if(!pattern.test(price)){
             setError(minimumPrice, 'Enter valid offer', 'block')
-        }else{
+            }else{
             setError(minimumPrice, '', 'none')
+            }
+        }else{
+             if(price.trim() === ''){
+            setError(minimumPrice, 'Please provide minimum price', 'block')
+            }else if(!pattern.test(price)){
+            setError(minimumPrice, 'Enter valid offer', 'block')
+            }else{
+            setError(minimumPrice, '', 'none')
+            }
         }
+    
+        
+        
     }
 
     function deleteCoupon(couponId){
