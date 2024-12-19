@@ -578,7 +578,8 @@ const userOrders = async (req, res) => {
                 localField:'orderedItems.product',
                 foreignField:'_id',
                 as:'productDetails'
-            }}
+            }},
+            {$sort:{createdAt:-1}}
         ])
 
         return res.render('user/orders', {

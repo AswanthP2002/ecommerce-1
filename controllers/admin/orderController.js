@@ -24,7 +24,8 @@ const loadOrders = async (req, res) => {
                 localField: 'userId',
                 foreignField: '_id',
                 as: 'userDetails'
-            }}
+            }},
+            {$sort:{createdAt:-1}}
         ]
         pipeline.push({$unwind:'$userDetails'},)
         if(searchvalue){
