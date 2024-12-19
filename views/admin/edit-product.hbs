@@ -111,6 +111,7 @@
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
                     <input type="number" id="stock_quantity_medium" name="stockQuantityMedium" class="form-control" value="{{getIndex2 product.variantDetails 1 "quantity"}}" required>
+                    <label for="" class="error-message" id="stockQuantity-medium-error"></label>
                 </div>
 
                 <div class="col-4">
@@ -124,6 +125,7 @@
                 <div class="col-4">
                     <label for="" class="fw-bold field-label">Quantity</label>
                     <input type="number" id="stock_quantity_large" name="stockQuantityLarge" class="form-control" value="{{getIndex2 product.variantDetails 2 "quantity"}}" required>
+                    <label for="" class="error-message" id="stockQuantity-large-error"></label>
                 </div>
             </div>
 
@@ -271,8 +273,8 @@ setCropper('file-input3', 'preview3', 'cropSize3', 'saveButton3', 'clearButton3'
 
 
 const stockQuantitySmall = document.getElementById('stock_quantity_small')
-/*const stockQuantityMedium = document.getElementById('stock_quantity_medium')
-const stockQuantityLarge = document.getElementById('stock_quantity_large')*/
+const stockQuantityMedium = document.getElementById('stock_quantity_medium')
+const stockQuantityLarge = document.getElementById('stock_quantity_large')
 
 const productName = document.getElementById('product_name')
 const productDescription = document.getElementById('product_description')
@@ -350,8 +352,9 @@ function validateProductColor(){
     }
 }
 
-/*unction validateStockQtySmall(){
+function validateStockQtySmall(){
     const quantity = stockQuantitySmall.value
+    console.log(quantity)
     const pattern = /^[0-9]+$/
     if(quantity.trim() === ''){
         setError(stockQuantitySmall, 'Quantity can not be empty', 'block')
@@ -360,11 +363,41 @@ function validateProductColor(){
     }else{
         setError(stockQuantitySmall, '', 'none')
     }
-}*/
+}
+
+function validateStockQtyMedium(){
+    const quantity = stockQuantityMedium.value
+    console.log(quantity)
+    const pattern = /^[0-9]+$/
+    if(quantity.trim() === ''){
+        setError(stockQuantityMedium, 'Quantity can not be empty', 'block')
+    }else if(!pattern.test(quantity)){
+        setError(stockQuantityMedium, 'Enter a valid quantity', 'block')
+    }else{
+        setError(stockQuantityMedium, '', 'none')
+    }
+}
+
+function validateStockQtyLarge(){
+    const quantity = stockQuantityLarge.value
+    console.log(quantity)
+    const pattern = /^[0-9]+$/
+    if(quantity.trim() === ''){
+        setError(stockQuantityLarge, 'Quantity can not be empty', 'block')
+    }else if(!pattern.test(quantity)){
+        console.log('regex test case failed')
+        setError(stockQuantityLarge, 'Enter a valid quantity', 'block')
+    }else{
+        setError(stockQuantityLarge, '', 'none')
+    }
+}
+
 
 productName.addEventListener('keyup', validateProductName)
 productDescription.addEventListener('keyup', validateProductDescription)
 productColor.addEventListener('keyup', validateProductColor)
-//stockQuantitySmall.addEventListener('keyup', validateProductColor)
+stockQuantitySmall.addEventListener('keyup', validateStockQtySmall)
+stockQuantityMedium.addEventListener('keyup', validateStockQtyMedium)
+stockQuantityLarge.addEventListener('keyup', validateStockQtyLarge)
 
 </script>
