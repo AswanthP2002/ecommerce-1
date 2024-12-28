@@ -89,16 +89,17 @@
                         </button>
                         </figure>
                     </a>
-                    <figcaption id="product-card-productName"><p class="name mt-1 fw-bold fw-bold" style="font-size: 1rem;">{{this.productName}}</p>
+                    <figcaption id="product-card-productName"><p class="name mt-1 fw-bold fw-bold" style="font-size: 1rem;">{{this.brandDetails.[0].brandName}}</p>
+                    <p class="text-secondary" style="margin-top: -10px;font-size:.980rem">{{this.productDescription}}</p>
                     <p class="rating lh-1" style="font-size: .850rem;margin-top:-5px">{{ratingStars this.rating}}</p>
                     <div class="d-flex gap-3" style="margin-top: -5px;">
-                        <p class="of-price fw-bold fs-6">₹{{this.variantDetails.offerPrice}}</p>
+                        <p class="of-price fw-bold fs-6">₹{{currencyFormat this.variantDetails.offerPrice}}</p>
                         {{#if (checkOffer this.productOffer)}}
-                        <p class="price fw-bold fs-6 text-decoration-line-through text-secondary"> ₹{{this.variantDetails.regularPrice}}</p>
+                        <p class="price fw-bold fs-6 text-decoration-line-through text-secondary"> ₹{{currencyFormat this.variantDetails.regularPrice}}</p>
                         <span class="discount-label fw-bold bg-olive d-flex justify-content-center align-items-center">{{this.productOffer}} %</span>
                         {{/if}}
                         {{#if (checkOffer this.categoryDetails.categoryOffer)}}
-                        <p class="price fw-bold fs-6 text-decoration-line-through text-secondary"> ₹{{this.variantDetails.regularPrice}}</p>
+                        <p class="price fw-bold fs-6 text-decoration-line-through text-secondary"> ₹{{currencyFormat this.variantDetails.regularPrice}}</p>
                         <span class="discount-label fw-bold bg-olive d-flex justify-content-center align-items-center">{{this.categoryDetails.categoryOffer}} %</span>
                         {{/if}}
                     </div>

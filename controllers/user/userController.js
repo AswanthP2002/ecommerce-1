@@ -243,7 +243,13 @@ const productListPage = async (req, res) => {
                 foreignField:'_id',
                 as:'categoryDetails'
             }},
-            {$unwind:'$categoryDetails'},
+            {$unwind:'$categoryDetails'}, //including brands name too
+            {$lookup:{
+                from:'brands',
+                localField:'brand',
+                foreignField:'_id',
+                as:'brandDetails'
+            }},
             {$match:{"categoryDetails.isListed":true, isBlocked:false, ...matchCriteria}}
         ]
 
